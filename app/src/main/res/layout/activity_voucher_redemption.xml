@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="Autofill,TextFields,Suspicious0dp"
+    style="@style/SatnetScreenRootLinear">
+
+    <TextView
+        style="@style/SatnetHeaderTitle"
+        android:text="@string/satnet_voucher_redemption_title" />
+
+    <TextView
+        style="@style/SatnetHeaderSubtitle"
+        android:text="@string/satnet_voucher_redemption_subtitle" />
+
+    <TextView
+        android:id="@+id/voucher_stage_badge_text"
+        style="@style/SatnetHeaderBadge"
+        android:text="@string/satnet_voucher_stage_placeholder"
+        />
+
+    <TextView
+        android:id="@+id/voucher_runtime_status_text"
+        style="@style/SatnetHeaderStatus"
+        android:text="@string/satnet_voucher_runtime_placeholder"
+        />
+
+    <FrameLayout
+        android:id="@+id/qr_preview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#333333"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/satnet_voucher_preview_hint"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/scan_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/satnet_voucher_scan_button"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/manual_entry_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/satnet_voucher_manual_button"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/voucher_details_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:background="#EEEEEE"
+        android:text="@string/satnet_voucher_details_placeholder"
+        android:layout_marginBottom="16dp"/>
+
+    <LinearLayout
+        android:id="@+id/voucher_trust_badge_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/voucher_manifest_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/satnet_badge_background"
+            android:paddingLeft="12dp"
+            android:paddingTop="6dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="6dp"
+            android:textColor="@color/satnet_primary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/voucher_ledger_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/satnet_badge_background"
+            android:paddingLeft="12dp"
+            android:paddingTop="6dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="6dp"
+            android:textColor="@color/satnet_primary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/voucher_rotation_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/satnet_badge_background"
+            android:paddingLeft="12dp"
+            android:paddingTop="6dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="6dp"
+            android:textColor="@color/satnet_primary"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/voucher_merchant_badge_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/voucher_merchant_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/satnet_badge_background"
+            android:paddingLeft="12dp"
+            android:paddingTop="6dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="6dp"
+            android:textColor="@color/satnet_primary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/voucher_merchant_status_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/satnet_badge_background"
+            android:paddingLeft="12dp"
+            android:paddingTop="6dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="6dp"
+            android:textColor="@color/satnet_primary"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/voucher_audit_history_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/voucher_audit_history_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/satnet_voucher_audit_history_title"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/voucher_audit_history_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#F5F5F5"
+            android:minLines="3"
+            android:padding="12dp"
+            android:text="@string/satnet_voucher_audit_history_placeholder" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/manual_entry_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/voucher_code_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:hint="@string/satnet_voucher_code_hint"
+            android:importantForAutofill="no"
+            android:inputType="textCapCharacters"
+            tools:ignore="Autofill,TextFields"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/redeem_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/satnet_voucher_redeem_button"
+        android:layout_marginTop="16dp"/>
+
+</LinearLayout>

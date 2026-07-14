@@ -123,7 +123,10 @@ public class BatPhone extends BroadcastReceiver {
 				Rhizome.setRhizomeEnabled(false);
 
 			} else if (action.equals(Intent.ACTION_MEDIA_MOUNTED)) {
-				Rhizome.setRhizomeEnabled();
+				if (app.isStartupTasksComplete())
+					Rhizome.setRhizomeEnabled();
+				else
+					Log.v("BatPhoneReceiver", "Ignoring media mount until startup completes");
 
 			} else if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
 				if (app.nm != null) {

@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_section_communication">Communication</string>
+    <string name="main_section_communication_summary">Calls, messages, contacts, maps and file sharing across the mesh.</string>
+    <string name="main_section_finance">Financial tools</string>
+    <string name="main_section_finance_summary">Open SATNET wallet, voucher and payment tools.</string>
+    <string name="main_body_title">MAIN HUB</string>
+    <string name="main_footer_section_title">FOOTER</string>
+    <string name="main_footer_title">SatPhone device details</string>
+    <string name="main_footer_summary">Review your active identity and connection context for this SATNET node.</string>
+    <string name="satnet_home_label">SATNET</string>
+    <string name="main_hub_intro">Communication and finance in one local-first hub.</string>
+    <string name="main_hub_status_setup">Finish setup to unlock calls, messages and financial tools.</string>
+    <string name="main_hub_status_ready_connected">Mesh ready. Calls and messages can reach other visible peers now.</string>
+    <string name="main_hub_status_ready_waiting">Mesh ready. Waiting for another reachable peer improves calls and messaging.</string>
+    <string name="main_satnet_pending_summary">Financial tools unlock after startup finishes.</string>
+    <string name="main_satnet_ready_summary">%1$s&#10;Wallet, vouchers and payments are ready to open.</string>
+    <string name="satnet_stage_display_pilot">Pilot</string>
+    <string name="satnet_stage_display_country_beta">Country Beta</string>
+    <string name="satnet_stage_display_global">Global</string>
+    <string name="satnet_stage_badge_format">SATNET %1$s</string>
+    <string name="satnet_runtime_badge_with_network">%1$s · %2$s</string>
+    <string name="satnet_network_display_mainnet">mainnet</string>
+    <string name="satnet_network_display_testnet">testnet</string>
+    <string name="satnet_stage_summary_country_beta">Country beta rollout active. Field operations are enabled with %1$s settlement defaults and corridor-specific safeguards.</string>
+    <string name="satnet_stage_summary_global">Global rollout profile active. Broader merchant and verifier operations are enabled on %1$s with open, non-custodial policy safeguards.</string>
+    <string name="satnet_stage_summary_pilot">Pilot rollout active. Local-first flows stay prioritized, settlement defaults to %1$s, and high-risk services fail soft instead of crashing.</string>
+    <string name="satnet_role_summary_agent">Agents issue vouchers with a stage cap of %1$d sats per voucher and offline-first sharing.</string>
+    <string name="satnet_role_summary_merchant_enabled">Merchants generate Lightning invoices in %1$s mode with copy/share actions for field payments.</string>
+    <string name="satnet_role_summary_merchant_disabled">Merchant tooling is disabled because Lightning support is not enabled in this build.</string>
+    <string name="satnet_role_summary_verifier">Verifiers review SELL settlements with a %1$d-hour release window in the current rollout stage.</string>
+    <string name="satnet_role_summary_user">Users keep a self-custodial Bitcoin wallet with stage-aware routing and voucher redemption.</string>
+    <string name="satnet_wallet_stage_summary_format">%1$s · %2$s · %3$dh verifier window</string>
+    <string name="satnet_startup_summary_core_waiting">%1$s is waiting for core services to finish starting.</string>
+    <string name="satnet_startup_summary_warming">%1$s is available while mesh services finish warming up.</string>
+    <string name="satnet_startup_summary_rhizome_waiting">%1$s wallet flows are ready; mesh audit sync will activate when Rhizome is ready.</string>
+    <string name="satnet_startup_blocking_core">%1$s Try again once the mesh core has started.</string>
+    <string name="satnet_startup_blocking_warming">%1$s SATNET tools will unlock after warm-up finishes.</string>
+    <string name="satnet_startup_blocking_verifier_rhizome">%1$s verifier tooling is waiting for Rhizome audit sync to come online.</string>
+    <string name="satnet_startup_local_first_message">%1$s is operating in local-first mode. %2$s will work locally while mesh audit sync finishes warming up.</string>
+    <string name="satnet_exchange_rate_mode_enabled">Automatic live exchange rates are enabled through privacy-preserving HTTPS provider mirrors with cached offline fallback.</string>
+    <string name="satnet_exchange_rate_mode_disabled">Automatic live exchange rates are unavailable because no provider mirrors are configured; cached fallback rates remain available.</string>
+    <string name="satnet_verifier_window_summary">%1$dh verifier release window</string>
+
+    <string name="satnet_role_setup_title">Choose your SATNET role</string>
+    <string name="satnet_role_setup_subtitle">Set up the financial tools that match how you use the network. You can start with a wallet-only role and expand later.</string>
+    <string name="satnet_role_setup_stage_placeholder">SATNET Pilot · settlement network</string>
+    <string name="satnet_role_setup_runtime_placeholder">SATNET startup status will appear here</string>
+    <string name="satnet_role_setup_summary_placeholder">Role-specific SATNET guidance will appear here</string>
+    <string name="satnet_role_setup_option_user">Standard User (Wallet Only)</string>
+    <string name="satnet_role_setup_option_agent">Agent (Issue Vouchers)</string>
+    <string name="satnet_role_setup_option_merchant">Merchant (Accept Payments)</string>
+    <string name="satnet_role_setup_option_verifier">Verifier (Network Security)</string>
+    <string name="satnet_role_setup_agent_name_hint">Agent Name / Business Name</string>
+    <string name="satnet_role_setup_agent_location_hint">Location / Region</string>
+    <string name="satnet_role_setup_merchant_name_hint">Merchant Name</string>
+    <string name="satnet_role_setup_merchant_type_hint">Business Type (e.g. Cafe, Retail)</string>
+    <string name="satnet_role_setup_continue_button">Continue</string>
+    <string name="satnet_role_agent_details_title">Agent details</string>
+    <string name="satnet_role_agent_details_summary">Used for voucher issuance, local trust and service coverage.</string>
+    <string name="satnet_role_merchant_details_title">Merchant details</string>
+    <string name="satnet_role_merchant_details_summary">Used for Lightning invoice labels and business context.</string>
+    <string name="satnet_role_agent_registered_label">Agent (Issue Vouchers) · registered</string>
+    <string name="satnet_role_merchant_registered_label">Merchant (Accept Payments) · registered</string>
+    <string name="satnet_role_verifier_registered_label">Verifier (Network Security) · registered</string>
+    <string name="satnet_role_merchant_disabled_label">Merchant (disabled: Lightning not enabled)</string>
+    <string name="satnet_role_merchant_disabled_toast">Merchant mode is disabled in this build</string>
+    <string name="satnet_role_fill_all_fields">Please fill in all fields</string>
+    <string name="satnet_role_waiting_for_startup">Waiting for startup</string>
+    <string name="satnet_role_continue_existing">Continue with this role</string>
+    <string name="satnet_role_register_continue">Register role &amp; continue</string>
+
+    <string name="satnet_wallet_title">Bitcoin wallet</string>
+    <string name="satnet_wallet_subtitle">Receive funds, protect your balance and open the tools that match your SATNET role.</string>
+    <string name="satnet_wallet_setup_title">Bitcoin wallet setup</string>
+    <string name="satnet_wallet_setup_subtitle">Create a new wallet or restore an existing recovery phrase before you lock access with a local PIN.</string>
+    <string name="satnet_wallet_unlock_title">Unlock Bitcoin wallet</string>
+    <string name="satnet_wallet_unlock_subtitle">Your wallet is already configured. Enter your PIN to unlock and continue securely.</string>
+    <string name="satnet_wallet_setup_mode_title">Choose setup mode</string>
+    <string name="satnet_wallet_setup_stage_placeholder">SATNET Pilot · settlement network · 24h verifier window</string>
+    <string name="satnet_wallet_setup_runtime_placeholder">Wallet startup status will appear here</string>
+    <string name="satnet_wallet_setup_mode_create_new">Create New Wallet</string>
+    <string name="satnet_wallet_setup_mode_import_restore">Import Wallet (Restore)</string>
+    <string name="satnet_wallet_setup_recovery_phrase_title">Your Recovery Phrase (Keep Secret!)</string>
+    <string name="satnet_wallet_setup_copy_clipboard">Copy to Clipboard</string>
+    <string name="satnet_wallet_setup_enter_recovery_phrase">Enter Recovery Phrase (12 words)</string>
+    <string name="satnet_wallet_setup_import_hint">Enter your 12-word recovery phrase</string>
+    <string name="satnet_wallet_setup_recovery_phrase_hint">word1 word2 word3...</string>
+    <string name="satnet_wallet_setup_pin_title">Set Wallet PIN</string>
+    <string name="satnet_wallet_unlock_pin_title">Wallet PIN</string>
+    <string name="satnet_wallet_setup_pin_hint">Enter PIN</string>
+    <string name="satnet_wallet_setup_pin_unlock_hint">Enter wallet PIN</string>
+    <string name="satnet_wallet_setup_pin_confirm_hint">Confirm PIN</string>
+    <string name="satnet_wallet_setup_create_button">Create Wallet</string>
+    <string name="satnet_wallet_setup_import_button">Import Wallet</string>
+    <string name="satnet_wallet_setup_unlock_button">Unlock Wallet</string>
+    <string name="satnet_wallet_setup_generating_phrase">Generating recovery phrase…</string>
+    <string name="satnet_wallet_stage_placeholder">SATNET Pilot · settlement network · 24h verifier window</string>
+    <string name="satnet_wallet_runtime_placeholder">Wallet status will appear here</string>
+    <string name="satnet_wallet_balance_label">Available balance</string>
+    <string name="satnet_wallet_balance_placeholder">0 sats</string>
+    <string name="satnet_wallet_balance_loading">Loading wallet…</string>
+    <string name="satnet_wallet_address_loading">Preparing receive address…</string>
+    <string name="satnet_wallet_hidden_balance">●●●●●●●●●● sats</string>
+    <string name="satnet_wallet_zero_balance">0 sats</string>
+    <string name="satnet_wallet_address_label">Receive address</string>
+    <string name="satnet_wallet_address_placeholder">bc1q…</string>
+    <string name="satnet_wallet_address_hint">Tap the address to copy it for sharing.</string>
+    <string name="satnet_wallet_recovery_phrase_label">Recovery phrase</string>
+    <string name="satnet_wallet_actions_title">Wallet actions</string>
+    <string name="satnet_wallet_actions_summary">Privacy controls, backup access and role-specific SATNET tools.</string>
+    <string name="satnet_wallet_tools_button">SATNET Tools</string>
+    <string name="satnet_wallet_hide_balance">Hide Balance</string>
+    <string name="satnet_wallet_show_balance">Show Balance</string>
+    <string name="satnet_wallet_backup_button">Backup Wallet</string>
+    <string name="satnet_wallet_share_chat_button">Share address in chat</string>
+    <string name="satnet_wallet_share_chat_picker_title">Choose a peer to receive this address</string>
+    <string name="satnet_wallet_share_chat_draft">Bitcoin receive address from my SATNET wallet
+%1$s</string>
+    <string name="satnet_wallet_address_copied">Address copied to clipboard</string>
+    <string name="satnet_wallet_recovery_phrase_copied">Recovery phrase copied temporarily. Clipboard will clear automatically.</string>
+    <string name="satnet_wallet_clipboard_unavailable">Clipboard is unavailable on this device</string>
+    <string name="satnet_wallet_clipboard_warning_title">Copy sensitive data?</string>
+    <string name="satnet_wallet_clipboard_warning_confirm">Copy Temporarily</string>
+    <string name="satnet_wallet_clipboard_warning_recovery_phrase">Copying your recovery phrase to the clipboard can expose it to other apps and device backups. Only do this briefly and move it to secure offline storage immediately.</string>
+    <string name="satnet_wallet_loading_toast">Wallet is still loading</string>
+    <string name="satnet_wallet_locked_toast">Wallet is locked. Enter your PIN to continue.</string>
+    <string name="satnet_wallet_open_failed">Unable to open wallet: %1$s</string>
+    <string name="satnet_wallet_backup_notice">Showing recovery phrase - save in secure location</string>
+    <string name="satnet_wallet_balance_hidden_notice">Balance hidden</string>
+    <string name="satnet_wallet_balance_visible_notice">Balance visible</string>
+    <string name="satnet_wallet_panic_enable">Enable Panic Mode</string>
+    <string name="satnet_wallet_panic_disable">Disable Panic Mode</string>
+    <string name="satnet_wallet_panic_button">Panic Mode (Wipe Wallet)</string>
+    <string name="satnet_wallet_panic_enable_confirm_message">Enable panic mode to hide your wallet balance and lock sensitive wallet actions from immediate physical access?</string>
+    <string name="satnet_wallet_panic_enabled_notice">Panic mode enabled - balance hidden from physical access</string>
+    <string name="satnet_wallet_panic_disabled_notice">Panic mode disabled</string>
+    <string name="satnet_wallet_panic_disable_confirm_message">Enter your wallet PIN to disable panic mode and restore wallet actions.</string>
+    <string name="satnet_wallet_panic_disable_pin_hint">Enter wallet PIN</string>
+    <string name="satnet_wallet_panic_disable_pin_required">PIN is required to disable panic mode</string>
+    <string name="satnet_wallet_panic_disable_pin_failed">Incorrect PIN. Panic mode remains enabled.</string>
+    <string name="satnet_wallet_panic_blocked_toast">This action is blocked while panic mode is enabled</string>
+    <string name="satnet_wallet_panic_address_hidden">Address hidden in panic mode</string>
+    <string name="satnet_wallet_panic_wipe_hint">Type WIPE to confirm</string>
+    <string name="satnet_wallet_panic_wipe_confirm_message">This will permanently remove the locally stored wallet. Only proceed if you have your recovery phrase backed up. Type WIPE to confirm.</string>
+    <string name="satnet_wallet_panic_wipe_mismatch">Confirmation text did not match. Type WIPE to confirm.</string>
+    <string name="satnet_wallet_panic_wiped">Wallet wiped. You may restore from your recovery phrase.</string>
+    <string name="satnet_wallet_panic_wipe_failed">Panic wipe failed: %1$s</string>
+    <string name="satnet_wallet_share_chat_unavailable">No reachable peer picker is available right now.</string>
+    <string name="satnet_wallet_share_chat_cancelled">No peer selected. Your address is still available locally.</string>
+    <string name="satnet_wallet_share_chat_ready">Address draft ready in conversation.</string>
+    <string name="satnet_wallet_safety_title">Safety</string>
+    <string name="satnet_wallet_safety_summary">Use panic mode only when you need to hide funds from immediate physical access.</string>
+    <string name="satnet_wallet_role_action_summary_default">Choose a SATNET role to unlock vouchers and payment tools.</string>
+    <string name="satnet_wallet_role_action_summary_agent">Create a live-rate Bitcoin voucher for an in-person buyer.</string>
+    <string name="satnet_wallet_role_action_summary_merchant">Create and share a Lightning invoice from this wallet.</string>
+    <string name="satnet_wallet_role_action_summary_verifier">Review pending SELL vouchers and release timed-out settlements.</string>
+    <string name="satnet_wallet_role_action_summary_redeem">Scan or paste a voucher payload and redeem it into this wallet.</string>
+    <string name="satnet_wallet_role_action_summary_loading">SATNET role tools unlock after startup and wallet loading complete.</string>
+    <string name="satnet_wallet_role_action_choose">Choose SATNET role</string>
+    <string name="satnet_wallet_manage_roles">Manage SATNET roles</string>
+    <string name="satnet_wallet_role_action_warming">SATNET Warming Up…</string>
+    <string name="satnet_wallet_role_action_verifier_warming">Verifier Sync Warming Up…</string>
+    <string name="satnet_wallet_role_action_agent">Issue Bitcoin Voucher</string>
+    <string name="satnet_wallet_role_action_merchant">Accept Lightning Payment</string>
+    <string name="satnet_wallet_role_action_merchant_disabled">Merchant Tools Disabled</string>
+    <string name="satnet_wallet_role_action_verifier">Verify SELL Settlements</string>
+    <string name="satnet_wallet_role_action_redeem">Redeem Bitcoin Voucher</string>
+    <string name="satnet_wallet_merchant_disabled_toast">Merchant tools are disabled in this build</string>
+
+    <string name="satnet_agent_voucher_title">Issue Bitcoin vouchers</string>
+    <string name="satnet_agent_voucher_subtitle">Pick a supported amount, confirm the settlement currency and generate a QR voucher for offline-friendly distribution.</string>
+    <string name="satnet_agent_stage_placeholder">SATNET Pilot · settlement network</string>
+    <string name="satnet_agent_runtime_placeholder">Agent voucher status will appear here</string>
+    <string name="satnet_agent_denomination_title">Select Denomination (Sats)</string>
+    <string name="satnet_agent_denomination_1000">1,000 Sats</string>
+    <string name="satnet_agent_denomination_5000">5,000 Sats</string>
+    <string name="satnet_agent_denomination_10000">10,000 Sats</string>
+    <string name="satnet_agent_denomination_50000">50,000 Sats</string>
+    <string name="satnet_agent_expiry_title">Expiry (Hours)</string>
+    <string name="satnet_agent_currency_title">Settlement Currency</string>
+    <string name="satnet_agent_rate_placeholder">Live exchange-rate status will appear here</string>
+    <string name="satnet_agent_qr_hint">A scannable voucher QR will appear here after generation.</string>
+    <string name="satnet_agent_generate_button">Refresh rate &amp; generate voucher</string>
+    <string name="satnet_agent_generate_button_busy">Refreshing rate &amp; generating…</string>
+    <string name="satnet_agent_voucher_pending">Refreshing the live rate and preparing your voucher…</string>
+    <string name="satnet_agent_voucher_ready_summary">Voucher ready · %1$,d sats · expires in %2$d h · %3$s&#10;Code %4$s</string>
+    <string name="satnet_agent_qr_description">Generated SATNET voucher QR code</string>
+    <string name="satnet_agent_share_button">Share Voucher</string>
+    <string name="satnet_agent_share_chat_button">Share voucher in chat</string>
+    <string name="satnet_agent_share_chat_picker_title">Choose a peer to receive this voucher</string>
+    <string name="satnet_agent_not_authorized">Not authorized as agent</string>
+    <string name="satnet_agent_select_denomination">Select a denomination</string>
+    <string name="satnet_agent_stage_limit">This stage allows vouchers up to %1$d sats</string>
+    <string name="satnet_agent_live_rates_unavailable">Automatic live exchange rates are not configured</string>
+    <string name="satnet_agent_refreshing_rate">Refreshing live %1$s exchange rate…</string>
+    <string name="satnet_agent_rate_failed">Live exchange-rate refresh failed: %1$s</string>
+    <string name="satnet_agent_rate_failed_toast">Unable to fetch a live exchange rate right now</string>
+    <string name="satnet_agent_generated_toast">Voucher generated: %1$d sats</string>
+    <string name="satnet_agent_generating_toast">Voucher is still being generated</string>
+    <string name="satnet_agent_generate_first">Generate a voucher first</string>
+    <string name="satnet_agent_share_chooser">Share Voucher</string>
+    <string name="satnet_agent_share_message">Bitcoin Voucher from SATNET AFRICA
+Amount: %1$d sats
+Rate: 1 BTC ≈ %2$s %3$s
+Code: %4$s
+Redeem at: [https://satnet.app]
+Expires: %5$s</string>
+    <string name="satnet_agent_share_chat_ready">Voucher draft ready in conversation.</string>
+    <string name="satnet_agent_share_chat_cancelled">No peer selected. Your voucher remains ready to share locally.</string>
+    <string name="satnet_agent_share_chat_unavailable">No reachable peer picker is available right now.</string>
+    <string name="satnet_agent_runtime_summary">%1$s
+
+%2$s
+
+%3$s</string>
+    <string name="satnet_agent_capability_label">Voucher issuance</string>
+    <string name="satnet_agent_denomination_label">%1$,d Sats</string>
+    <string name="satnet_agent_denomination_unavailable_label">%1$,d Sats (unavailable in %2$s)</string>
+    <string name="satnet_agent_rate_refresh_prompt">Live rate for %1$s will refresh automatically when you generate a voucher.</string>
+    <string name="satnet_agent_rate_cached_suffix"> · cached fallback</string>
+    <string name="satnet_agent_rate_snapshot">Last known rate: 1 BTC ≈ %1$,.2f %2$s · %3$s%4$s</string>
+
+    <string name="satnet_merchant_title">Merchant Lightning payments</string>
+    <string name="satnet_merchant_subtitle">Create a Lightning invoice, display its QR code and share the payment request with the buyer.</string>
+    <string name="satnet_merchant_invoice_hint">Generated invoice details and the encoded payment request appear below.</string>
+    <string name="satnet_merchant_stage_placeholder">SATNET Pilot · settlement network</string>
+    <string name="satnet_merchant_runtime_placeholder">Merchant runtime status will appear here</string>
+    <string name="satnet_merchant_disabled_build">Merchant tools are disabled in this build</string>
+    <string name="satnet_merchant_not_authorized">Not authorized as merchant</string>
+    <string name="satnet_merchant_init_failed">Merchant tools could not be opened on this device</string>
+    <string name="satnet_merchant_amount_hint">Amount (sats)</string>
+    <string name="satnet_merchant_description_hint">Payment description (optional)</string>
+    <string name="satnet_merchant_generate_button">Generate Lightning Invoice</string>
+    <string name="satnet_merchant_generate_button_busy">Generating Invoice…</string>
+    <string name="satnet_merchant_copy_button">Copy Invoice</string>
+    <string name="satnet_merchant_share_button">Share Invoice</string>
+    <string name="satnet_merchant_amount_required">Enter an amount in sats</string>
+    <string name="satnet_merchant_amount_positive">Amount must be greater than zero</string>
+    <string name="satnet_merchant_amount_too_large">Amount is too large</string>
+    <string name="satnet_merchant_invalid_amount">Invalid amount</string>
+    <string name="satnet_merchant_generating_invoice">Generating Lightning invoice…</string>
+    <string name="satnet_merchant_preparing_details">Preparing invoice details…</string>
+    <string name="satnet_merchant_invoice_placeholder">Generated invoice will appear here</string>
+    <string name="satnet_merchant_invoice_meta_placeholder">Invoice details will appear here</string>
+    <string name="satnet_merchant_description_none">(none)</string>
+    <string name="satnet_merchant_invoice_metadata">Amount: %1$,d sats
+Description: %2$s
+Expires in: 15 minutes</string>
+    <string name="satnet_merchant_generate_failed">Unable to generate invoice: %1$s</string>
+    <string name="satnet_merchant_invoice_busy">Invoice is still being generated</string>
+    <string name="satnet_merchant_generate_first">Generate an invoice first</string>
+    <string name="satnet_merchant_clipboard_unavailable">Clipboard is unavailable</string>
+    <string name="satnet_merchant_clipboard_label">Lightning Invoice</string>
+    <string name="satnet_merchant_copied">Invoice copied to clipboard</string>
+    <string name="satnet_merchant_share_chooser">Share Lightning Invoice</string>
+    <string name="satnet_merchant_share_unavailable">No compatible app found to share the invoice</string>
+    <string name="satnet_merchant_runtime_summary">%1$s
+
+%2$s</string>
+    <string name="satnet_merchant_capability_label">Merchant invoice creation</string>
+    <string name="satnet_merchant_invoice_qr_description">Lightning invoice QR</string>
+
+    <string name="satnet_voucher_redemption_title">Redeem a Bitcoin voucher</string>
+    <string name="satnet_voucher_redemption_subtitle">Scan the SATNET voucher QR code when possible. Manual entry is available for copied payloads.</string>
+    <string name="satnet_voucher_preview_hint">Camera preview and scan guidance appear here when QR scanning starts.</string>
+    <string name="satnet_voucher_stage_placeholder">SATNET Pilot · settlement network · 24h verifier window</string>
+    <string name="satnet_voucher_runtime_placeholder">Voucher runtime status will appear here</string>
+    <string name="satnet_voucher_scan_button">Scan QR Code</string>
+    <string name="satnet_voucher_scan_button_grant">Grant Camera Access &amp; Scan</string>
+    <string name="satnet_voucher_scan_button_busy">Working…</string>
+    <string name="satnet_voucher_scan_button_warming">SATNET Warming Up…</string>
+    <string name="satnet_voucher_manual_button">Enter Code Manually</string>
+    <string name="satnet_voucher_details_placeholder">Scan or enter a voucher to view details</string>
+    <string name="satnet_voucher_code_hint">Enter Voucher Code</string>
+    <string name="satnet_voucher_redeem_button">Redeem Now</string>
+    <string name="satnet_voucher_unavailable_for_role">Voucher redemption is not available for this role</string>
+    <string name="satnet_voucher_init_failed">Voucher redemption is unavailable on this device</string>
+    <string name="satnet_voucher_busy">Voucher redemption is busy</string>
+    <string name="satnet_voucher_camera_required">Camera permission required for QR scanning</string>
+    <string name="satnet_voucher_scanner_opening">Opening QR scanner</string>
+    <string name="satnet_voucher_manual_dialog_title">Enter Voucher Code</string>
+    <string name="satnet_voucher_manual_dialog_hint">XXXX-XXXX-XXXX-XXXX</string>
+    <string name="satnet_voucher_enter_code">Enter a voucher code</string>
+    <string name="satnet_voucher_numeric_code_unavailable">Numeric voucher codes cannot be resolved offline in this build yet. Paste the full SATNET voucher payload or scan the voucher QR code to continue.</string>
+    <string name="satnet_voucher_invalid_code">Invalid voucher code</string>
+    <string name="satnet_voucher_scan_cancelled">QR scan cancelled</string>
+    <string name="satnet_voucher_processing">Processing voucher…</string>
+    <string name="satnet_voucher_empty_payload">Empty QR payload</string>
+    <string name="satnet_voucher_invalid">Invalid voucher: %1$s</string>
+    <string name="satnet_voucher_metadata_invalid">Voucher metadata check failed: %1$s</string>
+    <string name="satnet_voucher_already_redeemed">This voucher has already been redeemed</string>
+    <string name="satnet_voucher_ready">Voucher valid - Ready to redeem</string>
+    <string name="satnet_voucher_processing_error">Error processing voucher: %1$s</string>
+    <string name="satnet_voucher_details_format">Voucher ID: %1$s
+Agent: %2$s
+Amount: %3$d sats
+Direction: %4$s
+Expires: %5$s
+
+%6$s</string>
+    <string name="satnet_voucher_no_selection">No voucher selected</string>
+    <string name="satnet_voucher_redeeming">Redeeming voucher…</string>
+    <string name="satnet_voucher_success">Voucher redeemed! Bitcoin sent to your wallet</string>
+    <string name="satnet_voucher_redeem_error">Error redeeming voucher: %1$s</string>
+    <string name="satnet_voucher_wallet_unavailable">Wallet is unavailable</string>
+    <string name="satnet_voucher_wallet_missing">Wallet not found. Reopen wallet setup first.</string>
+    <string name="satnet_voucher_wallet_locked">Wallet is locked. Return to wallet setup and enter your PIN.</string>
+    <string name="satnet_voucher_wallet_open_failed">Unable to open wallet for redemption.</string>
+    <string name="satnet_voucher_wallet_no_address">Wallet could not provide a receive address</string>
+    <string name="satnet_voucher_runtime_summary">%1$s
+
+%2$s</string>
+    <string name="satnet_voucher_capability_label">Voucher redemption</string>
+    <string name="satnet_voucher_direction_buy">BUY</string>
+    <string name="satnet_voucher_direction_sell">SELL</string>
+    <string name="satnet_voucher_audit_history_title">Trust evidence</string>
+    <string name="satnet_voucher_audit_history_placeholder">No verifier audit history is available for this voucher yet.</string>
+    <string name="satnet_voucher_merchant_badge">Merchant %1$s</string>
+    <string name="satnet_voucher_merchant_status_accepted">Accepted</string>
+    <string name="satnet_voucher_merchant_status_pending">Pending</string>
+    <string name="satnet_voucher_merchant_status_completed">Completed</string>
+    <string name="satnet_voucher_merchant_status_unknown">Unknown</string>
+
+    <string name="satnet_verifier_title">Verifier Dashboard</string>
+    <string name="satnet_verifier_subtitle">Review pending SELL settlements, inspect voucher payloads and release expired settlement windows from one place.</string>
+    <string name="satnet_verifier_stage_placeholder">SATNET Pilot · settlement network · 24h verifier release window</string>
+    <string name="satnet_verifier_runtime_placeholder">Verifier runtime status will appear here</string>
+    <string name="satnet_verifier_summary_placeholder">Pending settlement vouchers will appear here.</string>
+    <string name="satnet_verifier_voucher_id_hint">Voucher ID to verify</string>
+    <string name="satnet_verifier_payload_hint">Optional: paste a full satnet_voucher payload to inspect</string>
+    <string name="satnet_verifier_refresh_button">Refresh Pending Vouchers</string>
+    <string name="satnet_verifier_inspect_button">Inspect Voucher Payload</string>
+    <string name="satnet_verifier_verify_button">Mark Settlement Verified</string>
+    <string name="satnet_verifier_release_button">Release Expired Settlement Windows</string>
+    <string name="satnet_verifier_not_authorized">Not authorized as verifier</string>
+    <string name="satnet_verifier_init_failed">Verifier tools are unavailable on this device</string>
+    <string name="satnet_verifier_loading_dashboard">Loading verifier dashboard…</string>
+    <string name="satnet_verifier_dashboard_failed">Verifier dashboard could not load right now.</string>
+    <string name="satnet_verifier_dashboard_load_failed_toast">Unable to load verifier dashboard: %1$s</string>
+    <string name="satnet_verifier_busy">Verifier dashboard is busy</string>
+    <string name="satnet_verifier_payload_required">Paste a full voucher payload to inspect</string>
+    <string name="satnet_verifier_payload_inspecting">Inspecting voucher payload…</string>
+    <string name="satnet_verifier_payload_preview">Voucher payload preview
+
+Voucher ID: %1$s
+Agent: %2$s
+Amount: %3$d sats
+Direction: %4$s
+Currency: %5$s
+Rate: %6$s
+Issued: %7$s
+Expires: %8$s
+
+%9$s</string>
+    <string name="satnet_verifier_invalid_payload">Invalid voucher payload: %1$s</string>
+    <string name="satnet_verifier_metadata_invalid">Voucher metadata check failed: %1$s</string>
+    <string name="satnet_verifier_conflict_blocked">Conflict of interest: %1$s</string>
+    <string name="satnet_verifier_verify_id_required">Enter a voucher ID to verify</string>
+    <string name="satnet_verifier_payload_required_for_metadata">Inspect the full voucher payload before verifying detached manifest metadata</string>
+    <string name="satnet_verifier_payload_id_mismatch">Voucher payload does not match the selected voucher ID</string>
+    <string name="satnet_verifier_verifying">Verifying settlement…</string>
+    <string name="satnet_verifier_not_pending">Voucher is not awaiting verifier action</string>
+    <string name="satnet_verifier_verified">Settlement verified for %1$s</string>
+    <string name="satnet_verifier_verify_failed">Unable to verify settlement: %1$s</string>
+    <string name="satnet_verifier_releasing">Releasing expired settlement windows…</string>
+    <string name="satnet_verifier_release_none">No expired settlement windows needed release</string>
+    <string name="satnet_verifier_release_count">Released %1$d expired settlement window(s)</string>
+    <string name="satnet_verifier_release_failed">Unable to release settlement windows: %1$s</string>
+    <string name="satnet_verifier_empty_summary">No SELL vouchers are currently waiting for verifier action.
+
+%1$s</string>
+    <string name="satnet_verifier_pending_summary">Pending SELL settlements: %1$d
+%2$s
+
+%3$s</string>
+    <string name="satnet_verifier_pending_item">• %1$s
+  Agent: %2$s
+  Amount: %3$d sats
+  Rate: %4$s %5$s
+  Issued: %6$s
+  Alias: %7$s
+  Epoch: %8$d
+
+</string>
+    <string name="satnet_verifier_stage_badge">%1$s · %2$s</string>
+    <string name="satnet_verifier_runtime_summary">%1$s
+
+%2$s</string>
+    <string name="satnet_verifier_direction_buy">BUY</string>
+    <string name="satnet_verifier_direction_sell">SELL</string>
+    <string name="satnet_verifier_audit_history_title">Audit history</string>
+    <string name="satnet_verifier_audit_history_placeholder">No verifier audit history is available for the selected voucher yet.</string>
+    <string name="satnet_verifier_risk_badge_clear">Risk clear</string>
+    <string name="satnet_verifier_risk_badge_monitor">Risk monitor</string>
+    <string name="satnet_verifier_risk_badge_hold">Risk hold</string>
+    <string name="satnet_verifier_risk_badge_block">Risk block</string>
+    <string name="satnet_verifier_dispute_badge_none">No dispute</string>
+    <string name="satnet_verifier_dispute_badge_open">Dispute open</string>
+    <string name="satnet_verifier_dispute_badge_review">Under review</string>
+    <string name="satnet_verifier_dispute_badge_resolved">Dispute resolved</string>
+    <string name="satnet_verifier_dispute_badge_escalated">Dispute escalated</string>
+    <string name="satnet_verifier_policy_state_placeholder">Verifier policy status will appear here.</string>
+    <string name="satnet_verifier_policy_state_format">Policy: %1$s
+Message: %2$s
+Updated: %3$s</string>
+    <string name="satnet_verifier_policy_state_code_unknown">No policy decision yet</string>
+    <string name="satnet_verifier_policy_state_message_unknown">No policy message recorded.</string>
+    <string name="satnet_verifier_policy_state_quorum_pending">Quorum pending (%1$d/%2$d)</string>
+    <string name="satnet_merchant_policy_blocked">Merchant settlement blocked by policy: %1$s</string>
+    <string name="satnet_merchant_context_linked">Merchant settlement context linked to voucher %1$s</string>
+    <string name="satnet_voucher_policy_blocked">Voucher blocked by policy: %1$s</string>
+
+    <string name="satnet_qr_scanner_title">Scan SATNET Voucher QR</string>
+    <string name="satnet_qr_scanner_hint">Point the camera at a SATNET voucher QR code.</string>
+    <string name="satnet_qr_scanner_status">Align the voucher QR code inside the frame</string>
+    <string name="satnet_qr_scanner_cancel">Cancel</string>
+    <string name="satnet_qr_scanner_unavailable">QR scanner is unavailable on this device</string>
+
+    <string name="satnet_maps_title">SATNET Maps</string>
+    <string name="satnet_maps_subtitle">A local-first field map for SATNET operations. No cloud tiles, no background tracking, and no automatic location uploads are used here.</string>
+    <string name="satnet_maps_stage_placeholder">SATNET Pilot · settlement network</string>
+    <string name="satnet_maps_runtime_placeholder">SATNET Maps runtime status will appear here</string>
+    <string name="satnet_maps_privacy_summary_placeholder">Privacy controls and bookmark protection status will appear here</string>
+    <string name="satnet_maps_grid_content_description">Offline SATNET map grid showing temporary and saved locations</string>
+    <string name="satnet_maps_grid_empty_state">No temporary or saved locations are currently shown.</string>
+    <string name="satnet_maps_current_location_placeholder">Temporary location is empty. Add manual coordinates or use a single foreground location lookup. Nothing is stored unless you explicitly save a bookmark.</string>
+    <string name="satnet_maps_label_hint">Label (for example: clinic, agent point, safe route marker)</string>
+    <string name="satnet_maps_note_hint">Private note (stored only if you save a bookmark)</string>
+    <string name="satnet_maps_latitude_hint">Latitude</string>
+    <string name="satnet_maps_longitude_hint">Longitude</string>
+    <string name="satnet_maps_use_device_location_button">Use device location once</string>
+    <string name="satnet_maps_apply_manual_button">Show manual coordinates</string>
+    <string name="satnet_maps_save_bookmark_button">Save secure bookmark</string>
+    <string name="satnet_maps_clear_session_button">Clear temporary location</string>
+    <string name="satnet_maps_saved_bookmarks_title">Saved secure bookmarks</string>
+    <string name="satnet_maps_saved_bookmarks_summary">Only user-approved bookmarks are persisted, and they are encrypted on-device. Current location remains ephemeral unless you save it.</string>
+    <string name="satnet_maps_clear_saved_button">Clear all saved bookmarks</string>
+    <string name="satnet_maps_saved_bookmarks_empty">No secure bookmarks saved yet.</string>
+    <string name="satnet_maps_saved_bookmark_row">%1$s
+%2$s
+
+%3$s</string>
+    <string name="satnet_maps_view_bookmark_button">Focus</string>
+    <string name="satnet_maps_delete_bookmark_button">Delete</string>
+    <string name="satnet_maps_bookmark_saved">Secure bookmark saved locally.</string>
+    <string name="satnet_maps_bookmark_deleted">Bookmark deleted.</string>
+    <string name="satnet_maps_saved_bookmarks_cleared">All saved bookmarks cleared.</string>
+    <string name="satnet_maps_bookmark_focused">Bookmark focused on the map.</string>
+    <string name="satnet_maps_location_permissions_needed">Location permission is needed for a one-time device lookup.</string>
+    <string name="satnet_maps_location_permission_denied">Location permission denied. Enter coordinates manually to stay local-only.</string>
+    <string name="satnet_maps_location_unavailable">No recent device location is available. Enter coordinates manually instead.</string>
+    <string name="satnet_maps_location_loaded">One-time device location loaded. It is not stored unless you save it.</string>
+    <string name="satnet_maps_invalid_latitude">Enter a latitude between -90 and 90.</string>
+    <string name="satnet_maps_invalid_longitude">Enter a longitude between -180 and 180.</string>
+    <string name="satnet_maps_default_manual_label">Manual marker</string>
+    <string name="satnet_maps_default_device_label">Device location</string>
+    <string name="satnet_maps_source_device">Foreground device lookup</string>
+    <string name="satnet_maps_source_manual">Manual coordinates</string>
+    <string name="satnet_maps_source_bookmark">Saved bookmark</string>
+    <string name="satnet_maps_manual_applied">Manual coordinates displayed on the map.</string>
+    <string name="satnet_maps_session_cleared">Temporary location cleared.</string>
+    <string name="satnet_maps_current_location_no_note">No private note</string>
+    <string name="satnet_maps_current_location_summary">Source: %1$s
+Label: %2$s
+Latitude: %3$s
+Longitude: %4$s
+
+%5$s</string>
+    <string name="satnet_maps_device_note">Loaded from %1$s provider.</string>
+    <string name="satnet_maps_device_note_with_accuracy">Loaded from %1$s provider · accuracy ±%2$.0f m.</string>
+    <string name="satnet_maps_capability_label">SATNET Maps</string>
+    <string name="satnet_maps_role_context">Registered roles: %1$s
+Active role: %2$s</string>
+    <string name="satnet_maps_privacy_summary">Screenshots are blocked on this screen. Current coordinates stay in memory only until you leave or clear them. Saved bookmarks: %1$d encrypted on-device. No cloud tiles or telemetry are used.</string>
+    <string name="satnet_maps_role_overlay_placeholder">Role-aware overlay summary will appear here.</string>
+    <string name="satnet_maps_trust_overlay_placeholder">Verifier trust overlay summary will appear here.</string>
+    <string name="satnet_maps_mesh_overlay_placeholder">Mesh peer and coverage summary will appear here.</string>
+    <string name="satnet_maps_role_overlay_user_title">Wallet privacy zone</string>
+    <string name="satnet_maps_role_overlay_user_summary">Wallet users keep bookmarks private by default. No role-specific service corridor is broadcast or saved automatically.</string>
+    <string name="satnet_maps_role_overlay_agent_title">Agent service corridor</string>
+    <string name="satnet_maps_role_overlay_agent_summary">Agent overlay emphasizes voucher distribution points and nearby field service radius for %1$s in %2$s.</string>
+    <string name="satnet_maps_role_overlay_merchant_title">Merchant payment hotspot</string>
+    <string name="satnet_maps_role_overlay_merchant_summary">Merchant overlay emphasizes discreet payment handoff zones for %1$s (%2$s).</string>
+    <string name="satnet_maps_role_overlay_verifier_title">Verifier trust checkpoint</string>
+    <string name="satnet_maps_role_overlay_verifier_summary">Verifier overlay emphasizes neutral audit checkpoints and local settlement review areas.</string>
+    <string name="satnet_maps_role_overlay_verifier_summary_rich">Verifier overlay emphasizes neutral audit checkpoints and local settlement review areas. Trusted audits: %1$d · caution signals: %2$d · mesh evidence: %3$d.</string>
+    <string name="satnet_maps_trust_overlay_empty">Verifier trust overlay is coarse and local-only. It summarizes local audit evidence without plotting precise peer coordinates.</string>
+    <string name="satnet_maps_trust_overlay_summary">Trusted audits: %1$d
+Caution signals: %2$d
+Rotation alerts: %3$d
+Mesh evidence: %4$d
+Local evidence: %5$d
+Audited vouchers: %6$d</string>
+    <string name="satnet_maps_mesh_overlay_empty">Mesh overlay is local-only. No precise peer coordinates are collected. Reachable peers will appear as coarse coverage rings when available.</string>
+    <string name="satnet_maps_mesh_overlay_summary">Mesh overlay is local-only. Reachable peers: %1$d
+Direct peers: %2$d
+Relayed peers: %3$d
+Average hops: %4$.1f
+Max hops: %5$d</string>
+    <string name="satnet_maps_rhizome_title">Secure Rhizome bookmark exchange</string>
+    <string name="satnet_maps_rhizome_summary">Bookmark bundles are encrypted with your passphrase before mesh distribution. You can also sign encrypted bundles for provenance. Incoming Rhizome bundles are staged for review and never auto-imported.</string>
+    <string name="satnet_maps_passphrase_hint">Shared passphrase for export/import (min 6 characters)</string>
+    <string name="satnet_maps_rhizome_status_placeholder">No Rhizome bookmark bundle is currently selected for review.</string>
+    <string name="satnet_maps_export_focused_button">Export focused bookmark to Rhizome</string>
+    <string name="satnet_maps_export_all_button">Export all saved bookmarks to Rhizome</string>
+    <string name="satnet_maps_export_selected_button">Export selected bookmarks to Rhizome</string>
+    <string name="satnet_maps_export_selected_signed_button">Export selected bookmarks as signed bundle</string>
+    <string name="satnet_maps_export_selection_none">No saved bookmarks selected for export.</string>
+    <string name="satnet_maps_export_selection_summary">Selected for export: %1$d bookmark(s)</string>
+    <string name="satnet_maps_export_selection_label">Selected SATNET bookmarks (%1$d)</string>
+    <string name="satnet_maps_preview_import_button">Preview latest staged Rhizome bundle</string>
+    <string name="satnet_maps_import_reviewed_button">Import reviewed bookmarks</string>
+    <string name="satnet_maps_discard_import_button">Discard latest staged bundle</string>
+    <string name="satnet_maps_open_inbox_button">Open SATNET Maps inbox/history</string>
+    <string name="satnet_maps_import_preview_placeholder">A staged SATNET Maps Rhizome bundle will appear here after you preview it with the shared passphrase.</string>
+    <string name="satnet_maps_passphrase_required">Enter a shared passphrase with at least 6 characters.</string>
+    <string name="satnet_maps_export_nothing_selected">Focus a bookmark or save a temporary location before exporting.</string>
+    <string name="satnet_maps_export_no_saved">No saved bookmarks are available to export.</string>
+    <string name="satnet_maps_export_success">Encrypted bookmark bundle queued for Rhizome sharing.</string>
+    <string name="satnet_maps_export_signed_success">Signed + encrypted bookmark bundle queued for Rhizome sharing.</string>
+    <string name="satnet_maps_export_failed">Unable to export bookmarks to Rhizome right now.</string>
+    <string name="satnet_maps_export_none_checked">Select at least one saved bookmark to export.</string>
+    <string name="satnet_maps_pending_import_none">No staged SATNET Maps bundle is waiting for review.</string>
+    <string name="satnet_maps_pending_import_status">Staged Rhizome bundles: %1$d
+Latest bundle: %2$s
+Signed bundles: %3$d
+Local export history: %4$d</string>
+    <string name="satnet_maps_import_preview_ready">Bundle: %1$s
+Export label: %2$s
+Source subject: %3$s
+Roles: %4$s
+Bookmarks: %5$d</string>
+    <string name="satnet_maps_import_preview_security">Protection: %1$s
+Signature: %2$s</string>
+    <string name="satnet_maps_import_preview_bookmark_item">• %1$s (%2$s)</string>
+    <string name="satnet_maps_import_preview_failed">Unable to decrypt or parse the staged bundle. Check the passphrase and try again.</string>
+    <string name="satnet_maps_import_success">Reviewed bookmarks imported securely.</string>
+    <string name="satnet_maps_import_none_reviewed">Preview a staged bundle before importing it.</string>
+    <string name="satnet_maps_import_discarded">Staged bundle discarded.</string>
+    <string name="satnet_maps_security_mode_encrypted">Encrypted bundle</string>
+    <string name="satnet_maps_security_mode_signed">Signed + encrypted bundle</string>
+    <string name="satnet_maps_signature_status_none">No bundle signature</string>
+    <string name="satnet_maps_signature_status_verified">Verified signer key %1$s (%2$s)</string>
+    <string name="satnet_maps_signature_status_present">Signed bundle present</string>
+    <string name="satnet_maps_inbox_title">SATNET Maps Rhizome inbox/history</string>
+    <string name="satnet_maps_inbox_subtitle">Review staged bookmark bundles and local export history without leaving the local-first SATNET Maps flow.</string>
+    <string name="satnet_maps_inbox_summary">Pending inbox bundles: %1$d
+Local export history entries: %2$d</string>
+    <string name="satnet_maps_inbox_pending_title">Staged inbox bundles</string>
+    <string name="satnet_maps_inbox_history_title">Local export history</string>
+    <string name="satnet_maps_inbox_empty">No SATNET Maps Rhizome bundles are currently staged.</string>
+    <string name="satnet_maps_history_empty">No SATNET Maps bookmark exports have been recorded locally yet.</string>
+    <string name="satnet_maps_inbox_selected_placeholder">No staged bundle selected yet. Choose one from the inbox list to preview or import it locally.</string>
+    <string name="satnet_maps_inbox_selected_summary">Selected bundle: %1$s
+Export: %2$s
+Bookmarks: %3$d
+Protection: %4$s
+Signer: %5$s</string>
+    <string name="satnet_maps_inbox_review_button">Preview selected staged bundle</string>
+    <string name="satnet_maps_inbox_import_button">Import reviewed bundle</string>
+    <string name="satnet_maps_inbox_refresh_button">Refresh inbox/history</string>
+    <string name="satnet_maps_inbox_select_button">Select bundle</string>
+    <string name="satnet_maps_inbox_discard_button">Discard staged bundle</string>
+    <string name="satnet_maps_inbox_selected_badge">Selected</string>
+    <string name="satnet_maps_inbox_signed_badge">Signed</string>
+    <string name="satnet_maps_inbox_error_wrong_passphrase">Unable to decrypt the selected bundle. Check the shared passphrase and try again.</string>
+    <string name="satnet_maps_inbox_preview_placeholder">Select a staged bundle, enter the shared passphrase, and preview it here before importing. Nothing is imported automatically.</string>
+    <string name="satnet_maps_inbox_pending_row">%1$s
+Export: %2$s
+Bookmarks: %3$d
+Protection: %4$s
+Signer: %5$s</string>
+    <string name="satnet_maps_history_row">%1$s
+Export: %2$s
+Bookmarks: %3$d
+Protection: %4$s
+Signer: %5$s</string>
+    <string name="satnet_maps_signer_none">Not signed</string>
+    <string name="satnet_maps_init_failed">SATNET Maps is unavailable on this device</string>
+
+    <string name="satnet_activity_label_role_setup">SATNET - Choose Your Role</string>
+    <string name="satnet_activity_label_wallet_setup">SATNET - Bitcoin Wallet Setup</string>
+    <string name="satnet_activity_label_wallet_unlock">SATNET - Wallet PIN Access</string>
+    <string name="satnet_activity_label_wallet">Bitcoin Wallet</string>
+    <string name="satnet_activity_label_agent">Issue Bitcoin Voucher</string>
+    <string name="satnet_activity_label_merchant">Merchant Lightning Payments</string>
+    <string name="satnet_activity_label_redeem">Redeem Bitcoin Voucher</string>
+    <string name="satnet_activity_label_scanner">Scan Voucher QR</string>
+    <string name="satnet_activity_label_verifier">Verifier Dashboard</string>
+    <string name="satnet_activity_label_maps">SATNET Maps</string>
+    <string name="satnet_activity_label_maps_inbox">SATNET Maps Inbox</string>
+</resources>

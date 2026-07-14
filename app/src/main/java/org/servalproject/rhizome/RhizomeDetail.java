@@ -35,6 +35,7 @@ import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.provider.RhizomeProvider;
 import org.servalproject.servaldna.ServalDCommand;
+import org.servalproject.util.FileUriSupport;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -81,21 +82,17 @@ public class RhizomeDetail extends Dialog implements View.OnClickListener {
 
 	@Override
 	public void onClick(View view) {
-		switch(view.getId()){
-			case R.id.Cancel:
-				cancel();
-				break;
-			case R.id.Open:
-				onOpenButtonClicked();
-				break;
-			case R.id.Save:
-				onSaveButtonClicked();
-				break;
-			case R.id.Unshare:
-				onUnshareButtonClicked();
-				break;
-			case R.id.Delete:
-				onDeleteButtonClicked();
+		int id = view.getId();
+		if (id == R.id.Cancel) {
+			cancel();
+		} else if (id == R.id.Open) {
+			onOpenButtonClicked();
+		} else if (id == R.id.Save) {
+			onSaveButtonClicked();
+		} else if (id == R.id.Unshare) {
+			onUnshareButtonClicked();
+		} else if (id == R.id.Delete) {
+			onDeleteButtonClicked();
 		}
 	}
 
@@ -224,7 +221,7 @@ public class RhizomeDetail extends Dialog implements View.OnClickListener {
 
 			Uri uri = null;
 			if (mPayloadFile != null && mPayloadFile.exists()) {
-				uri = Uri.fromFile(mPayloadFile);
+				uri = FileUriSupport.getSharableUri(getContext(), mPayloadFile);
 			} else {
 				uri = Uri.parse("content://"
 						+ RhizomeProvider.AUTHORITY + "/"
@@ -238,6 +235,7 @@ public class RhizomeDetail extends Dialog implements View.OnClickListener {
 			Intent intent = new Intent();
 			intent.setAction(Intent.ACTION_VIEW);
 			intent.setDataAndType(uri, contentType);
+			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 			getContext().startActivity(intent);
 			dismiss();
 		}catch (ActivityNotFoundException e) {

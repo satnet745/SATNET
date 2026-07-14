@@ -1,21 +1,8 @@
-/**
- * Copyright (C) 2011 The Serval Project
- *
- * This file is part of Serval Software (http://www.servalproject.org)
- *
- * Serval Software is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ * SATNET maintenance note:
+ * This file is maintained as part of SATNET and builds on historical upstream work.
+ * Copyright (C) 2011 The Serval Project.
+ * Licensed under GPL-3.0-or-later; see LICENSE-SOFTWARE.md.
  */
 
 package org.servalproject.rhizome;
@@ -75,9 +62,6 @@ public class RhizomeStorage extends Activity
 			stats = new StatFs(Environment.getExternalStorageDirectory()
 					.getPath());
 
-			// Add 'Total Size' to the output string:
-			outputInfo = "Total Size: ";
-
 			// total usable size
 			totalSize = stats.getBlockCount() * stats.getBlockSize();
 
@@ -90,30 +74,29 @@ public class RhizomeStorage extends Activity
 
 			// Output the SD card's total size in gigabytes, megabytes,
 			// kilobytes and bytes
-			outputInfo += numberFormat.format((totalSize / 1073741824))
-					+ " GB ( " + numberFormat.format((totalSize / 1048576))
-					+ " MB ) \n";
+			String totalSizeText = getString(R.string.rhizome_storage_total_size,
+					numberFormat.format((totalSize / 1073741824)),
+					numberFormat.format((totalSize / 1048576)));
 			// + "Size in kilobytes: " + numberFormat.format((totalSize /
 			// (double)1024)) + " KB \n"
 			// + "Size in bytes: " + numberFormat.format(totalSize) + " B \n";
-
-			// Add 'Remaining Space' to the output string:
-			outputInfo += "Remaining Space: ";
 
 			// available free space
 			freeSpace = stats.getAvailableBlocks() * stats.getBlockSize();
 
 			// Output the SD card's available free space in gigabytes,
 			// megabytes, kilobytes and bytes
-			outputInfo += numberFormat.format((freeSpace / 1073741824))
-					+ " GB ( " + numberFormat.format((freeSpace / 1048576))
-					+ " MB ) \n";
+			String remainingSpaceText = getString(R.string.rhizome_storage_remaining_space,
+					numberFormat.format((freeSpace / 1073741824)),
+					numberFormat.format((freeSpace / 1048576)));
+			outputInfo = getString(R.string.rhizome_storage_summary,
+					totalSizeText, remainingSpaceText);
 			// + "Size in kilobytes: " + numberFormat.format((freeSpace /
 			// (double)1024)) + " KB \n"
 			// + "Size in bytes: " + numberFormat.format(freeSpace) + " B \n";
 
 			// output the SD card state
-			tv_state.setText("SD card found!");
+			tv_state.setText(R.string.rhizome_storage_found);
 			// output the SD card info
 			tv_info.setText(outputInfo);
 		}
@@ -121,8 +104,8 @@ public class RhizomeStorage extends Activity
 		{
 			// output the SD card state
 			tv_state.setTextColor(Color.RED);
-			tv_state.setText("SD card not found! SD card is \""
-					+ externalStorageState + "\".");
+			tv_state.setText(getString(R.string.rhizome_storage_not_found,
+					externalStorageState));
 		}
 	}
 }

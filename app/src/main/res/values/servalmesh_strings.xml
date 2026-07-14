@@ -22,7 +22,7 @@
  
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     
-    <!-- Serval Phone Calls -->
+    <!-- SATNET phone calls -->
 	<string name="in_call">In Call</string>
 	<string name="call_ended">Call Ended</string>
 	<string name="in_call_status_connected">Connected</string>
@@ -30,37 +30,86 @@
 	<string name="incoming_call">Incoming Call</string>
 	<string name="security_status">NOT SECURED</string>
 	<string name="contact_name">Test Name</string><!-- from contact book else string/unknown_contact -->
-	<string name="phone_number">55566666</string><!-- determined by Serval Mesh -->
-	<string name="caller_image">Caller Image</string>	
+  <string name="phone_number">55566666</string><!-- determined by SATNET -->
+	<string name="caller_image">Caller Image</string>
 	
- 	<!-- Serval MeshMS API Stuff -->
+  	<!-- SATNET MeshMS API stuff -->
     <string name="system_permission_meshms_send_label">Send MeshMS messages</string>
     <string name="system_permission_meshms_send_description">Allows an application to send MeshMS messages</string>
     
-    <!-- Serval Items Content Provider -->
+    <!-- Content provider -->
     <string name="system_content_provider_authority">org.servalproject.provider</string>
-    <string name="system_content_provider_label">Main Serval Content Provider</string>
-    
+    <string name="system_content_provider_label">Main SATNET Content Provider</string>
+
     <!-- Messages -->
     <string name="msgList_btn_new">+</string>
     <string name="messages_list_ui_contact_image_description">Contact Photo</string>
     <string name="messages_list_ui_toast_missing_id">Unable to select thread at this time, please try again later</string>
 	<string name="messages_list_header">Messages</string>
+	<string name="messages_list_intro">Local-first conversations that move across the mesh when peers are reachable.</string>
+    <string name="messages_list_status_default">Recent mesh conversations appear here.</string>
+    <string name="messages_list_status_loading">Refreshing recent mesh conversations…</string>
+    <string name="messages_list_empty">No conversations yet. When another reachable peer messages you, the thread will appear here.</string>
+    <string name="messages_list_no_number">No phone number available</string>
+    <string name="messages_list_sid_format">SID %1$s</string>
+    <string name="messages_list_unread_badge">NEW</string>
+    <string name="messages_list_row_accessibility">%1$s. %2$s. %3$s.%4$s</string>
+    <string name="messages_list_row_accessibility_unread_suffix"> Unread conversation.</string>
     <string name="new_message_ui_btn_send_message">Send</string>
     <string name="new_message_ui_dialog_recipient_empty">A recipient phone number is required</string>
     <string name="new_message_ui_dialog_recipient_invalid">The recipient phone number is invalid</string>
     <string name="new_message_ui_dialog_content_empty">MeshMS content is required</string>   
     <string name="new_message_hint_contact">To:</string>
+    <string name="show_conversation_title">Conversation</string>
+    <string name="show_conversation_intro">Send local-first messages that sync when the recipient is reachable on the mesh.</string>
     <string name="show_conversation_hint_message">Type message</string>
-    
+    <string name="show_conversation_empty">No messages yet. Say hello to start the conversation.</string>
+    <string name="show_conversation_recipient_meta">Phone: %1$s · SID %2$s</string>
+    <string name="show_conversation_recipient_meta_no_number">Mesh contact · SID %1$s</string>
+    <string name="show_conversation_status_loading">Refreshing conversation…</string>
+    <string name="show_conversation_status_ready">Messages update automatically when either side reconnects.</string>
+    <string name="show_conversation_status_draft_ready">Draft ready to send to %1$s.</string>
+    <string name="show_conversation_status_sent">Message sent.</string>
+    <string name="show_conversation_status_send_failed">Unable to send the message right now.</string>
+    <string name="show_conversation_shared_header">Shared from SATNET</string>
+    <string name="show_conversation_send_button_description">Send message to %1$s</string>
+    <string name="show_conversation_message_sent_accessibility">You said: %1$s</string>
+    <string name="show_conversation_message_received_accessibility">%1$s said: %2$s</string>
+    <string name="show_conversation_status_accessibility">Conversation update: %1$s</string>
+    <string name="show_conversation_shared_address_draft">Bitcoin receive address from SATNET
+%1$s</string>
+    <string name="show_conversation_peer_picker_title">Choose a peer to message</string>
+    <string name="show_conversation_thread_share_label">Share into conversation</string>
+
     <!-- contacts strings -->    
     <string name="contacts_ui_btn_lookup_peer">List Phones\nOn The Mesh</string>    
     <string name="contacts_ui_btn_lookup_contacts">Show Android\nContact List</string>
+    <string name="contacts_ui_lookup_peer_description">List phones on the mesh. See nearby or reachable mesh phones before calling or messaging.</string>
+    <string name="contacts_ui_lookup_contacts_description">Show Android contact list. Open the Android address book to reuse saved numbers and contact details.</string>
     <string name="contacts_header">Contacts</string>
-    
+    <string name="contacts_intro">Choose whether you want to find devices currently reachable on the mesh or browse the contacts already stored on this phone.</string>
+    <string name="contacts_mesh_description">See nearby or reachable mesh phones before calling or messaging.</string>
+    <string name="contacts_phone_description">Open the Android address book to reuse saved numbers and contact details.</string>
+    <string name="peer_list_reachable">Reachable on the mesh</string>
+    <string name="peer_list_unreachable">Not currently reachable</string>
+    <string name="peer_list_row_accessibility">%1$s. %2$s. %3$s. %4$s</string>
+    <string name="peer_list_action_call">Call %1$s</string>
+    <string name="peer_list_action_message">Message %1$s</string>
+    <string name="peer_list_action_add_contact">Add %1$s to contacts</string>
+
+    <plurals name="messages_list_conversation_count">
+        <item quantity="one">%d conversation ready</item>
+        <item quantity="other">%d conversations ready</item>
+    </plurals>
+
+    <plurals name="messages_list_conversation_count_with_unread">
+        <item quantity="one">%1$d conversation · %2$d unread</item>
+        <item quantity="other">%1$d conversations · %2$d unread</item>
+    </plurals>
+
 	<!-- third party control service-->
-	<string name="system_permission_control_label">Start and Stop the Serval Mesh</string>
-	
+  <string name="system_permission_control_label">Start and Stop SATNET</string>
+
     <!-- Wifi state strings -->
     <string name="wifi_enabling">Turning On</string>
     <string name="wifi_enabled">On</string>

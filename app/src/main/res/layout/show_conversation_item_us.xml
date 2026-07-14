@@ -3,18 +3,20 @@
     android:id="@+id/show_conversation_layout_us"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="left"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="100dp"
-    android:layout_marginBottom="5dp"
+    android:layout_gravity="start"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="72dp"
+    android:layout_marginBottom="4dp"
         >
 
     <TextView
         android:id="@+id/message_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:textSize="20dp"
-        android:background="@drawable/message_item_us"/>
+        android:layout_alignParentStart="true"
+        android:maxWidth="260dp"
+        android:background="@drawable/message_item_us"
+        android:padding="12dp"
+        android:textColor="@color/white"/>
 
 </RelativeLayout>

@@ -1,48 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:padding="12dp">
 
-    <TextView
-        android:id="@+id/show_conversation_ui_recipient"
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:id="@+id/show_conversation_header_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="5dp"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:ellipsize="end"
-        />
+        android:background="@drawable/messages_conversation_card"
+        android:orientation="vertical"
+        android:padding="14dp">
 
-    <EditText
-        android:id="@+id/show_conversation_ui_txt_content"
-        android:layout_width="fill_parent"
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/show_conversation_title"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/show_conversation_intro"
+            android:textColor="#FFD6D6D6" />
+
+        <TextView
+            android:id="@+id/show_conversation_ui_recipient"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/show_conversation_ui_recipient_meta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#FFBFD7B5"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/show_conversation_ui_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/show_conversation_status_ready"
+            android:textColor="#FFD6D6D6"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/show_conversation_composer_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/show_message_ui_btn_send_message"
-        android:layout_marginRight="1dp"
-        android:hint="@string/show_conversation_hint_message"
-        android:imeOptions="actionDone"
-        android:inputType="textMultiLine"
-        android:maxLines="3" />
+        android:background="@drawable/messages_conversation_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp">
 
-    <Button
-        android:id="@+id/show_message_ui_btn_send_message"
-        style="@style/sbtnmeshms"
-        android:layout_width="65dp"
-        android:layout_height="40dp"
-        android:layout_alignBottom="@id/show_conversation_ui_txt_content"
-        android:layout_alignParentRight="true"
-        android:text="@string/new_message_ui_btn_send_message" />
-    
+        <EditText
+            android:id="@+id/show_conversation_ui_txt_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:importantForAutofill="no"
+            android:background="@android:color/transparent"
+            android:hint="@string/show_conversation_hint_message"
+            android:imeOptions="actionDone"
+            android:inputType="textMultiLine"
+            android:maxLines="3"
+            android:minHeight="48dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="8dp"
+            android:textColor="@color/white"
+            android:textColorHint="#FF9AA39A" />
+
+        <Button
+            android:id="@+id/show_message_ui_btn_send_message"
+            style="@style/sbtnmeshms"
+            android:layout_width="72dp"
+            android:layout_height="40dp"
+            android:text="@string/new_message_ui_btn_send_message" />
+    </LinearLayout>
+
     <ListView
-        android:id="@android:id/android:list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_above="@id/show_conversation_ui_txt_content"
-        android:layout_below="@id/show_conversation_ui_recipient"
-        android:divider="@color/black"
-        android:dividerHeight="0px" />
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/show_conversation_composer_container"
+        android:layout_below="@id/show_conversation_header_container"
+        android:clipToPadding="false"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp"
+        android:listSelector="@android:color/transparent"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:scrollbarStyle="outsideInset" />
+
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/show_conversation_composer_container"
+        android:layout_below="@id/show_conversation_header_container"
+        android:gravity="center"
+        android:padding="24dp"
+        android:text="@string/show_conversation_empty"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:visibility="gone" />
 
 </RelativeLayout>

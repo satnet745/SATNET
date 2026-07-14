@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="Autofill,TextFields"
+    style="@style/SatnetScreenScroll">
+
+    <LinearLayout
+        style="@style/SatnetScreenContent">
+
+        <TextView
+            style="@style/SatnetHeaderTitle"
+            android:text="@string/satnet_role_setup_title" />
+
+        <TextView
+            style="@style/SatnetHeaderSubtitle"
+            android:text="@string/satnet_role_setup_subtitle" />
+
+        <TextView
+            android:id="@+id/satnet_stage_badge_text"
+            style="@style/SatnetHeaderBadge"
+            android:text="@string/satnet_role_setup_stage_placeholder"
+            />
+
+        <TextView
+            android:id="@+id/satnet_runtime_status_text"
+            style="@style/SatnetHeaderStatus"
+            android:text="@string/satnet_role_setup_runtime_placeholder"
+            />
+
+        <TextView
+            android:id="@+id/satnet_role_summary_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/satnet_role_setup_summary_placeholder"
+            android:textColor="@color/satnet_text_secondary" />
+
+        <RadioGroup
+            android:id="@+id/role_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <RadioButton
+                android:id="@+id/role_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_role_setup_option_user"
+                android:textSize="18sp"
+                android:checked="true"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/role_agent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_role_setup_option_agent"
+                android:textSize="18sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/role_merchant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_role_setup_option_merchant"
+                android:textSize="18sp"
+                android:padding="8dp"/>
+            
+            <RadioButton
+                android:id="@+id/role_verifier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_role_setup_option_verifier"
+                android:textSize="18sp"
+                android:padding="8dp"/>
+        </RadioGroup>
+
+        <LinearLayout
+            android:id="@+id/agent_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/agent_name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="name"
+                android:inputType="textCapWords|textPersonName"
+                android:hint="@string/satnet_role_setup_agent_name_hint"
+                tools:ignore="Autofill,TextFields"/>
+
+            <EditText
+                android:id="@+id/agent_location_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="postalAddress"
+                android:inputType="textPostalAddress|textCapWords"
+                android:hint="@string/satnet_role_setup_agent_location_hint"
+                tools:ignore="Autofill,TextFields"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/merchant_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/merchant_name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="name"
+                android:inputType="textCapWords|textPersonName"
+                android:hint="@string/satnet_role_setup_merchant_name_hint"
+                tools:ignore="Autofill,TextFields"/>
+
+            <EditText
+                android:id="@+id/merchant_type_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:importantForAutofill="no"
+                android:inputType="textCapWords"
+                android:hint="@string/satnet_role_setup_merchant_type_hint"
+                tools:ignore="Autofill,TextFields"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/next_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/satnet_role_setup_continue_button"
+            android:layout_marginTop="32dp"/>
+
+    </LinearLayout>
+</ScrollView>

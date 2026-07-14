@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="satnet_expiry_hours">
+        <item>1</item>
+        <item>6</item>
+        <item>12</item>
+        <item>24</item>
+        <item>48</item>
+        <item>72</item>
+    </string-array>
+
+    <string-array name="satnet_exchange_currencies">
+        <item>USD</item>
+        <item>EUR</item>
+        <item>GBP</item>
+        <item>JPY</item>
+        <item>NGN</item>
+        <item>GHS</item>
+        <item>ZAR</item>
+        <item>KES</item>
+        <item>UGX</item>
+        <item>TZS</item>
+        <item>ETB</item>
+        <item>CDF</item>
+        <item>SSP</item>
+        <item>INR</item>
+        <item>BRL</item>
+        <item>MXN</item>
+    </string-array>
+</resources>

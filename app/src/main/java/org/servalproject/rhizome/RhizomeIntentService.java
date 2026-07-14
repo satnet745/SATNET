@@ -66,16 +66,15 @@ public class RhizomeIntentService extends IntentService {
 				throw new IllegalArgumentException(
 						"service called without an intent");
 
-			if (!intent.getAction()
-					.equals("org.servalproject.rhizome.ADD_FILE"))
+			if (!"org.servalproject.rhizome.ADD_FILE".equals(intent.getAction()))
 				throw new IllegalArgumentException(
 						"service called with incorrect intent action");
 
-			String path = null;
+			String path;
 
 			Uri uri = intent.getData();
 			if (uri != null) {
-				path = ShareFileActivity.getRealPathFromURI(this, uri);
+				path = ShareFileActivity.resolveFileFromUri(this, uri).getAbsolutePath();
 			} else {
 				path = intent.getStringExtra("path");
 			}
@@ -92,7 +91,7 @@ public class RhizomeIntentService extends IntentService {
 			File mManifestFile = null;
 
 			String mManifest = intent.getStringExtra("manifest");
-			List<String> args = new ArrayList<String>();
+			List<String> args = new ArrayList<>();
 
 			if (mManifest != null) {
 				// use the supplied manifest
@@ -113,7 +112,7 @@ public class RhizomeIntentService extends IntentService {
 			KeyringIdentity identity = ServalBatPhoneApplication.context.server.getIdentity();
 
 			ServalDCommand.ManifestResult result = ServalDCommand.rhizomeAddFile(mPayloadFile,
-					mManifestFile, null, identity.sid, null, args.toArray(new String[args.size()]));
+					mManifestFile, null, identity.sid, null, args.toArray(new String[0]));
 
 			mManifest = intent.getStringExtra("save_manifest");
 			if (mManifest != null) {

@@ -1,4 +1,6 @@
-LOCAL_PATH:= $(call my-dir)
+# Capture JNI root path early and use consistently
+JNI_PATH := $(call my-dir)
+LOCAL_PATH := $(JNI_PATH)
 
 SODIUM_ARCH_FOLDER := $(APP_ABI)
 ifeq ($(SODIUM_ARCH_FOLDER),armeabi-v7a)
@@ -8,8 +10,8 @@ ifeq ($(SODIUM_ARCH_FOLDER),x86)
         SODIUM_ARCH_FOLDER = i686
 endif
 
-SODIUM_BASE := libsodium/libsodium-android-$(SODIUM_ARCH_FOLDER)
-SODIUM_INCLUDE := $(LOCAL_PATH)/$(SODIUM_BASE)/include
+# SODIUM_INCLUDE now points to source headers (libsodium built from source)
+SODIUM_INCLUDE := $(JNI_PATH)/libsodium/src/libsodium/include
 
 # Build iwconfig binary
 include $(CLEAR_VARS)
@@ -26,7 +28,7 @@ LOCAL_CFLAGS += -fPIE
 LOCAL_LDFLAGS += -fPIE -pie
 include $(BUILD_EXECUTABLE)
 
-# Build ifconfig binary
+# Build ifconfig binaries
 include $(CLEAR_VARS)
 LOCAL_MODULE:= ifconfig-NOPIE
 LOCAL_SRC_FILES:= ifconfig/ifconfig.c
@@ -39,10 +41,10 @@ LOCAL_CFLAGS += -fPIE
 LOCAL_LDFLAGS += -fPIE -pie
 include $(BUILD_EXECUTABLE)
 
-# Build adhoc-edify
-include $(LOCAL_PATH)/adhoc-edify/Android.mk
+# Build adhoc-edify - DISABLED: depends on hardware_legacy which is not available
+# include $(LOCAL_PATH)/adhoc-edify/Android.mk
 
-# Codec 2
+# Codec2 shared library
 include $(CLEAR_VARS)
 LOCAL_MODULE := libservalcodec2
 LOCAL_CFLAGS := -O3 -ffast-math -DNDEBUG
@@ -62,9 +64,12 @@ LOCAL_SRC_FILES := codec2/dump.c codec2/lpc.c \
 include $(BUILD_SHARED_LIBRARY)
 
 
-# Build libopus
-include $(LOCAL_PATH)/opus/Android.mk
+# Build libopus (this include overrides LOCAL_PATH internally)
+include $(JNI_PATH)/opus/Android.mk
+# Restore LOCAL_PATH to JNI root after including opus
+LOCAL_PATH := $(JNI_PATH)
 
+# libnl static library
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES :=  libnl/cache.c \
         libnl/data.c \
@@ -110,39 +115,45 @@ LOCAL_LDFLAGS := -Wl,--no-gc-sections -fPIE -pie
 LOCAL_STATIC_LIBRARIES += libnl
 include $(BUILD_EXECUTABLE)
 
-include $(CLEAR_VARS)
-LOCAL_MODULE:= sodium
-LOCAL_SRC_FILES:= $(SODIUM_BASE)/lib/libsodium.a
-include $(PREBUILT_STATIC_LIBRARY)
+# Build libsodium from source (this include overrides LOCAL_PATH internally)
+include $(JNI_PATH)/libsodium/Android.mk
+# Restore LOCAL_PATH to JNI root BEFORE including serval-dna to avoid wrong path
+LOCAL_PATH := $(JNI_PATH)
 
+# Build serval-dna static library (defines module 'servaldstatic')
+include $(LOCAL_PATH)/serval-dna/Android.mk
+
+# Ensure we are back at JNI root
+LOCAL_PATH := $(JNI_PATH)
+
+# servaldaemon shared library linking against servaldstatic
 include $(CLEAR_VARS)
 LOCAL_STATIC_LIBRARIES := servaldstatic
-LOCAL_C_INCLUDES += $(LOCAL_PATH)/serval-dna
-LOCAL_SRC_FILES := $(LOCAL_PATH)/batphone_features.c
+LOCAL_C_INCLUDES += $(JNI_PATH)/serval-dna
+LOCAL_SRC_FILES := batphone_features.c
 LOCAL_MODULE := servaldaemon
-LOCAL_LDLIBS += -L$(SYSROOT)/usr/lib -llog
+LOCAL_LDLIBS += -llog
 include $(BUILD_SHARED_LIBRARY)
 
+# Optional wrapped executable
 ifdef SERVALD_WRAP
   include $(CLEAR_VARS)
-  LOCAL_SRC_FILES:= $(LOCAL_PATH)/serval-dna/servalwrap.c
+  LOCAL_SRC_FILES:= $(JNI_PATH)/serval-dna/servalwrap.c
   LOCAL_MODULE:= servald
   LOCAL_CFLAGS += -fPIE
   LOCAL_LDFLAGS += -fPIE -pie
   include $(BUILD_EXECUTABLE)
 endif
 
+# Optional simple executable
 ifdef SERVALD_SIMPLE
   include $(CLEAR_VARS)
-  LOCAL_STATIC_LIBRARIES := servaldstatic
-  LOCAL_C_INCLUDES += $(LOCAL_PATH)/serval-dna
-  LOCAL_SRC_FILES := $(LOCAL_PATH)/batphone_features.c
+  LOCAL_C_INCLUDES += $(JNI_PATH)/serval-dna
+  LOCAL_SRC_FILES := batphone_features.c
   LOCAL_MODULE:= servaldsimple
   LOCAL_CFLAGS += -fPIE
   LOCAL_LDFLAGS += -fPIE -pie
   LOCAL_LDLIBS += -L$(SYSROOT)/usr/lib -llog
+  LOCAL_STATIC_LIBRARIES := servaldstatic
   include $(BUILD_EXECUTABLE)
 endif
-
-# Build serval-dna library & binary
-include $(LOCAL_PATH)/serval-dna/Android.mk

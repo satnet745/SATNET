@@ -11,11 +11,13 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -31,11 +33,13 @@ import org.servalproject.Control;
 import org.servalproject.PreparationWizard;
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
+import org.servalproject.permissions.RuntimePermissionGate;
 import org.servalproject.servald.ServalD;
 import org.servalproject.system.CommotionAdhoc;
 import org.servalproject.system.NetworkManager;
 import org.servalproject.system.NetworkState;
 import org.servalproject.system.ScanResults;
+import org.servalproject.system.bluetooth.BlueToothControl;
 import org.servalproject.system.WifiAdhocControl;
 import org.servalproject.system.WifiAdhocNetwork;
 import org.servalproject.system.WifiApControl;
@@ -46,7 +50,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
 public class Networks extends Activity implements CompoundButton.OnCheckedChangeListener {
+	static final int BLUETOOTH_PERMISSIONS_REQUEST = 0xB710;
+	private static final String BLUETOOTH_CONNECT_PERMISSION = "android.permission.BLUETOOTH_CONNECT";
+	private static final String BLUETOOTH_SCAN_PERMISSION = "android.permission.BLUETOOTH_SCAN";
+	private static final String BLUETOOTH_ADVERTISE_PERMISSION = "android.permission.BLUETOOTH_ADVERTISE";
+	private static final String[] BLUETOOTH_RUNTIME_PERMISSIONS = new String[]{
+			BLUETOOTH_CONNECT_PERMISSION,
+			BLUETOOTH_SCAN_PERMISSION,
+			BLUETOOTH_ADVERTISE_PERMISSION
+	};
+
 	private SimpleAdapter<NetworkControl> adapter;
 	private ListView listView;
 	private ServalBatPhoneApplication app;
@@ -54,20 +71,106 @@ public class Networks extends Activity implements CompoundButton.OnCheckedChange
 	private TextView status;
 	private CheckBox enabled;
 	private static final String TAG="Networks";
+	private boolean pendingBluetoothEnableAfterPermission = false;
+	private boolean bluetoothPermissionsRequestedInSession = false;
+
+	public static String[] getBluetoothRuntimePermissionsForSdk(int sdkInt) {
+		return sdkInt >= Build.VERSION_CODES.S ? BLUETOOTH_RUNTIME_PERMISSIONS.clone() : new String[0];
+	}
+
+	private String[] getBluetoothRuntimePermissions() {
+		return getBluetoothRuntimePermissionsForSdk(Build.VERSION.SDK_INT);
+	}
+
+	private boolean hasBluetoothRuntimePermissions() {
+		return RuntimePermissionGate.hasPermissions(this, getBluetoothRuntimePermissions());
+	}
+
+	private boolean ensureBluetoothRuntimePermissions() {
+		String[] missingPermissions = RuntimePermissionGate.getMissingPermissions(this, getBluetoothRuntimePermissions());
+		if (missingPermissions.length == 0)
+			return true;
+
+		if (bluetoothPermissionsRequestedInSession
+				&& !RuntimePermissionGate.shouldShowAnyRequestPermissionRationale(this, missingPermissions)) {
+			showBluetoothPermissionSettingsDialog();
+			return false;
+		}
+
+		if (RuntimePermissionGate.shouldShowAnyRequestPermissionRationale(this, missingPermissions)) {
+			showBluetoothPermissionRationaleDialog(missingPermissions);
+		} else {
+			requestBluetoothRuntimePermissions(missingPermissions);
+		}
+		return false;
+	}
+
+	private void requestBluetoothRuntimePermissions(String[] permissions) {
+		bluetoothPermissionsRequestedInSession = true;
+		RuntimePermissionGate.requestPermissions(this, permissions, BLUETOOTH_PERMISSIONS_REQUEST);
+	}
+
+	private void showBluetoothPermissionRationaleDialog(final String[] permissions) {
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.bluetooth_permission_dialog_title)
+				.setMessage(R.string.bluetooth_permission_rationale)
+				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialogInterface, int which) {
+						pendingBluetoothEnableAfterPermission = false;
+						runOnUiThread(notifyChanged);
+					}
+				})
+				.setPositiveButton(R.string.bluetooth_permission_continue, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialogInterface, int which) {
+						requestBluetoothRuntimePermissions(permissions);
+					}
+				})
+				.show();
+	}
+
+	private void showBluetoothPermissionSettingsDialog() {
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.bluetooth_permission_dialog_title)
+				.setMessage(R.string.bluetooth_permission_settings_message)
+				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialogInterface, int which) {
+						pendingBluetoothEnableAfterPermission = false;
+						runOnUiThread(notifyChanged);
+					}
+				})
+				.setPositiveButton(R.string.bluetooth_permission_open_settings, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialogInterface, int which) {
+						Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+						intent.setData(Uri.fromParts("package", getPackageName(), null));
+						startActivity(intent);
+					}
+				})
+				.show();
+	}
+
+	private void enableBluetoothNetworking() {
+		pendingBluetoothEnableAfterPermission = false;
+		setEnabled(true);
+		BlueToothControl bluetoothControl = app != null && app.nm != null ? app.nm.blueToothControl : null;
+		if (bluetoothControl != null)
+			bluetoothControl.requestDiscoverable(this);
+	}
 
 	@Override
 	public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-		switch(compoundButton.getId()){
-			case R.id.enabled:
-				setEnabled(isChecked);
-				break;
+		if (compoundButton.getId() == R.id.enabled) {
+			setEnabled(isChecked);
 		}
 	}
 
 	private void setEnabled(boolean isEnabled){
 		SharedPreferences.Editor e = app.settings.edit();
 		e.putBoolean("meshRunning", isEnabled);
-		e.commit();
+		e.apply();
 
 		app.nm.onEnableChanged(isEnabled);
 
@@ -121,20 +224,16 @@ public class Networks extends Activity implements CompoundButton.OnCheckedChange
 
 		@Override
 		public void onClick(View view){
-			switch(view.getId()){
-				case R.id.enabled:
-				{
-					boolean isChecked = enabled.isChecked();
-					NetworkState state = getState();
-					if (state == NetworkState.Enabled && !isChecked)
-						disable();
-					else if ((state == null || state==NetworkState.Disabled || state==NetworkState.Error) && isChecked)
-						enable();
-					this.updateEnabled();
-				}
-					break;
-				default:
-					clicked();
+			if (view.getId() == R.id.enabled) {
+				boolean isChecked = enabled.isChecked();
+				NetworkState state = getState();
+				if (state == NetworkState.Enabled && !isChecked)
+					disable();
+				else if ((state == null || state==NetworkState.Disabled || state==NetworkState.Error) && isChecked)
+					enable();
+				this.updateEnabled();
+			} else {
+				clicked();
 			}
 		}
 
@@ -465,6 +564,10 @@ public class Networks extends Activity implements CompoundButton.OnCheckedChange
 	};
 
 	private NetworkControl Bluetooth = new NetworkControl() {
+		private BlueToothControl getBluetoothControl() {
+			return app != null && app.nm != null ? app.nm.blueToothControl : null;
+		}
+
 		@Override
 		CharSequence getTitle() {
 			return getString(R.string.bluetooth);
@@ -472,18 +575,27 @@ public class Networks extends Activity implements CompoundButton.OnCheckedChange
 
 		@Override
 		NetworkState getState() {
-			return app.nm.blueToothControl.getState();
+			BlueToothControl bluetoothControl = getBluetoothControl();
+			return bluetoothControl == null ? NetworkState.Disabled : bluetoothControl.getState();
 		}
 
 		@Override
 		void enable() {
-			setEnabled(true);
-			app.nm.blueToothControl.requestDiscoverable(Networks.this);
+			if (!ensureBluetoothRuntimePermissions()) {
+				pendingBluetoothEnableAfterPermission = true;
+				app.displayToastMessage(getString(R.string.bluetooth_permission_required));
+				return;
+			}
+			enableBluetoothNetworking();
 		}
 
 		@Override
 		void disable() {
-			app.nm.blueToothControl.setEnabled(false);
+			pendingBluetoothEnableAfterPermission = false;
+			setEnabled(false);
+			BlueToothControl bluetoothControl = getBluetoothControl();
+			if (bluetoothControl != null)
+				bluetoothControl.setEnabled(false);
 		}
 
 		Intent getIntentAction() {
@@ -492,7 +604,10 @@ public class Networks extends Activity implements CompoundButton.OnCheckedChange
 
 		@Override
 		CharSequence getStatus() {
-			if (getState()==NetworkState.Enabled && !app.nm.blueToothControl.isDiscoverable())
+			BlueToothControl bluetoothControl = getBluetoothControl();
+			if (bluetoothControl != null && !hasBluetoothRuntimePermissions())
+				return getText(R.string.bluetooth_permission_required);
+			if (bluetoothControl != null && getState()==NetworkState.Enabled && !bluetoothControl.isDiscoverable())
 				return getText(R.string.bluetooth_not_discoverable);
 			return super.getStatus();
 		}
@@ -564,7 +679,7 @@ public class Networks extends Activity implements CompoundButton.OnCheckedChange
 		filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 		if (nm.control.wifiApManager!=null)
 			filter.addAction(WifiApControl.WIFI_AP_STATE_CHANGED_ACTION);
-		this.registerReceiver(receiver, filter);
+		ContextCompat.registerReceiver(this, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
 
 		this.enabled.setChecked(app.settings.getBoolean("meshRunning", false));
 		statusChanged(app.server.getStatus());
@@ -574,6 +689,38 @@ public class Networks extends Activity implements CompoundButton.OnCheckedChange
 	protected void onPause() {
 		super.onPause();
 		this.unregisterReceiver(receiver);
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		if (requestCode != BLUETOOTH_PERMISSIONS_REQUEST) {
+			return;
+		}
+
+		boolean granted = grantResults.length > 0;
+		for (int result : grantResults) {
+			if (result != PackageManager.PERMISSION_GRANTED) {
+				granted = false;
+				break;
+			}
+		}
+
+		if (!granted) {
+			String[] missingPermissions = RuntimePermissionGate.getMissingPermissions(this, getBluetoothRuntimePermissions());
+			if (missingPermissions.length > 0
+					&& bluetoothPermissionsRequestedInSession
+					&& !RuntimePermissionGate.shouldShowAnyRequestPermissionRationale(this, missingPermissions)) {
+				showBluetoothPermissionSettingsDialog();
+			} else {
+				pendingBluetoothEnableAfterPermission = false;
+				app.displayToastMessage(getString(R.string.bluetooth_permission_denied));
+			}
+		} else if (pendingBluetoothEnableAfterPermission) {
+			enableBluetoothNetworking();
+		}
+
+		runOnUiThread(notifyChanged);
 	}
 
 	private ViewBinder<NetworkControl> binder = new ViewBinder<NetworkControl>() {

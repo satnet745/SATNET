@@ -20,18 +20,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  -->
  
- <!-- @author Romana Challans <romana@servalproject.com> -->
- 
+ <!-- Maintained by SATNET contributors -->
+
  <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
      	
-	<!-- Serval Help -->  
-    <string name="help_header">Help and Information</string> 
+  <!-- SATNET Help -->
+    <string name="help_header">Help and Information</string>
     <string name="links_header">Quick Links</string>
     <string name="helpguide_header">Guide to Interface</string>
     <string name="accounts_contacts">Accounts &amp; Contacts</string>
     <string name="about_header">About</string>
     <string name="licences_header">Licence</string>
-    <string name="versiontitle">Serval Version:</string>
+    <string name="versiontitle">SATNET Version:</string>
 	<string name="licencetype">GNU General Public License(GPL) v3</string>
 	<string name="licenceurl">http://www.gnu.org/licenses/gpl.html</string>
 	  

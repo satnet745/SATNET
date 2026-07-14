@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/satnet_surface"
+    android:minHeight="72dp"
+    android:paddingStart="8dp"
+    android:paddingTop="4dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="4dp">
 
     <TextView
         android:id="@+id/Name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/call"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/call"
         android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceLarge" />
     
@@ -17,7 +23,10 @@
         android:id="@+id/call"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/chat"
+        android:focusable="true"
+        android:importantForAccessibility="yes"
+        android:layout_toStartOf="@+id/chat"
+        android:contentDescription="@string/callLabel"
         android:padding="4dp"
         android:src="@android:drawable/sym_action_call" />
 
@@ -25,7 +34,10 @@
         android:id="@+id/chat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/add_contact"        
+        android:focusable="true"
+        android:importantForAccessibility="yes"
+        android:layout_toStartOf="@+id/add_contact"
+        android:contentDescription="@string/messageLabel"
         android:padding="4dp"
         android:src="@android:drawable/sym_action_chat" />
     
@@ -33,7 +45,10 @@
         android:id="@+id/add_contact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:focusable="true"
+        android:importantForAccessibility="yes"
+        android:layout_alignParentEnd="true"
+        android:contentDescription="@string/contactsLabel"
         android:padding="4dp"
         android:src="@drawable/sym_action_add" />
 
@@ -41,7 +56,7 @@
         android:id="@+id/Number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/Name"
         android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -49,7 +64,7 @@
         android:id="@+id/sid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/Name"
         android:padding="4dp"
         android:textAppearance="?android:attr/textAppearanceSmall" />

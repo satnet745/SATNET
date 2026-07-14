@@ -22,13 +22,13 @@
  
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     
-	<!-- Serval Wizard -->
-	<string name="start1">Serval software is mesh network software designed for use where there is no existing infrastructure.</string>
+	<!-- SATNET wizard -->
+	<string name="start1">SATNET is local-first mesh network software designed for use where there is no existing infrastructure.</string>
     <string name="start2">To configure your phone for first time use, please use the Setup Wizard.</string>
-    <string name="welcome">Welcome to the Serval Mesh.</string>
+	<string name="welcome">Welcome to SATNET.</string>
 
-	<!-- Serval Wizard Wifi Settings -->
-    <string-array name="channelvalues">  
+	<!-- Wizard Wi-Fi settings -->
+    <string-array name="channelvalues">
 		<item>1</item>  
 		<item>2</item>  
 		<item>3</item>  

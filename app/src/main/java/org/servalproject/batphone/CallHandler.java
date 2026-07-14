@@ -1,5 +1,6 @@
 package org.servalproject.batphone;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,13 +9,13 @@ import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.SurfaceHolder;
 
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
@@ -31,17 +32,28 @@ import org.servalproject.servald.PeerListService;
 import org.servalproject.servald.ServalDMonitor;
 import org.servalproject.servaldna.SubscriberId;
 import org.servalproject.servaldna.keyring.KeyringIdentity;
+import org.servalproject.features.FeatureFlags;
+import org.servalproject.video.VideoCallManager;
+import org.servalproject.routing.MultiHopRoutingManager;
+import org.servalproject.relay.InternetRelayClient;
+import org.servalproject.relay.SmsRelayClient;
+import org.servalproject.relay.CensorshipResistantRelay;
+import org.servalproject.relay.RelayPacket;
+import org.servalproject.relay.RelayPacketListener;
+import org.servalproject.relay.RhizomeRelay;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 // This class maintains the state of a call
 // handles the lifecycle of recording and playback
 // and the triggers the display of any activities.
+@SuppressWarnings({"deprecation", "unused"})
 public class CallHandler {
 	final Peer remotePeer;
 	String did;
@@ -57,16 +69,15 @@ public class CallHandler {
 		End(R.string.call_ended);
 
 		public final int displayResource;
-		private CallState(int resource){
+		CallState(int resource){
 			this.displayResource = resource;
 		}
-	};
+	}
 
 	public CallState state = null;
 	public VoMP.Codec codec = VoMP.Codec.Signed16;
 	private long lastKeepAliveTime;
 	private long callStarted = SystemClock.elapsedRealtime();
-	private long callEnded;
 	private boolean uiStarted = false;
 	private boolean initiated = false;
 	private final ServalBatPhoneApplication app;
@@ -82,11 +93,43 @@ public class CallHandler {
 	private boolean ringing = false;
 	private boolean audioRunning = false;
 
+	// Video call support
+	private VideoCallManager videoManager;
+	private boolean videoEnabled = false;
+	private boolean remoteVideoEnabled = false;
+
+	// Multi-hop and relay support
+	private MultiHopRoutingManager routingManager;
+	private InternetRelayClient relayClient;
+	private MultiHopRoutingManager.RouteInfo currentRoute;
+	private boolean useRelay = false;
+
+	// Censorship-resistant relay support
+	private SmsRelayClient smsRelay;
+	private CensorshipResistantRelay censorshipRelay;
+	private boolean useCensorshipResistant = false;
+	private String fallbackCallId;
+	private static boolean relayCallbacksRegistered = false;
+
 	private static final String TAG = "CallHandler";
 	private AudioStream monitorOutput = new AudioStream() {
 		@Override
 		public int write(AudioBuffer buff) throws IOException {
 			try {
+				if (isUsingFallbackTransport()) {
+					byte[] payload = new byte[buff.dataLen];
+					System.arraycopy(buff.buff, 0, payload, 0, buff.dataLen);
+					RelayPacket packet = RelayPacket.create(RelayPacket.TYPE_AUDIO,
+							getLocalSubscriberId(),
+							remotePeer == null ? null : remotePeer.getSubscriberId());
+					packet.callId = getOrCreateFallbackCallId();
+					packet.codec = buff.codec == null ? codec.code : buff.codec.code;
+					packet.sampleStart = buff.sampleStart;
+					packet.sequence = buff.sequence;
+					packet.payload = payload;
+					sendFallbackPacket(packet);
+					return 0;
+				}
 				if (monitor.hasStopped())
 					throw new EOFException();
 				monitor.sendMessageAndData(buff.buff, buff.dataLen, "audio ",
@@ -129,8 +172,8 @@ public class CallHandler {
 		if (monitor == null)
 			throw new IOException(
 					"Not currently connected to serval daemon");
-		CallHandler call = app.callHandler = new CallHandler(app, monitor, peer);
-		return call;
+		app.callHandler = new CallHandler(app, monitor, peer);
+		return app.callHandler;
 	}
 
 	private static class EventMonitor implements ServalDMonitor.Messages {
@@ -269,10 +312,27 @@ public class CallHandler {
 		this.name = peer.name;
 		lastKeepAliveTime = SystemClock.elapsedRealtime();
 
-		timer.scheduleAtFixedRate(new TimerTask() {
+		this.routingManager = MultiHopRoutingManager.getInstance();
+
+		if (FeatureFlags.isRelayEnabled()) {
+			this.relayClient = InternetRelayClient.getInstance();
+			this.smsRelay = SmsRelayClient.getInstance(app);
+			this.censorshipRelay = CensorshipResistantRelay.getInstance(app);
+			applyRelayPreferences();
+			registerRelayCallbacks();
+		} else {
+			Log.i(TAG, "Relay feature is disabled in this build");
+		}
+
+		discoverRouteToPeer();
+
+		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				long now = SystemClock.elapsedRealtime();
+				if (state == CallState.InCall && isUsingFallbackTransport()) {
+					sendFallbackKeepAlive();
+				}
 				if (now > (lastKeepAliveTime + 5000)) {
 					// End call if no keep alive received
 					Log.d(TAG,
@@ -285,13 +345,390 @@ public class CallHandler {
 		}, 0, 3000);
 	}
 
+	/**
+	 * Discover the best route to the remote peer
+	 */
+	private void discoverRouteToPeer() {
+		if (remotePeer == null) {
+			return;
+		}
+
+		if (!FeatureFlags.isExperimentalRoutingEnabled()) {
+			currentRoute = null;
+			useRelay = false;
+			useCensorshipResistant = false;
+			return;
+		}
+
+		currentRoute = routingManager.findBestRoute(remotePeer.getSubscriberId());
+
+		if (currentRoute != null) {
+			Log.i(TAG, "Route to " + remotePeer.getDisplayName() + ": " +
+					  currentRoute.type + " (" + currentRoute.hopCount + " hops)");
+
+			switch (currentRoute.type) {
+				case INTERNET_RELAY:
+				case HYBRID:
+					if (!FeatureFlags.isRelayEnabled()) {
+						Log.i(TAG, "Skipping relay path because relay feature is disabled");
+						break;
+					}
+					useRelay = true;
+					establishRelaySession();
+					break;
+
+				case SMS_RELAY:
+				case TOR_RELAY:
+				case I2P_RELAY:
+					if (!FeatureFlags.isRelayEnabled()) {
+						Log.i(TAG, "Skipping censorship-resistant relay path because relay feature is disabled");
+						break;
+					}
+					useCensorshipResistant = true;
+					if (currentRoute.type == MultiHopRoutingManager.RouteType.SMS_RELAY) {
+						establishSmsRelay();
+					} else if (currentRoute.type == MultiHopRoutingManager.RouteType.TOR_RELAY) {
+						establishTorRelay();
+					} else {
+						establishI2PRelay();
+					}
+					break;
+
+				case SNEAKERNET:
+					useCensorshipResistant = true;
+					Log.i(TAG, "Using store-and-forward (Rhizome) - expect delays");
+					break;
+
+				default:
+					break;
+			}
+		} else {
+			Log.w(TAG, "No route found to " + remotePeer.getDisplayName());
+		}
+	}
+
+	private void establishRelaySession() {
+		if (!FeatureFlags.isRelayEnabled()) {
+			useRelay = false;
+			return;
+		}
+		if (relayClient == null) {
+			useRelay = false;
+			return;
+		}
+		if (!relayClient.isConnected()) {
+			Log.i(TAG, "Connecting to relay server...");
+			if (!relayClient.connect()) {
+				Log.e(TAG, "Failed to connect to relay server");
+				useRelay = false;
+				return;
+			}
+		}
+
+		boolean success = relayClient.establishSession(remotePeer.getSubscriberId());
+		if (!success) {
+			Log.e(TAG, "Failed to establish relay session");
+			useRelay = false;
+		} else {
+			Log.i(TAG, "Relay session established");
+		}
+	}
+
+	private void establishSmsRelay() {
+		if (!FeatureFlags.isRelayEnabled()) {
+			useCensorshipResistant = false;
+			return;
+		}
+		if (smsRelay == null) {
+			useCensorshipResistant = false;
+			return;
+		}
+		if (!smsRelay.isAvailable()) {
+			Log.e(TAG, "SMS relay not available");
+			useCensorshipResistant = false;
+			return;
+		}
+
+		if (remotePeer != null && (remotePeer.did != null || smsRelay.isAvailable())) {
+			Log.i(TAG, "SMS relay established - audio will be low quality");
+			app.displayToastMessage("Using SMS relay - lower quality, may incur SMS charges");
+		} else {
+			Log.e(TAG, "Failed to establish SMS relay");
+			useCensorshipResistant = false;
+		}
+	}
+
+	private void establishTorRelay() {
+		if (!FeatureFlags.isRelayEnabled()) {
+			useCensorshipResistant = false;
+			return;
+		}
+		if (censorshipRelay == null) {
+			useCensorshipResistant = false;
+			return;
+		}
+		censorshipRelay.setProxyType(CensorshipResistantRelay.ProxyType.TOR);
+
+		if (!censorshipRelay.connect()) {
+			Log.e(TAG, "Failed to connect via Tor");
+			app.displayToastMessage("Tor not available. Install Orbot.");
+			useCensorshipResistant = false;
+			return;
+		}
+
+		boolean success = censorshipRelay.establishSession(remotePeer.getSubscriberId());
+		if (success) {
+			Log.i(TAG, "Tor relay established - anonymous & censorship-resistant");
+			app.displayToastMessage("Connected via Tor (anonymous)");
+		} else {
+			Log.e(TAG, "Failed to establish Tor session");
+			useCensorshipResistant = false;
+		}
+	}
+
+	private void establishI2PRelay() {
+		if (!FeatureFlags.isRelayEnabled()) {
+			useCensorshipResistant = false;
+			return;
+		}
+		if (censorshipRelay == null) {
+			useCensorshipResistant = false;
+			return;
+		}
+		censorshipRelay.setProxyType(CensorshipResistantRelay.ProxyType.I2P);
+
+		if (!censorshipRelay.connect()) {
+			Log.e(TAG, "Failed to connect via I2P");
+			app.displayToastMessage("I2P not available. Install I2P Android.");
+			useCensorshipResistant = false;
+			return;
+		}
+
+		boolean success = censorshipRelay.establishSession(remotePeer.getSubscriberId());
+		if (success) {
+			Log.i(TAG, "I2P relay established - anonymous & censorship-resistant");
+			app.displayToastMessage("Connected via I2P (anonymous)");
+		} else {
+			Log.e(TAG, "Failed to establish I2P session");
+			useCensorshipResistant = false;
+		}
+	}
+
+	/**
+	 * Check if peer is reachable (nearby or faraway)
+	 */
+	public boolean isPeerReachable() {
+		if (currentRoute != null && currentRoute.isActive) {
+			return true;
+		}
+
+		// Try to rediscover route
+		discoverRouteToPeer();
+		return currentRoute != null && currentRoute.isActive;
+	}
+
+	/**
+	 * Get current route information
+	 */
+	public MultiHopRoutingManager.RouteInfo getCurrentRoute() {
+		return currentRoute;
+	}
+
+	/**
+	 * Check if call is using internet relay
+	 */
+	public boolean isUsingRelay() {
+		return useRelay;
+	}
+
+	/**
+	 * Get hop count to peer
+	 */
+	public int getHopCount() {
+		if (currentRoute != null) {
+			return currentRoute.hopCount;
+		}
+		return -1;
+	}
+
 	public void hangup() {
 		Log.d(TAG, "Hanging up");
 
-		if (!monitor.hasStopped())
+		if (!isUsingFallbackTransport() && !monitor.hasStopped())
 			monitor.sendMessageAndLog("hangup ", Integer.toHexString(local_id));
+		else if (isUsingFallbackTransport())
+			sendFallbackControl(RelayPacket.TYPE_CALL_END);
+
+		// Stop video if enabled
+		stopVideo();
+
+		// Close relay session if using relay
+		if (useRelay && remotePeer != null) {
+			relayClient.closeSession(remotePeer.getSubscriberId());
+		}
+
+		// Close censorship-resistant relay if using
+		if (useCensorshipResistant && remotePeer != null) {
+			if (currentRoute != null) {
+				switch (currentRoute.type) {
+					case SMS_RELAY:
+						smsRelay.sendCallSignal(remotePeer.getSubscriberId(), "CALL_END");
+						break;
+					case TOR_RELAY:
+					case I2P_RELAY:
+						censorshipRelay.closeSession(remotePeer.getSubscriberId());
+						break;
+					default:
+						break;
+				}
+			}
+		}
 
 		setCallState(CallState.End);
+	}
+
+	/**
+	 * Enable video calling for this call
+	 */
+	public boolean enableVideo(SurfaceHolder localPreview, android.view.Surface remoteSurface) {
+		if (videoEnabled) {
+			Log.w(TAG, "Video already enabled");
+			return true;
+		}
+
+		if (videoManager == null) {
+			videoManager = new VideoCallManager();
+			videoManager.setVideoStreamCallback(new VideoCallManager.VideoStreamCallback() {
+				@Override
+				public void onVideoDataReady(byte[] data, int length) {
+					// Send video data through monitor
+					sendVideoData(data, length);
+				}
+
+				@Override
+				public void onVideoFrameDecoded(byte[] data, int width, int height) {
+					// Video frame decoded and ready for display
+				}
+			});
+		}
+
+		boolean success = videoManager.startVideoCapture(localPreview);
+		if (success && remoteSurface != null) {
+			videoManager.initializeVideoDecoder(remoteSurface);
+		}
+
+		if (success) {
+			videoEnabled = true;
+			// Notify remote peer that video is enabled
+			if (!monitor.hasStopped()) {
+				monitor.sendMessageAndLog("video enable ", Integer.toHexString(local_id));
+			}
+			Log.i(TAG, "Video enabled for call");
+		}
+
+		return success;
+	}
+
+	/**
+	 * Disable video calling
+	 */
+	public void disableVideo() {
+		if (!videoEnabled) {
+			return;
+		}
+
+		videoEnabled = false;
+
+		if (videoManager != null) {
+			videoManager.stopVideoCapture();
+		}
+
+		// Notify remote peer that video is disabled
+		if (!monitor.hasStopped()) {
+			monitor.sendMessageAndLog("video disable ", Integer.toHexString(local_id));
+		}
+
+		Log.i(TAG, "Video disabled for call");
+	}
+
+	/**
+	 * Toggle video on/off
+	 */
+	public boolean toggleVideo(SurfaceHolder localPreview, android.view.Surface remoteSurface) {
+		if (videoEnabled) {
+			disableVideo();
+			return false;
+		} else {
+			return enableVideo(localPreview, remoteSurface);
+		}
+	}
+
+	/**
+	 * Switch between front and back camera
+	 */
+	public void switchCamera() {
+		if (videoManager != null && videoEnabled) {
+			videoManager.switchCamera();
+		}
+	}
+
+	/**
+	 * Send video data to remote peer
+	 */
+	private void sendVideoData(byte[] data, int length) {
+		if (!monitor.hasStopped() && videoEnabled) {
+			try {
+				monitor.sendMessageAndData(data, length, "video ",
+						localIdString, " ", Integer.toString(length));
+			} catch (IOException e) {
+				Log.e(TAG, "Error sending video data", e);
+			}
+		}
+	}
+
+	/**
+	 * Handle incoming video data from remote peer
+	 */
+	public void handleIncomingVideoData(byte[] data, int length) {
+		if (videoManager != null && videoEnabled) {
+			videoManager.feedVideoData(data, length);
+		}
+	}
+
+	/**
+	 * Stop video and release resources
+	 */
+	private void stopVideo() {
+		if (videoManager != null) {
+			videoManager.stopVideoCapture();
+			videoManager = null;
+		}
+		videoEnabled = false;
+		remoteVideoEnabled = false;
+	}
+
+	/**
+	 * Check if video is currently enabled
+	 */
+	public boolean isVideoEnabled() {
+		return videoEnabled;
+	}
+
+	/**
+	 * Check if remote peer has video enabled
+	 */
+	public boolean isRemoteVideoEnabled() {
+		return remoteVideoEnabled;
+	}
+
+	/**
+	 * Set remote video status (called when receiving video enable/disable from peer)
+	 */
+	public void setRemoteVideoEnabled(boolean enabled) {
+		this.remoteVideoEnabled = enabled;
+		if (ui != null) {
+			ui.runOnUiThread(ui.updateCallStatus);
+		}
 	}
 
 	private void stopRinging(){
@@ -317,7 +754,12 @@ public class CallHandler {
 		CallHandler call = app.callHandler;
 		if (state == CallState.Ringing && call !=null){
 			Log.d(TAG, "Picking up");
-			monitor.sendMessageAndLog("pickup ", Integer.toHexString(local_id));
+			if (isUsingFallbackTransport()) {
+				ensureFallbackAudioReady();
+				sendFallbackControl(RelayPacket.TYPE_CALL_ACCEPT);
+			} else {
+				monitor.sendMessageAndLog("pickup ", Integer.toHexString(local_id));
+			}
 			call.setCallState(CallState.InCall);
 		}
 	}
@@ -342,7 +784,7 @@ public class CallHandler {
 			} catch (Exception e) {
 				m.release();
 				Log.e(TAG,
-						"Could not get ring tone: " + e.toString(), e);
+						"Could not get ring tone: " + e.getMessage(), e);
 			}
 			mediaPlayer = m;
 		} else {
@@ -363,6 +805,9 @@ public class CallHandler {
 
 	private void startAudio() {
 		try {
+			if (isUsingFallbackTransport()) {
+				ensureFallbackAudioReady();
+			}
 			if (this.recorder == null)
 				throw new IllegalStateException(
 						"Audio recorder has not been initialised");
@@ -415,6 +860,10 @@ public class CallHandler {
 		this.state = state;
 		Log.v(TAG, "Call state changed to " + state);
 
+		if (state == CallState.InCall && isUsingFallbackTransport()) {
+			ensureFallbackAudioReady();
+		}
+
 		// TODO play audio indicator for Prep / RemoteRinging / End
 
 		if (ringing != (state == CallState.Ringing)) {
@@ -425,7 +874,6 @@ public class CallHandler {
 		}
 		if (audioRunning != (state == CallState.InCall)) {
 			if (audioRunning) {
-				callEnded = SystemClock.elapsedRealtime();
 				stopAudio();
 			} else {
 				callStarted = SystemClock.elapsedRealtime();
@@ -490,7 +938,13 @@ public class CallHandler {
 					0
 			);
 
-			nm.notify("Call", ServalBatPhoneApplication.NOTIFY_CALL, inCall);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+					|| app.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+					== android.content.pm.PackageManager.PERMISSION_GRANTED) {
+				nm.notify("Call", ServalBatPhoneApplication.NOTIFY_CALL, inCall);
+			} else {
+				Log.i(TAG, "Skipping call notification: POST_NOTIFICATIONS not granted");
+			}
 		}
 	}
 
@@ -502,6 +956,28 @@ public class CallHandler {
 	public void dial() {
 
 		try{
+			if (isUsingFallbackTransport()) {
+				initiated = true;
+				local_id = (int) (System.currentTimeMillis() & 0x7fffffff);
+				localIdString = Integer.toHexString(local_id);
+				if (currentRoute != null && currentRoute.type == MultiHopRoutingManager.RouteType.SNEAKERNET) {
+					RelayPacket packet = RelayPacket.create(RelayPacket.TYPE_MISSED_CALL,
+							app.server.getIdentity().sid,
+							remotePeer.sid);
+					packet.callId = getOrCreateFallbackCallId();
+					packet.text = transportHintForCurrentRoute();
+					if (RhizomeRelay.publishPacket(packet)) {
+						app.displayToastMessage("Queued Rhizome call request for delayed delivery");
+						setCallState(CallState.End);
+					} else {
+						throw new IOException("Unable to queue Rhizome fallback");
+					}
+					return;
+				}
+				setCallState(CallState.Prep);
+				sendFallbackControl(RelayPacket.TYPE_CALL_INIT);
+				return;
+			}
 			KeyringIdentity identity = app.server.getIdentity();
 			Log.v(TAG, "Calling " + remotePeer.sid.abbreviation() + "/"
 					+ did);
@@ -552,6 +1028,29 @@ public class CallHandler {
 		return read;
 	}
 
+	private void receivedRelayAudio(RelayPacket packet) throws IOException {
+		if (state != CallState.InCall || packet.payload == null)
+			return;
+
+		if (bufferList == null)
+			bufferList = new BufferList(VoMP.Codec.Signed16.maxBufferSize() / 2);
+		if (player == null)
+			return;
+
+		AudioBuffer buff = bufferList.getBuffer();
+		buff.received = lastKeepAliveTime;
+		buff.codec = VoMP.Codec.getCodec(packet.codec);
+		if (buff.codec == null)
+			buff.codec = codec;
+		buff.sampleStart = packet.sampleStart;
+		buff.sequence = packet.sequence;
+		player.setJitterDelay(packet.jitterDelay);
+		buff.thisDelay = packet.thisDelay;
+		buff.dataLen = Math.min(packet.payload.length, buff.buff.length);
+		System.arraycopy(packet.payload, 0, buff.buff, 0, buff.dataLen);
+		player.write(buff);
+	}
+
 	public void codecs(Iterator<String> args) {
 		try {
 			VoMP.Codec best = null;
@@ -559,7 +1058,7 @@ public class CallHandler {
 			while (args.hasNext()) {
 				int c = ServalDMonitor.parseInt(args.next());
 				VoMP.Codec codec = VoMP.Codec.getCodec(c);
-				if (!codec.isSupported())
+				if (codec == null || !codec.isSupported())
 					continue;
 
 				if (best == null || codec.preference > best.preference) {
@@ -571,9 +1070,7 @@ public class CallHandler {
 				throw new IOException("Unable to find a common codec");
 
 			this.codec = best;
-			int audioSource = MediaRecorder.AudioSource.MIC;
-			if (Build.VERSION.SDK_INT >= 11)
-				audioSource = 7; //MediaRecorder.AudioSource.VOICE_COMMUNICATION;
+			int audioSource = 7; // MediaRecorder.AudioSource.VOICE_COMMUNICATION;
 			recorder = new AudioRecordStream(
 					null,
 					audioSource,
@@ -594,6 +1091,290 @@ public class CallHandler {
 
 	public long getCallStarted() {
 		return callStarted;
+	}
+
+	public String getRouteIndicatorText() {
+		if (currentRoute == null || currentRoute.type == null) {
+			return app.getString(R.string.route_indicator_none);
+		}
+		int routeLabel;
+		switch (currentRoute.type) {
+			case INTERNET_RELAY:
+				routeLabel = R.string.route_relay;
+				break;
+			case HYBRID:
+				routeLabel = R.string.route_hybrid;
+				break;
+			case SMS_RELAY:
+				routeLabel = R.string.route_sms;
+				break;
+			case TOR_RELAY:
+				routeLabel = R.string.route_tor;
+				break;
+			case I2P_RELAY:
+				routeLabel = R.string.route_i2p;
+				break;
+			case SNEAKERNET:
+				routeLabel = R.string.route_sneakernet;
+				break;
+			case MULTI_HOP:
+				routeLabel = R.string.route_multihop;
+				break;
+			case DIRECT:
+			default:
+				routeLabel = R.string.route_direct;
+				break;
+		}
+		String routeName = app.getString(routeLabel);
+		if (currentRoute.hopCount > 1) {
+			return app.getString(R.string.route_indicator_with_hops, routeName, currentRoute.hopCount);
+		}
+		return routeName;
+	}
+
+	private static synchronized void registerRelayCallbacks() {
+		if (relayCallbacksRegistered) {
+			return;
+		}
+		RelayPacketListener listener = new RelayPacketListener() {
+			@Override
+			public void onPacketReceived(RelayPacket packet) {
+				handleIncomingRelayPacket(packet);
+			}
+
+			@Override
+			public void onConnectionEstablished(SubscriberId peer) {
+				Log.i(TAG, "Relay connection established with " + peer);
+			}
+
+			@Override
+			public void onConnectionLost(SubscriberId peer) {
+				CallHandler call = ServalBatPhoneApplication.context.callHandler;
+				if (call != null && call.remotePeer != null && call.remotePeer.getSubscriberId().equals(peer)) {
+					call.hangup();
+				}
+			}
+		};
+		InternetRelayClient.getInstance().setCallback(listener);
+		SmsRelayClient.getInstance(ServalBatPhoneApplication.context).setCallback(listener);
+		CensorshipResistantRelay.getInstance(ServalBatPhoneApplication.context).setCallback(listener);
+		relayCallbacksRegistered = true;
+	}
+
+	public static synchronized void handleIncomingRelayPacket(RelayPacket packet) {
+		if (packet == null) {
+			return;
+		}
+		ServalBatPhoneApplication app = ServalBatPhoneApplication.context;
+		CallHandler call = app.callHandler;
+		try {
+			SubscriberId fromSid = packet.getFromSubscriberId();
+			if (fromSid == null) {
+				return;
+			}
+			if (call == null) {
+				if (!RelayPacket.TYPE_CALL_INIT.equals(packet.type) && !RelayPacket.TYPE_MISSED_CALL.equals(packet.type)) {
+					return;
+				}
+				Peer peer = PeerListService.getPeer(fromSid);
+				call = createCall(peer);
+				call.local_id = (int) (System.currentTimeMillis() & 0x7fffffff);
+				call.localIdString = Integer.toHexString(call.local_id);
+				call.fallbackCallId = packet.callId;
+				call.applyTransportHint(packet.text);
+				if (RelayPacket.TYPE_MISSED_CALL.equals(packet.type)) {
+					app.displayToastMessage("Received delayed Rhizome call request from " + peer.getDisplayName());
+					call.setCallState(CallState.End);
+					return;
+				}
+				call.setCallState(CallState.Ringing);
+				call.sendFallbackControl(RelayPacket.TYPE_CALL_RINGING);
+				return;
+			}
+
+			call.lastKeepAliveTime = SystemClock.elapsedRealtime();
+			if (packet.callId != null && !packet.callId.isEmpty()) {
+				call.fallbackCallId = packet.callId;
+			}
+			if (packet.text != null && !packet.text.isEmpty()) {
+				call.applyTransportHint(packet.text);
+			}
+			if (RelayPacket.TYPE_CALL_RINGING.equals(packet.type)) {
+				call.setCallState(CallState.RemoteRinging);
+			} else if (RelayPacket.TYPE_CALL_ACCEPT.equals(packet.type) || RelayPacket.TYPE_SESSION_ACK.equals(packet.type)) {
+				call.ensureFallbackAudioReady();
+				call.setCallState(CallState.InCall);
+			} else if (RelayPacket.TYPE_AUDIO.equals(packet.type)) {
+				call.receivedRelayAudio(packet);
+			} else if (RelayPacket.TYPE_CALL_END.equals(packet.type)) {
+				call.setCallState(CallState.End);
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Failed to process incoming relay packet", e);
+		}
+	}
+
+	private boolean isUsingFallbackTransport() {
+		return useRelay || useCensorshipResistant || (currentRoute != null && currentRoute.type == MultiHopRoutingManager.RouteType.SMS_RELAY)
+				|| (currentRoute != null && currentRoute.type == MultiHopRoutingManager.RouteType.SNEAKERNET)
+				|| (currentRoute != null && currentRoute.type == MultiHopRoutingManager.RouteType.TOR_RELAY)
+				|| (currentRoute != null && currentRoute.type == MultiHopRoutingManager.RouteType.I2P_RELAY)
+				|| (currentRoute != null && currentRoute.type == MultiHopRoutingManager.RouteType.INTERNET_RELAY)
+				|| (currentRoute != null && currentRoute.type == MultiHopRoutingManager.RouteType.HYBRID);
+	}
+
+	private void ensureFallbackAudioReady() {
+		if (recorder != null) {
+			return;
+		}
+		try {
+			codec = VoMP.Codec.Signed16;
+			recorder = new AudioRecordStream(
+					null,
+					7,
+					codec.sampleRate,
+					AudioFormat.CHANNEL_IN_MONO,
+					AudioFormat.ENCODING_PCM_16BIT,
+					8 * 100 * 2,
+					codec.audioBufferSize(),
+					codec.maxBufferSize());
+			audioRecordThread = new Thread(recorder, "FallbackRecording");
+			audioRecordThread.start();
+		} catch (IOException e) {
+			Log.e(TAG, "Unable to initialise fallback audio", e);
+		}
+	}
+
+	private String getOrCreateFallbackCallId() {
+		if (fallbackCallId == null || fallbackCallId.isEmpty()) {
+			fallbackCallId = Long.toHexString(System.currentTimeMillis());
+		}
+		return fallbackCallId;
+	}
+
+	private void sendFallbackKeepAlive() {
+		if (!isUsingFallbackTransport()) {
+			return;
+		}
+		sendFallbackControl(RelayPacket.TYPE_KEEPALIVE);
+	}
+
+	private void sendFallbackControl(String type) {
+		try {
+			RelayPacket packet = RelayPacket.create(type, getLocalSubscriberId(),
+					remotePeer == null ? null : remotePeer.getSubscriberId());
+			packet.callId = getOrCreateFallbackCallId();
+			packet.text = transportHintForCurrentRoute();
+			sendFallbackPacket(packet);
+		} catch (Exception e) {
+			Log.e(TAG, "Failed to send fallback control packet", e);
+		}
+	}
+
+	private void sendFallbackPacket(RelayPacket packet) {
+		if (currentRoute == null) {
+			return;
+		}
+		switch (currentRoute.type) {
+			case INTERNET_RELAY:
+			case HYBRID:
+				if (relayClient != null)
+					relayClient.sendPacket(packet);
+				return;
+			case SMS_RELAY:
+				if (smsRelay != null)
+					smsRelay.sendPacket(packet, remotePeer == null ? null : remotePeer.did);
+				return;
+			case TOR_RELAY:
+			case I2P_RELAY:
+				if (censorshipRelay != null)
+					censorshipRelay.sendPacket(packet);
+				return;
+			case SNEAKERNET:
+				RhizomeRelay.publishPacket(packet);
+				return;
+			default:
+				return;
+		}
+	}
+
+	private String transportHintForCurrentRoute() {
+		if (currentRoute == null || currentRoute.type == null) {
+			return "transport:direct";
+		}
+		return "transport:" + currentRoute.type.name().toLowerCase(Locale.ROOT);
+	}
+
+	private void applyTransportHint(String hint) {
+		if (hint == null || !hint.startsWith("transport:")) {
+			return;
+		}
+		String route = hint.substring("transport:".length()).toUpperCase(Locale.ROOT);
+		try {
+			MultiHopRoutingManager.RouteType type = MultiHopRoutingManager.RouteType.valueOf(route);
+			currentRoute = new MultiHopRoutingManager.RouteInfo(type,
+					java.util.Collections.singletonList(remotePeer.getSubscriberId()));
+			useRelay = type == MultiHopRoutingManager.RouteType.INTERNET_RELAY || type == MultiHopRoutingManager.RouteType.HYBRID;
+			useCensorshipResistant = !useRelay && type != MultiHopRoutingManager.RouteType.DIRECT && type != MultiHopRoutingManager.RouteType.MULTI_HOP;
+		} catch (Exception e) {
+			Log.w(TAG, "Unknown relay transport hint " + hint, e);
+		}
+	}
+
+	private SubscriberId getLocalSubscriberId() throws IOException {
+		try {
+			KeyringIdentity identity = app.server.getIdentity();
+			if (identity == null || identity.sid == null) {
+				throw new IOException("Local identity unavailable");
+			}
+			return identity.sid;
+		} catch (IOException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new IOException("Unable to resolve local identity", e);
+		}
+	}
+
+	private void applyRelayPreferences() {
+		String relayHostPref = app.settings.getString("relay_host", "");
+		if (relayHostPref != null) {
+			relayHostPref = relayHostPref.trim();
+		}
+		String smsRelayNumber = app.settings.getString("sms_relay_number", "");
+		String anonymousPreference = app.settings.getString("relay_anonymous_preference", "AUTO");
+
+		if (relayClient != null && relayHostPref != null && !relayHostPref.isEmpty()) {
+			String host = relayHostPref;
+			int port = 4110;
+			int colon = relayHostPref.lastIndexOf(':');
+			if (colon > 0 && colon < relayHostPref.length() - 1) {
+				host = relayHostPref.substring(0, colon).trim();
+				try {
+					port = Integer.parseInt(relayHostPref.substring(colon + 1).trim());
+				} catch (NumberFormatException e) {
+					port = 4110;
+				}
+			}
+			relayClient.configureRelay(host, port);
+			if (censorshipRelay != null) {
+				censorshipRelay.configureRelayEndpoint(host, port);
+			}
+		}
+
+		if (smsRelay != null && smsRelayNumber != null && !smsRelayNumber.trim().isEmpty()) {
+			smsRelay.configureRelay(smsRelayNumber.trim());
+		}
+
+		if (censorshipRelay != null) {
+			censorshipRelay.refreshConfiguration(app);
+			if ("TOR".equalsIgnoreCase(anonymousPreference)) {
+				censorshipRelay.setProxyType(CensorshipResistantRelay.ProxyType.TOR);
+			} else if ("I2P".equalsIgnoreCase(anonymousPreference)) {
+				censorshipRelay.setProxyType(CensorshipResistantRelay.ProxyType.I2P);
+			} else {
+				censorshipRelay.setProxyType(CensorshipResistantRelay.ProxyType.AUTO);
+			}
+		}
 	}
 
 }

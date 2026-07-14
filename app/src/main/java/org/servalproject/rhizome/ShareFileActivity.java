@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 
 import org.servalproject.R;
@@ -21,9 +22,11 @@ import org.servalproject.servaldna.keyring.KeyringIdentity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ShareFileActivity extends Activity {
 	private static final String TAG = "ShareActivity";
@@ -78,11 +81,9 @@ public class ShareFileActivity extends Activity {
 			if (uri != null) {
 				try {
 
-					// Get resource path from intent callee
-					String fileName = getRealPathFromURI(this, uri);
-					File file = new File(fileName);
+					File file = resolveFileFromUri(this, uri);
 
-					Log.v(this.getClass().getName(), "Sharing " + fileName
+					Log.v(this.getClass().getName(), "Sharing " + file.getAbsolutePath()
 							+ " ("
 							+ uri + ")");
 
@@ -119,7 +120,7 @@ public class ShareFileActivity extends Activity {
 				try {
 					List<String> args = new ArrayList<String>();
 
-					if (file.getName().toLowerCase().endsWith(".apk")) {
+					if (file.getName().toLowerCase(Locale.ROOT).endsWith(".apk")) {
 						PackageManager pm = context.getPackageManager();
 						PackageInfo info = pm.getPackageArchiveInfo(
 								file.getAbsolutePath(), 0);
@@ -159,27 +160,80 @@ public class ShareFileActivity extends Activity {
 		}.execute();
 	}
 
-	public static String getRealPathFromURI(Context context, Uri contentUri) {
-		if (contentUri.getScheme().equals("file")) {
-			return contentUri.getPath();
+	public static File resolveFileFromUri(Context context, Uri contentUri) throws Exception {
+		if (contentUri == null) {
+			throw new IllegalArgumentException("No content URI supplied");
+		}
+		if ("file".equals(contentUri.getScheme())) {
+			File directFile = new File(contentUri.getPath());
+			if (!directFile.exists()) {
+				throw new IllegalArgumentException("Shared file is unavailable");
+			}
+			return directFile;
 		}
 
-		// can post image
-		String[] proj = { MediaStore.Images.Media.DATA };
 		Cursor cursor = context.getContentResolver().query(
-				contentUri, proj, // Which columns to return
-				null, // WHERE clause; which rows to return (all rows)
-				null, // WHERE clause selection arguments (none)
-				null); // Order-by clause (ascending by name)
+				contentUri,
+				new String[]{MediaStore.MediaColumns.DATA, OpenableColumns.DISPLAY_NAME},
+				null,
+				null,
+				null);
+		String displayName = null;
 		try {
-			int column_index = cursor
-					.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-			cursor.moveToFirst();
-
-			return cursor.getString(column_index);
+			if (cursor != null && cursor.moveToFirst()) {
+				int dataColumn = cursor.getColumnIndex(MediaStore.MediaColumns.DATA);
+				if (dataColumn >= 0) {
+					String filePath = cursor.getString(dataColumn);
+					if (filePath != null && !filePath.trim().isEmpty()) {
+						File directFile = new File(filePath);
+						if (directFile.exists()) {
+							return directFile;
+						}
+					}
+				}
+				int displayNameColumn = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+				if (displayNameColumn >= 0) {
+					displayName = cursor.getString(displayNameColumn);
+				}
+			}
 		} finally {
-			cursor.close();
+			if (cursor != null) {
+				cursor.close();
+			}
 		}
+
+		InputStream inputStream = context.getContentResolver().openInputStream(contentUri);
+		if (inputStream == null) {
+			throw new IllegalArgumentException("Unable to open shared content");
+		}
+		File importDir = new File(context.getCacheDir(), "incoming-share");
+		if (!importDir.exists() && !importDir.mkdirs()) {
+			throw new IllegalStateException("Unable to create temporary share directory");
+		}
+		String safeName = (displayName == null || displayName.trim().isEmpty())
+				? "shared-content"
+				: displayName.replaceAll("[^A-Za-z0-9._-]", "_");
+			File tempFile = File.createTempFile("share-", "-" + safeName, importDir);
+		FileOutputStream outputStream = null;
+		try {
+			outputStream = new FileOutputStream(tempFile, false);
+			byte[] buffer = new byte[8192];
+			int read;
+			while ((read = inputStream.read(buffer)) != -1) {
+				outputStream.write(buffer, 0, read);
+			}
+			outputStream.flush();
+		} finally {
+			inputStream.close();
+			if (outputStream != null) {
+				outputStream.close();
+			}
+		}
+		return tempFile;
+	}
+
+	public static String getRealPathFromURI(Context context, Uri contentUri) throws Exception {
+		return resolveFileFromUri(context, contentUri).getAbsolutePath();
 	}
 
 	public static byte[] readBytes(InputStream inputStream) throws Exception {

@@ -23,7 +23,8 @@
   
 	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
           android:layout_width="fill_parent"
-          android:layout_height="fill_parent" >
+          android:layout_height="fill_parent"
+          android:background="@color/satnet_background" >
 
           <!-- Header -->
 
@@ -61,7 +62,88 @@
                 android:layout_gravity="center_vertical"
                 android:text="@string/MMSSettings_NotifSoundText" />
         </TableRow>
-        
+
+        <TableRow
+            android:id="@+id/tableRelayHeader"
+            style="@style/srhizomeTableRow2">
+
+            <TextView
+                android:id="@+id/relay_settings_header"
+                style="@style/srhizome_header"
+                android:text="@string/relay_settings_header" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRelayHost"
+            style="@style/srhizomeTableRow">
+
+            <TextView
+                android:id="@+id/relayHostLabel"
+                style="@style/stextsettings"
+                android:text="@string/relay_host_label" />
+
+            <EditText
+                android:id="@+id/relayHostEdit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:autofillHints=""
+                android:hint="@string/relay_host_hint"
+                android:inputType="textUri"
+                android:maxLines="1"
+                android:textColor="@color/satnet_text_primary"
+                android:textColorHint="@color/satnet_text_secondary" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableSmsRelay"
+            style="@style/srhizomeTableRow">
+
+            <TextView
+                android:id="@+id/smsRelayLabel"
+                style="@style/stextsettings"
+                android:text="@string/sms_relay_number_label" />
+
+            <EditText
+                android:id="@+id/smsRelayNumberEdit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:autofillHints="phone"
+                android:hint="@string/sms_relay_number_hint"
+                android:inputType="phone"
+                android:maxLines="1"
+                android:textColor="@color/satnet_text_primary"
+                android:textColorHint="@color/satnet_text_secondary" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRelayPreference"
+            style="@style/srhizomeTableRow">
+
+            <TextView
+                android:id="@+id/relayPreferenceLabel"
+                style="@style/stextsettings"
+                android:text="@string/anonymous_route_preference_label" />
+
+            <Spinner
+                android:id="@+id/relayPreferenceSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRelaySave"
+            style="@style/srhizomeTableRow">
+
+            <Button
+                android:id="@+id/btnSaveRelaySettings"
+                style="@style/sbtnrhizome"
+                android:layout_span="2"
+                android:text="@string/relay_settings_save" />
+        </TableRow>
+
     </TableLayout> 
 
 </RelativeLayout>

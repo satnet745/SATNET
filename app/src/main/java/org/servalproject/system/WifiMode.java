@@ -1,27 +1,15 @@
-/**
- * Copyright (C) 2011 The Serval Project
- *
- * This file is part of Serval Software (http://www.servalproject.org)
- *
- * Serval Software is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ * SATNET maintenance note:
+ * This file is maintained as part of SATNET and builds on historical upstream work.
+ * Copyright (C) 2011 The Serval Project.
+ * Licensed under GPL-3.0-or-later; see LICENSE-SOFTWARE.md.
  */
 package org.servalproject.system;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,8 +17,6 @@ import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.shell.CommandCapture;
 import org.servalproject.shell.Shell;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.util.Log;
 
 public enum WifiMode {
@@ -67,7 +53,6 @@ public enum WifiMode {
 	public static String lastIwconfigOutput;
 	private static Pattern iwTypePattern = Pattern.compile("type\\s(\\w+)");
 
-	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 	public static WifiMode getWiFiMode(Shell rootShell, String interfaceName,
 			String ipAddr) {
 		if (rootShell == null)
@@ -86,8 +71,7 @@ public enum WifiMode {
 			if (networkInterface == null)
 				return WifiMode.Off;
 
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD
-					&& !networkInterface.isUp()) {
+			if (!networkInterface.isUp()) {
 				/*
 				 * With nl80211 drivers, network type is kept even when network
 				 * interface is down
@@ -133,14 +117,14 @@ public enum WifiMode {
 
 					Matcher m = iwTypePattern.matcher(c.toString());
 					if (m.find()) {
-						String type = m.group(1).toLowerCase();
+									String type = m.group(1).toLowerCase(Locale.ROOT);
 						if ("managed".equals(type)) {
 							return WifiMode.Client;
 						}
 						if ("ibss".equals(type)) {
 							return WifiMode.Adhoc;
 						}
-						if ("AP".equals(type)) {
+									if ("ap".equals(type)) {
 							return WifiMode.Ap;
 						}
 						// type not recognised
@@ -186,7 +170,7 @@ public enum WifiMode {
 					if (rootShell.isRoot) {
 						int b = iw.indexOf("Mode:") + 5;
 						int e = iw.substring(b).indexOf(" ");
-						String mode = iw.substring(b, b + e).toLowerCase();
+						String mode = iw.substring(b, b + e).toLowerCase(Locale.ROOT);
 
 						if (mode.contains("adhoc")
 								|| mode.contains("ad-hoc"))

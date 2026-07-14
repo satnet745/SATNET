@@ -1,49 +1,38 @@
-/**
- * Copyright (C) 2011 The Serval Project
- *
- * This file is part of Serval Software (http://www.servalproject.org)
- *
- * Serval Software is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ * SATNET maintenance note:
+ * This file is maintained as part of SATNET and builds on historical upstream work.
+ * Copyright (C) 2011 The Serval Project.
+ * Licensed under GPL-3.0-or-later; see LICENSE-SOFTWARE.md.
  */
 
 package org.servalproject;
 
-/**
+/*
  *
  * @author Jeremy Lakeman <jeremy@servalproject.org>
  *
  *         Peer List fetches a list of known peers from the PeerListService.
- *         When a peer is received from the service this activity will attempt
- *         to resolve the peer by calling ServalD in an async task.
+ *         When a peer is received from the service it is resolved through
+ *         ServalD using the current background execution path.
  */
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
 import org.servalproject.messages.ShowConversationActivity;
 import org.servalproject.servald.IPeer;
 import org.servalproject.servald.ServalD;
+import org.servalproject.servaldna.SubscriberId;
 
 import java.util.List;
 
@@ -53,21 +42,52 @@ public class PeerListAdapter<T extends IPeer> extends ArrayAdapter<T> {
 	}
 
 	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
+	public @NonNull View getView(final int position, View convertView, @NonNull ViewGroup parent) {
 		View ret = super.getView(position, convertView, parent);
 		T p = this.getItem(position);
 
-		TextView displayName = (TextView) ret.findViewById(R.id.Name);
-		TextView displaySid = (TextView) ret.findViewById(R.id.sid);
-		TextView displayNumber = (TextView) ret.findViewById(R.id.Number);
+		TextView displayName = ret.findViewById(R.id.Name);
+		TextView displaySid = ret.findViewById(R.id.sid);
+		TextView displayNumber = ret.findViewById(R.id.Number);
 		View chat = ret.findViewById(R.id.chat);
 		View call = ret.findViewById(R.id.call);
 		View contact = ret.findViewById(R.id.add_contact);
+		if (p == null) {
+			displayName.setText("");
+			displaySid.setText("");
+			displayNumber.setText("");
+			chat.setEnabled(false);
+			ret.setContentDescription(null);
+			chat.setContentDescription(null);
+			call.setContentDescription(null);
+			contact.setContentDescription(null);
+			call.setVisibility(View.INVISIBLE);
+			contact.setVisibility(View.INVISIBLE);
+			return ret;
+		}
+		SubscriberId subscriberId = p.getSubscriberId();
+		if (subscriberId == null) {
+			displayName.setText(p.toString());
+			displaySid.setText("");
+			displayNumber.setText("");
+			chat.setEnabled(false);
+			ret.setContentDescription(null);
+			chat.setContentDescription(null);
+			call.setContentDescription(null);
+			contact.setContentDescription(null);
+			call.setVisibility(View.INVISIBLE);
+			contact.setVisibility(View.INVISIBLE);
+			return ret;
+		}
 
-		displaySid.setText(p.getSubscriberId().abbreviation());
-		displayNumber.setText(p.getDid());
+		displaySid.setText(subscriberId.abbreviation());
+		String did = p.getDid();
+		if (did == null || did.trim().isEmpty()) {
+			did = getContext().getString(R.string.messages_list_no_number);
+		}
+		displayNumber.setText(did);
 
-		if (p.getSubscriberId().isBroadcast()) {
+		if (subscriberId.isBroadcast()) {
 			call.setVisibility(View.INVISIBLE);
 		} else {
 			call.setVisibility(View.VISIBLE);
@@ -78,56 +98,77 @@ public class PeerListAdapter<T extends IPeer> extends ArrayAdapter<T> {
 		} else {
 			contact.setVisibility(View.VISIBLE);
 		}
+		chat.setEnabled(true);
+
+		int reachableTextColor = ContextCompat.getColor(getContext(), R.color.satnet_text_primary);
+		int unavailableTextColor = ContextCompat.getColor(getContext(), R.color.satnet_text_secondary);
 
 		if (p.isReachable()){
-			displayName.setTextColor(Color.WHITE);
-			displayNumber.setTextColor(Color.WHITE);
-			displaySid.setTextColor(Color.WHITE);
+			displayName.setTextColor(reachableTextColor);
+			displayNumber.setTextColor(reachableTextColor);
+			displaySid.setTextColor(reachableTextColor);
 		}else{
-			displayName.setTextColor(Color.GRAY);
-			displayNumber.setTextColor(Color.GRAY);
-			displaySid.setTextColor(Color.GRAY);
+			displayName.setTextColor(unavailableTextColor);
+			displayNumber.setTextColor(unavailableTextColor);
+			displaySid.setTextColor(unavailableTextColor);
 		}
 
-		chat.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ServalBatPhoneApplication app = ServalBatPhoneApplication.context;
+		String peerName = p.toString();
+		String reachabilitySummary = getContext().getString(
+				p.isReachable() ? R.string.peer_list_reachable : R.string.peer_list_unreachable);
+		ret.setContentDescription(getContext().getString(
+				R.string.peer_list_row_accessibility,
+				peerName,
+				did,
+				subscriberId.abbreviation(),
+				reachabilitySummary));
+		chat.setContentDescription(getContext().getString(R.string.peer_list_action_message, peerName));
+		call.setContentDescription(getContext().getString(R.string.peer_list_action_call, peerName));
+		contact.setContentDescription(getContext().getString(R.string.peer_list_action_add_contact, peerName));
 
-				T p = getItem(position);
+		chat.setOnClickListener(v -> {
+			ServalBatPhoneApplication app = ServalBatPhoneApplication.context;
 
-				if (!ServalD.isRhizomeEnabled()) {
-					app.displayToastMessage("Messaging cannot function without an sdcard");
-					return;
-				}
-
-				// Send MeshMS by SID
-				Intent intent = new Intent(
-						app, ShowConversationActivity.class);
-				intent.putExtra("recipient", p.getSubscriberId().toHex());
-				getContext().startActivity(intent);
+			T clickedPeer = getItem(position);
+			if (clickedPeer == null) {
+				app.displayToastMessage("Unable to open conversation for this peer");
+				return;
 			}
+
+			if (!ServalD.isRhizomeEnabled()) {
+				app.displayToastMessage("Messaging cannot function without an sdcard");
+				return;
+			}
+
+			SubscriberId clickSubscriberId = clickedPeer.getSubscriberId();
+			if (clickSubscriberId == null) {
+				app.displayToastMessage("This peer is missing a valid subscriber ID");
+				return;
+			}
+
+			Intent intent = ShowConversationActivity.createIntent(getContext(), clickSubscriberId);
+			getContext().startActivity(intent);
 		});
-		contact.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				T p = getItem(position);
+		contact.setOnClickListener(v -> {
+			T clickedPeer = getItem(position);
+			if (clickedPeer == null) {
+				ServalBatPhoneApplication.context.displayToastMessage("Unable to open this peer");
+				return;
+			}
 
-				// Create contact if required
-				try {
-					p.addContact(getContext());
+			// Create contact if required
+			try {
+				clickedPeer.addContact(getContext());
 
-					v.setVisibility(View.INVISIBLE);
+				v.setVisibility(View.INVISIBLE);
 
-					// now display/edit contact
-					Intent intent = new Intent(Intent.ACTION_VIEW,
-							Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(p.getContactId())));
-					getContext().startActivity(intent);
-				} catch (Exception e) {
-					Log.e("PeerList", e.getMessage(), e);
-					ServalBatPhoneApplication.context.displayToastMessage(e
-							.getMessage());
-				}
+				// now display/edit contact
+				Intent intent = new Intent(Intent.ACTION_VIEW,
+						Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(clickedPeer.getContactId())));
+				getContext().startActivity(intent);
+			} catch (Exception e) {
+				Log.e("PeerList", e.getMessage(), e);
+				ServalBatPhoneApplication.context.displayToastMessage(e.getMessage());
 			}
 		});
 

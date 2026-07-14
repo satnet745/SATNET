@@ -36,10 +36,16 @@ class Connector implements Runnable{
 		try{
 			connecting = true;
 			control.cancelDiscovery();
-			Log.v(reader.name, "Connecting to " + peer.device.getAddress() +" ("+reader.secure+")");
+			Log.v(reader.name, "Connecting to " + peer.deviceKey +" ("+reader.secure+")");
 			reader.socket.connect();
 
 			peer.onConnected(reader);
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while connecting socket", e);
+			try {
+				reader.socket.close();
+			} catch (IOException ignored) {}
+			peer.onConnectionFailed();
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
 			try {

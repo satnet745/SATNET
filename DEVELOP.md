@@ -1,8 +1,8 @@
-Developing Serval Mesh
-======================
-[Serval Project][], April 2017
+Developing SATNET
+=================
+[SATNET][], refreshed April 2026
 
-These are instructions for developing the [Serval Mesh][README] app for
+These are instructions for developing the [SATNET][README] app for
 Android.
 
 Assumed knowledge
@@ -34,31 +34,31 @@ Windows, might work (eg, using [Cygwin][]), but are not tested or supported.
 Basic concepts
 --------------
 
-The [Serval Mesh][] app is composed of two parts:
+The [SATNET][] app is composed of two parts:
 
  * “Batphone” is the Android user interface code, written in Java with XML
    resource files, compiled using the [Android SDK][].  The official Batphone
    source code is kept in the [batphone][] repository on GitHub.
 
- * [Serval DNA][] is the core networking component, written in C, compiled
-   using the [Android NDK][].  The official Serval DNA source code is kept in
+ * [serval-dna][] is the core networking component, written in C, compiled
+   using the [Android NDK][].  The upstream serval-dna source code is kept in
    the [serval-dna][] repository on GitHub.  The [batphone][] repository embeds
    that repository as a [Git submodule][].
 
 Working with Git
 ----------------
 
-The Serval Project uses [Git][] to manage all its source code, and uses the
+The project uses [Git][] to manage all its source code, and uses
 free [GitHub][] as its hosting provider.
 
-All Serval Mesh development is done in a [Git clone][] of the official
+All SATNET development is done in a [Git clone][] of the official
 [batphone][] and [serval-dna][] source code repositories on [GitHub][].  A
 “clone” is a local copy on your own computer that you can modify however you
 wish without affecting any other developers and without needing any permission.
 
 ### Fork on GitHub
 
-The recommended way to start working on your own copy of the Serval Project
+The recommended way to start working on your own copy of the SATNET project
 source code is to make a [GitHub fork][] of both official repositories.
 
 A "fork" is simply a [Git][] repository, stored on GitHub, that was copied
@@ -92,13 +92,13 @@ GitHub:
     $ git submodule -q update
     $
 
-If all goes well, you will now have a full copy of the Serval Mesh source code
+If all goes well, you will now have a full copy of the SATNET source code
 on your computer, with the “master” branch checked out.
 
-### Sync with the Serval Project
+### Sync with the SATNET project
 
-To keep your fork updated (synced) with the latest changes from the Serval
-Project, first [configure your clone with a remote that points to the original
+To keep your fork updated (synced) with the latest changes from the SATNET
+project, first [configure your clone with a remote that points to the original
 repositories][]:
 
     $ git remote add upstream https://github.com/servalproject/batphone.git
@@ -126,26 +126,26 @@ those forked repositories are the best place to back up your work.  To upload
 your changes to GitHub, simply [push to your GitHub fork][].  Do this
 regularly, eg, at the end of every day.
 
-### Contributing to the Serval Project
+### Contributing to the SATNET project
 
-You cannot push changes from your cloned repositories into the Serval Project's
-repositories unless you are a member of the Serval Project development team.
+You cannot push changes from your cloned repositories into the project's
+repositories unless you are a member of the SATNET development team.
 
 The recommended way to contribute your modifications to the [batphone][] or
 [serval-dna][] source code is to use [forked repositories on
 GitHub](#fork-on-github), and when your changes are ready, submit them to the
-Serval Project as a [pull request][].
+the SATNET project as a [pull request][].
 
 -----
-**Copyright 2014-2016 Serval Project Inc.**  
+**Copyright 2014-2016 original upstream authors; SATNET documentation refresh 2026.**  
 ![CC-BY-4.0](./cc-by-4.0.png)
 This document is available under the [Creative Commons Attribution 4.0 International licence][CC BY 4.0].
 
 
-[Serval Project]: http://www.servalproject.org/
+[SATNET]: ./README.md
 [README]: ./README.md
-[Serval Mesh]: http://developer.servalproject.org/dokuwiki/doku.php?id=content:servalmesh:
-[Serval DNA]: http://developer.servalproject.org/dokuwiki/doku.php?id=content:servaldna:
+[SATNET Mesh]: ./README.md
+[serval-dna]: http://developer.servalproject.org/dokuwiki/doku.php?id=content:servaldna:
 [batphone]: http://github.com/servalproject/batphone/
 [serval-dna]: http://github.com/servalproject/serval-dna/
 [Git]: http://git-scm.com/

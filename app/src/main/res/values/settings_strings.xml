@@ -20,18 +20,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  -->
  
- <!-- @author Romana Challans <romana@servalproject.com> -->
- 
+ <!-- Maintained by SATNET contributors -->
+
  
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     
-	<!-- Serval Settings -->
+  <!-- SATNET Settings -->
 	<string name="settings_wifiSettings">Wifi Settings</string>
 	<string name="settings_changeSSID">Change SSID</string> 
 	<string name="settings_networkName">Network name</string> 
 	<string name="settings_enterSSID">Enter SSID</string> 
-	<string name="settings_ssidprefDefault">mesh.servalproject.org</string> 
-	<string name="settings_alphaNumeric">Only alpha-numeric characters and \'.\', \'_\' allowed!</string> 
+  <string name="settings_ssidprefDefault">mesh.satnet.app</string>
+	<string name="settings_alphaNumeric">Only alpha-numeric characters and \'.\', \'_\' allowed!</string>
 	<string name="settings_changeChannel">Change Channel</string>  
 	<string name="settings_wirelessFreq">Wireless frequency channel</string>
 	<string name="settings_selectChannel">Select Channel</string>
@@ -56,19 +56,46 @@
     <string name="AccountsSettingsLabel">Accounts Management</string>
     <string name="AccountsSettingsText">View and Change Various Accounts Settings</string>
     <string name="LogShowLabel">View Logs</string>
-    <string name="LogShowText">View Serval Mesh Logfile</string>
+    <string name="LogShowText">View SATNET Logfile</string>
     <string name="PhoneResetLabel">Reset Details</string>
     <string name="PhoneResetText">Reset Number and Name</string>
-    <string name="PhoneDetails">Phone No:</string>
+    <string name="PhoneDetails">SatPhone ID</string>
     <string name="ShowResetWifi">Mesh Testing</string>
     <string name="ResetWifiText">Test if a Mesh network connection can be made</string>
     
     <!-- Other settings screens -->
         <string name="ac_name">Current Name</string>
-        <string name="ac_sid">Current Serval ID</string>
+            <string name="ac_sid">Current SATNET ID</string>
         <string name="ac_no">Current Number</string>
+        <string name="ac_no_unavailable">There is no phone number to display</string>
+        <string name="ac_sid_unavailable">There is no SATNET ID to display</string>
+        <string name="ac_name_unavailable">There is no name to display</string>
         <string name="MMSSettingsLabel">MeshMS Settings</string>
         <string name="MMSSettingsText">View and Change MeshMS Settings</string>
         <string name="MMSSettings_NotifSoundLabel">Notification Sound</string>
         <string name="MMSSettings_NotifSoundText">Select notification sound for incoming MeshMS</string>
+        <string name="relay_settings_header">Relay &amp; fallback settings</string>
+        <string name="relay_host_label">Relay host</string>
+        <string name="relay_host_hint">Host or host:port for relay</string>
+        <string name="relay_host_summary">Used by internet relay and HTTP relay API clients</string>
+        <string name="sms_relay_number_label">SMS relay number</string>
+        <string name="sms_relay_number_hint">Phone number for SMS relay</string>
+        <string name="sms_relay_number_summary">Used when the app falls back to SMS delivery</string>
+        <string name="anonymous_route_preference_label">Anonymous route preference</string>
+        <string name="anonymous_route_preference_summary">Choose whether Tor or I2P is preferred when both are available</string>
+        <string name="relay_settings_save">Save relay settings</string>
+        <string name="relay_settings_saved">Relay settings saved</string>
+        <string name="relay_preference_auto">Auto</string>
+        <string name="relay_preference_tor">Prefer Tor</string>
+        <string name="relay_preference_i2p">Prefer I2P</string>
+        <string-array name="relay_route_preference_entries">
+            <item>@string/relay_preference_auto</item>
+            <item>@string/relay_preference_tor</item>
+            <item>@string/relay_preference_i2p</item>
+        </string-array>
+        <string-array name="relay_route_preference_values">
+            <item>AUTO</item>
+            <item>TOR</item>
+            <item>I2P</item>
+        </string-array>
 </resources>

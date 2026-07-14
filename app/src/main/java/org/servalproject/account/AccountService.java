@@ -181,6 +181,9 @@ public class AccountService extends Service {
 
 		try {
 			insertSettings(context.getContentResolver(), account);
+		} catch (SecurityException e) {
+			// Contacts access is optional during onboarding; continue without sync settings.
+			Log.w(TAG, "Contacts permission denied; skipping contact sync settings", e);
 		} catch (RemoteException e) {
 			Log.e(TAG, e.getMessage(), e);
 		}

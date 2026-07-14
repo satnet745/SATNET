@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/SatnetScreenScroll">
+
+    <LinearLayout
+        style="@style/SatnetScreenContent">
+
+        <TextView
+            style="@style/SatnetHeaderTitle"
+            android:text="@string/satnet_agent_voucher_title"
+            />
+
+        <TextView
+            style="@style/SatnetHeaderSubtitle"
+            android:text="@string/satnet_agent_voucher_subtitle"
+            />
+
+        <TextView
+            android:id="@+id/agent_stage_badge_text"
+            style="@style/SatnetHeaderBadge"
+            android:text="@string/satnet_agent_stage_placeholder"
+            />
+
+        <TextView
+            android:id="@+id/agent_runtime_status_text"
+            style="@style/SatnetHeaderStatus"
+            android:text="@string/satnet_agent_runtime_placeholder"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/satnet_card_surface"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_agent_denomination_title"
+                android:textColor="@color/satnet_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <RadioGroup
+                android:id="@+id/denomination_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/denom_1000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/satnet_agent_denomination_1000"/>
+
+                <RadioButton
+                    android:id="@+id/denom_5000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/satnet_agent_denomination_5000"/>
+
+                <RadioButton
+                    android:id="@+id/denom_10000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/satnet_agent_denomination_10000"/>
+
+                <RadioButton
+                    android:id="@+id/denom_50000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/satnet_agent_denomination_50000"/>
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_agent_expiry_title"
+                android:textColor="@color/satnet_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"/>
+
+            <Spinner
+                android:id="@+id/expiry_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_agent_currency_title"
+                android:textColor="@color/satnet_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"/>
+
+            <Spinner
+                android:id="@+id/currency_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"/>
+
+            <TextView
+                android:id="@+id/exchange_rate_status_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/satnet_agent_rate_placeholder"
+                android:textColor="@color/satnet_text_secondary" />
+
+            <Button
+                android:id="@+id/generate_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/satnet_agent_generate_button" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/satnet_card_surface"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/qr_display"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:background="#EEEEEE"
+                android:contentDescription="@string/satnet_agent_qr_description" />
+
+            <TextView
+                android:id="@+id/voucher_summary_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="@string/satnet_agent_qr_hint"
+                android:textColor="@color/satnet_text_secondary" />
+
+            <Button
+                android:id="@+id/share_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:enabled="false"
+                android:text="@string/satnet_agent_share_button" />
+
+            <Button
+                android:id="@+id/share_chat_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:enabled="false"
+                android:text="@string/satnet_agent_share_chat_button" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

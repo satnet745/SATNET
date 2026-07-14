@@ -1,5 +1,6 @@
 package org.servalproject.audio;
 
+import android.annotation.SuppressLint;
 import java.io.EOFException;
 import java.io.IOException;
 
@@ -26,6 +27,7 @@ public class AudioRecordStream implements Runnable {
 			int channelConfig, int audioFormat, int minimumBufferSize,
 			int audioBlockSize, int audioMaxAudioBlock)
 			throws IOException {
+		// Callers are responsible for checking RECORD_AUDIO before constructing AudioRecordStream.
 
 		this.stream = stream;
 		this.audioBlockSize = audioBlockSize;
@@ -51,6 +53,7 @@ public class AudioRecordStream implements Runnable {
 		if (bufferSize < minimumBufferSize)
 			bufferSize = minimumBufferSize;
 
+		@SuppressLint("MissingPermission")
 		AudioRecord recorder = new AudioRecord(audioSource,
 				sampleRateInHz, channelConfig, audioFormat, bufferSize);
 

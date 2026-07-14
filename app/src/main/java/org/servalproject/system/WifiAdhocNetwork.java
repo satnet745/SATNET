@@ -114,7 +114,7 @@ public class WifiAdhocNetwork implements
 	void setNetwork(String network) {
 		Editor ed = prefs.edit();
 		ed.putString("lannetworkpref", network);
-		ed.commit();
+		ed.apply();
 	}
 
 	public String getSSID() {

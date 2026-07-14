@@ -2,64 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Serval Help: Connect</title>
+    <title>SATNET Help: Connect</title>
     <meta charset="UTF-8">
-    <meta name="description" content="Serval App WebView Page">
+    <meta name="description" content="SATNET App WebView Page">
     <link rel="stylesheet" type="text/css" href="servalhelp.css">
 </head>
 <body>
-    <h1>Serval Connect</h1>
-    <p>Without a Wi-Fi or Bluetooth network connection to at least another phone, the Serval
-    Mesh software cannot provide any useful function.
-    </p>
-    <p>The <em>Enable Services</em> checkbox, when ON, causes your device to
-    periodically announce its presence to the Wi-Fi network and sync Rhizome
-    and MeshMS with all other devices.  This may drain your battery while
-    connected to a Wi-Fi network, even when the screen is off.
-    </p>
-    <p>Below the checkbox are different options for connecting to a Wi-Fi
-    network:
-    </p>
+    <h1>SATNET Connect</h1>
+    <p>The Connect screen manages the radios and network modes SATNET uses to find peers and carry traffic. Communication features become much more useful when SATNET services are enabled and at least one reachable peer is available.</p>
+    <p>The <em>Enable Services</em> checkbox starts or stops the SATNET mesh services. When enabled, the app can announce itself, discover peers, relay traffic, and synchronize mesh-related services. This can increase battery use while active.</p>
+    <p>Below that toggle, SATNET shows available network controls and connection options supported by the device.</p>
     <h2>Wi-Fi</h2>
-    <p>The settings icon opens the Android Wi-Fi settings screen, which allows
-    you to choose a Wi-Fi network.
-    </p>
-    <p>The checkbox turns Wi-Fi on and off, letting Android choose the Wi-Fi
-    network to connect to, if it can.
-    </p>
+    <p>The Wi-Fi entry opens the normal Android Wi-Fi settings flow or toggles Wi-Fi participation depending on the device and Android version.</p>
+    <p>Use this when you want to join an existing local network that other SATNET users can also reach.</p>
+    <h2>Bluetooth</h2>
+    <p>On supported devices, Bluetooth can help with nearby peer discovery and local mesh links.</p>
+    <p>On Android 12 and newer, SATNET may request Bluetooth runtime permissions before it can scan, connect, or request discoverable mode. If you deny those permissions, Bluetooth mesh features remain limited until you grant them again.</p>
     <h2>Portable Wi-Fi Hotspot</h2>
-    <p>The settings icon opens the Android Portable Wi-Fi Hotspot settings
-    screen.
-    </p>
-    <p>The checkbox turns your Portable Wi-Fi Hotspot on and off.  When turning
-    on, your existing hotspot settings are overwritten with the Serval Mesh
-    settings, which includes setting the hotspot name (SSID) to
-    "ap.servalproject.org".  When the hotspot is turned off, your existing
-    settings are restored, which you can see because your hotspot briefly turns
-    back on and off again.
-    </p>
-    <p>WARNING: Turning on the Portable Wi-Fi Hotspot TURNS OFF NORMAL WI-FI,
-    so services like sync, messaging, calendar, etc. may use your mobile data
-    plan and COST YOU MONEY.
-    </p>
-    <p>WARNING: Turning on a Portable Wi-Fi Hotspot gives other people access
-    to your mobile data plan, which could COST YOU MONEY.
-    </p>
+    <p>Hotspot mode lets your device act as a local access point so nearby users can join through you.</p>
+    <p>Turning on a hotspot usually disables normal Wi-Fi client mode while it is active. If your mobile data plan is enabled, nearby devices may use it, which can cost you money.</p>
     <h2>Ad Hoc Mesh</h2>
-    <p>Pressing the "Ad Hoc Mesh" text starts testing whether Ad Hoc Wi-Fi will
-    work on your device.  This involves testing whether Super User (root) is
-    available, and if it is, re-installing the system Wi-Fi driver.  THIS CAN
-    CAUSE YOUR DEVICE TO BE PERMANENTLY DAMAGED.
-    </p>
-    <p>Once Ad Hoc Wi-Fi has been tested and found available, the checkbox
-    turns Ad Hoc Wi-Fi mode on and off.
-    </p>
-    <p>WARNING: Turning on Ad Hoc Wi-Fi TURNS OFF NORMAL WI-FI, so services
-    like sync, messaging, calendar, etc. may use your mobile data plan and COST
-    YOU MONEY.
-    </p>
+    <p>Ad hoc Wi-Fi is a legacy and highly device-specific mode. It often requires root access and may attempt risky low-level Wi-Fi changes on older hardware.</p>
+    <p>This mode is kept mainly for specialist testing and historical compatibility. Most users should prefer ordinary Wi-Fi, hotspot, and Bluetooth-based flows instead.</p>
     <hr />
-    <p>Copyright 2014 Serval Project Inc.</p>
+    <p>Copyright 2014 original upstream authors; SATNET help refresh 2026.</p>
     <p><a rel="license" href="./LICENSE-DOCUMENTATION.md"><img alt="Creative Commons License" style="border-width:0" src="./cc-by-4.0.png" /></a><br />This document is licensed under a <a rel="license" href="./LICENSE-DOCUMENTATION.md">Creative Commons Attribution 4.0 International License</a></p>
 </body>
 </html>

@@ -33,11 +33,14 @@
 
 	<!-- Body -->
 
-	<RelativeLayout android:layout_width="fill_parent"
-		android:layout_height="wrap_content">
+	<RelativeLayout
+		android:id="@+id/aboutContent"
+		android:layout_width="fill_parent"
+		android:layout_height="match_parent"
+		android:layout_below="@id/headerLayout"
+		android:layout_above="@id/btnDonate">
 
 		<TextView android:id="@+id/help_header"
-			android:layout_below="@id/headerLayout" 
 			style="@style/shelpscreensheader"
 			android:text="@string/aboutTitle" />
 
@@ -45,15 +48,15 @@
 		    android:layout_below="@+id/help_header"
 			style="@style/sbody" 
 			android:layout_width="fill_parent" 
-			android:layout_height="wrap_content" />
+			android:layout_height="match_parent" />
 	</RelativeLayout> <!-- added for new webview, button moved here -->
 	<Button
 		 android:id="@+id/btnDonate"
 	     style="@style/sbtnrhizome"
 	     android:layout_alignParentBottom="true"
 	     android:layout_centerHorizontal="true"
-	     android:layout_below="@+id/help_browser"
-	     android:text="@string/donateTitle" />	
+	     android:layout_below="@id/aboutContent"
+	     android:text="@string/donateTitle" />
 	     	
 
 </RelativeLayout>

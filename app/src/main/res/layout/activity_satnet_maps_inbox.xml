@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/SatnetScreenScroll">
+
+    <LinearLayout
+        style="@style/SatnetScreenContent">
+
+        <TextView
+            style="@style/SatnetHeaderTitle"
+            android:text="@string/satnet_maps_inbox_title"
+            />
+
+        <TextView
+            style="@style/SatnetHeaderSubtitle"
+            android:text="@string/satnet_maps_inbox_subtitle"
+            />
+
+        <TextView
+            android:id="@+id/satnet_maps_inbox_stage_badge_text"
+            style="@style/SatnetHeaderBadge"
+            android:text="@string/satnet_maps_stage_placeholder"
+            />
+
+        <TextView
+            android:id="@+id/satnet_maps_inbox_summary_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/satnet_card_surface"
+            android:padding="12dp"
+            android:text="@string/satnet_maps_inbox_summary"
+            android:textColor="@color/satnet_text_primary" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/satnet_maps_inbox_selected_bundle_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/satnet_card_surface"
+                android:padding="12dp"
+                android:text="@string/satnet_maps_inbox_selected_placeholder"
+                android:textColor="@color/satnet_text_primary" />
+
+            <EditText
+                android:id="@+id/satnet_maps_inbox_passphrase_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/satnet_maps_passphrase_hint"
+                android:importantForAutofill="no"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/satnet_maps_inbox_error_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/satnet_alert"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/satnet_maps_inbox_review_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/satnet_maps_inbox_review_button" />
+
+            <Button
+                android:id="@+id/satnet_maps_inbox_import_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/satnet_maps_inbox_import_button" />
+
+            <Button
+                android:id="@+id/satnet_maps_inbox_discard_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/satnet_maps_inbox_discard_button" />
+
+            <Button
+                android:id="@+id/satnet_maps_inbox_refresh_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/satnet_maps_inbox_refresh_button" />
+
+            <TextView
+                android:id="@+id/satnet_maps_inbox_preview_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/satnet_card_surface"
+                android:padding="12dp"
+                android:text="@string/satnet_maps_inbox_preview_placeholder"
+                android:textColor="@color/satnet_text_primary"
+                android:textIsSelectable="true" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/satnet_maps_inbox_pending_title"
+            android:textColor="@color/satnet_text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/satnet_maps_inbox_pending_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/satnet_maps_inbox_history_title"
+            android:textColor="@color/satnet_text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/satnet_maps_inbox_history_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
+    </LinearLayout>
+</ScrollView>
+

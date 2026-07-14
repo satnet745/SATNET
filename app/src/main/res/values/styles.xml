@@ -36,10 +36,14 @@
 <!-- Header -->
 
     <style name="slogo" parent="sbody"> 	 
-		<item name="android:src">@drawable/ic_serval_logo</item>
+		<item name="android:src">@drawable/ic_satnet_brand</item>
+    <item name="android:layout_width">40dp</item>
+    <item name="android:layout_height">40dp</item>
    		<item name="android:layout_alignParentTop">true</item>
+    <item name="android:adjustViewBounds">true</item>
         <item name="android:layout_marginRight">4sp</item>
-        <item name="android:layout_marginBottom">15sp</item>
+    <item name="android:layout_marginTop">4dp</item>
+    <item name="android:layout_marginBottom">4dp</item>
  	</style>
  		
     <style name="sheader" parent="sbody">
@@ -187,9 +191,10 @@
 		<item name="android:gravity">right</item>
    	</style>
    	
-    <style name="stextsettings" parent="stextright"> 	 
+      <style name="stextsettings" parent="sttextright">
 		<item name="android:layout_alignParentRight">true</item>
 		<item name="android:layout_marginRight">15sp</item>
+        <item name="android:gravity">right</item>
 		<item name="android:layout_gravity">top</item>
    	</style>
    	
@@ -234,7 +239,7 @@
     <style name="sactext" parent="stextright">
        	<item name="android:textSize">14sp</item>
         <item name="android:layout_marginTop">10dp</item>
-		<item name="android:textColor">@color/white</item>  
+        <item name="android:textColor">@color/satnet_text_primary</item>
 		<item name="android:layout_marginRight">10dp</item>
     </style>
   	
@@ -280,7 +285,8 @@
   	<!-- Main Content -->
   	<style name="smainTable">
 		<item name="android:layout_centerHorizontal">true</item>
-		<item name="android:layout_marginTop">50dp</item> 
+    <item name="android:layout_below">@id/headerLayout</item>
+    <item name="android:layout_marginTop">16dp</item>
 		<item name="android:orientation">vertical</item>
 		<item name="android:shrinkColumns">*</item>
 		<item name="android:stretchColumns">*</item>
@@ -356,7 +362,7 @@
 		<item name="android:layout_marginTop">45dp</item>
    </style>
    
-	<style name="share_header" parent="stext">     	
+	<style name="share_header" parent="sttext">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">20sp</item>
   	</style>
@@ -457,7 +463,7 @@
 		<item name="android:layout_marginTop">25dp</item>
   	</style>
   	 
-  	<style name="srhizome_header" parent="stext">     	
+    	<style name="srhizome_header" parent="sttext">
             <item name="android:layout_width">wrap_content</item>
             <item name="android:layout_height">wrap_content</item>
             <item name="android:layout_alignParentLeft">true</item>
@@ -624,7 +630,7 @@
  	</style>
  	
    	<!-- Instructions -->
-   	<style name="sinstr" parent="stext">  
+      	<style name="sinstr" parent="sttext">
   	    <item name="android:layout_marginTop">2sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">13sp</item>
@@ -654,7 +660,7 @@
    		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_span">2</item>
 		<item name="android:textStyle">bold</item>
-		<item name="android:textColor">@color/white</item>
+      <item name="android:textColor">@color/satnet_text_primary</item>
    		<item name="android:textSize">18sp</item>
 		<item name="android:layout_marginBottom">4sp</item> 
 	    <item name="android:layout_marginTop">40dp</item> 	
@@ -792,7 +798,7 @@
 
  	<!-- Transparent -->
  	<style name="stbody">
-		<item name="android:textColor">@color/white</item>   
+      <item name="android:textColor">@color/satnet_text_primary</item>
 		<item name="android:layout_width">wrap_content</item>
    		<item name="android:layout_height">wrap_content</item>
 	</style>
@@ -810,7 +816,7 @@
  	</style>  
    			  
     <style name="stlogo" parent="stbody"> 	 
-		<item name="android:src">@drawable/ic_serval_logo</item>
+		<item name="android:src">@drawable/ic_satnet_brand</item>
    		<item name="android:layout_alignParentTop">true</item>
  	</style>
  	
@@ -853,20 +859,24 @@
 		<item name="android:layout_centerHorizontal">true</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/white</item>
-  	</style>  	
+		<item name="android:textColor">@color/satnet_text_primary</item>
+  	</style>
   	
     <style name="sttext" parent="stcontent"> 	 
-		<item name="android:textColor">@color/white</item>
+		<item name="android:textColor">@color/satnet_text_primary</item>
    		<item name="android:textSize">13sp</item>
   	</style> 
   	
   	<style name="stplainurl" parent="sturl">
   		<item name="android:gravity">center</item> 	 
-		<item name="android:textColorLink">@color/white</item>
+		<item name="android:textColorLink">@color/satnet_primary</item>
    		<item name="android:textSize">13sp</item>
   	</style> 
-  	
+
+  <style name="stplainurlcentre" parent="stplainurl">
+    <item name="android:layout_centerHorizontal">true</item>
+  </style>
+
   	<style name="sttextleft" parent="sttext"> 	 
 		<item name="android:layout_alignParentLeft">true</item>
 		<item name="android:layout_marginLeft">5sp</item>
@@ -892,7 +902,7 @@
   	</style>
   	 
  	<!-- Help Screen -->	   	
- 	<style name="shelp_version" parent="stext">     	
+    <style name="shelp_version" parent="sttext">
         <item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_alignParentLeft">true</item>
@@ -933,9 +943,113 @@
 		<item name="android:textColor">@color/orange</item>
         <item name="android:layout_marginRight">4sp</item>
  	</style>
- 	
+
+    <style name="SatnetScreenScroll">
+      <item name="android:layout_width">match_parent</item>
+      <item name="android:layout_height">match_parent</item>
+      <item name="android:background">@color/satnet_background</item>
+      <item name="android:fillViewport">true</item>
+      <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="SatnetScreenContent">
+      <item name="android:layout_width">match_parent</item>
+      <item name="android:layout_height">wrap_content</item>
+      <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="SatnetScreenRootLinear">
+      <item name="android:layout_width">match_parent</item>
+      <item name="android:layout_height">match_parent</item>
+      <item name="android:background">@color/satnet_background</item>
+      <item name="android:orientation">vertical</item>
+      <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="SatnetHeaderTitle">
+      <item name="android:layout_width">match_parent</item>
+      <item name="android:layout_height">wrap_content</item>
+      <item name="android:textColor">@color/satnet_text_primary</item>
+      <item name="android:textSize">24sp</item>
+      <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SatnetHeaderSubtitle">
+      <item name="android:layout_width">match_parent</item>
+      <item name="android:layout_height">wrap_content</item>
+      <item name="android:layout_marginTop">8dp</item>
+      <item name="android:textColor">@color/satnet_text_secondary</item>
+    </style>
+
+    <style name="SatnetHeaderBadge">
+      <item name="android:layout_width">wrap_content</item>
+      <item name="android:layout_height">wrap_content</item>
+      <item name="android:layout_marginTop">16dp</item>
+      <item name="android:background">@drawable/satnet_badge_background</item>
+      <item name="android:paddingLeft">14dp</item>
+      <item name="android:paddingTop">8dp</item>
+      <item name="android:paddingRight">14dp</item>
+      <item name="android:paddingBottom">8dp</item>
+      <item name="android:textColor">@color/satnet_primary</item>
+      <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SatnetHeaderStatus">
+      <item name="android:layout_width">match_parent</item>
+      <item name="android:layout_height">wrap_content</item>
+      <item name="android:layout_marginTop">8dp</item>
+      <item name="android:layout_marginBottom">16dp</item>
+      <item name="android:textColor">@color/satnet_text_secondary</item>
+    </style>
+
+    <style name="SatnetCardSection">
+      <item name="android:layout_width">match_parent</item>
+      <item name="android:layout_height">wrap_content</item>
+      <item name="android:layout_marginTop">12dp</item>
+      <item name="android:background">@drawable/satnet_card_surface</item>
+      <item name="android:orientation">vertical</item>
+      <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="SatnetInputField">
+      <item name="android:layout_width">match_parent</item>
+      <item name="android:layout_height">wrap_content</item>
+      <item name="android:layout_marginTop">8dp</item>
+      <item name="android:background">@drawable/satnet_input_background</item>
+      <item name="android:textColor">@color/satnet_text_primary</item>
+      <item name="android:textColorHint">@color/satnet_text_secondary</item>
+      <item name="android:paddingLeft">14dp</item>
+      <item name="android:paddingTop">12dp</item>
+      <item name="android:paddingRight">14dp</item>
+      <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <style name="SatnetPrimaryButton">
+      <item name="android:layout_width">match_parent</item>
+      <item name="android:layout_height">wrap_content</item>
+      <item name="android:background">@drawable/satnet_primary_button_background</item>
+      <item name="android:minHeight">48dp</item>
+      <item name="android:textAllCaps">false</item>
+      <item name="android:textColor">@color/white</item>
+      <item name="android:textStyle">bold</item>
+      <item name="android:paddingTop">12dp</item>
+      <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <style name="SatnetSecondaryButton" parent="SatnetPrimaryButton">
+      <item name="android:background">@drawable/satnet_secondary_button_background</item>
+      <item name="android:textColor">@color/satnet_primary</item>
+    </style>
+
+      <style name="Theme_Satnet" parent="Theme.AppCompat.Light.NoActionBar">
+      <item name="colorPrimary">@color/satnet_primary</item>
+      <item name="colorPrimaryDark">@color/satnet_primary_dark</item>
+      <item name="colorAccent">@color/satnet_accent</item>
+      <item name="android:windowBackground">@color/satnet_background</item>
+    </style>
+
 </resources>
- 			
+
  			
 		
 		

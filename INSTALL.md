@@ -1,6 +1,6 @@
-Building and Installing Serval Mesh
-===================================
-[Serval Project][], April 2017
+Building and Installing SATNET
+==============================
+[SATNET][], historical build guide refreshed April 2026
 
 Batphone can be built and installed using the Android Studio IDE or by invoking gradle manually from the command line.
 
@@ -24,8 +24,9 @@ To build this application for android, you will need:
 Obtaining the source code
 -------------------------
 
-The [Serval Mesh][] source code is available from [GitHub][].
-Download and build it for the first time using the following commands:
+The SATNET source tree is maintained in this repository. The original upstream
+Batphone codebase remains available from [GitHub][]. Download and build the
+current project for the first time using the following commands:
 
     $ git clone https://github.com/servalproject/batphone.git
     Cloning into 'batphone'...
@@ -76,10 +77,26 @@ The release build can be triggered either by generating a signed apk from within
 
     $ Enter password for jar signing key:
 
-    $ Enter serval keyring entry pin:
+    $ Enter SATNET keyring entry pin:
     ...
 
 The assembled APK will be located at `app/build/outputs/apk/app-release.apk` or app-release-unsigned.apk.
+
+Production Readiness Gate
+-------------------------
+
+Before any public rollout, run the consolidated verification gate:
+
+    $ ./gradlew --no-daemon :app:productionGate
+
+This runs lint, unit tests, and release assembly checks.
+
+Use the following companion documents for sign-off and operations:
+
+ * [DEPLOYMENT_TESTING_GUIDE.md](./DEPLOYMENT_TESTING_GUIDE.md)
+ * [doc/PRODUCTION_ACCEPTANCE_CRITERIA.md](./doc/PRODUCTION_ACCEPTANCE_CRITERIA.md)
+ * [doc/RELEASE_RUNBOOK.md](./doc/RELEASE_RUNBOOK.md)
+ * [doc/CI_FAILURE_RUNBOOK.md](./doc/CI_FAILURE_RUNBOOK.md)
 
 
 Known Issues
@@ -95,7 +112,7 @@ Then point your ndk.dir to revision 13b for all future builds.
 
 
 -----
-**Copyright 2017 Serval Project Inc. & Flinders University**
+**Copyright 2017 original upstream authors; SATNET build guide refresh 2026**
 ![CC-BY-4.0](./cc-by-4.0.png)
 This document is available under the [Creative Commons Attribution 4.0 International licence][CC BY 4.0].
 
@@ -111,6 +128,7 @@ This document is available under the [Creative Commons Attribution 4.0 Internati
 [GitHub]: http://github.com/servalproject/
 [Google Play]: https://play.google.com/store/apps/details?id=org.servalproject
 [batphone]: http://github.com/servalproject/batphone/
+[SATNET]: ./README.md
 [pandoc]: http://johnmacfarlane.net/pandoc/
 [CC BY 4.0]: ./LICENSE-DOCUMENTATION.md
 

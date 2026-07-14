@@ -19,17 +19,18 @@
  */
 package org.servalproject.messages;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -51,12 +52,36 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+
+import androidx.core.content.ContextCompat;
 
 /**
  * activity to show a conversation thread
  *
  */
-public class ShowConversationActivity extends ListActivity implements OnClickListener, SimpleAdapter.ViewBinder<Object>, IPeerListListener {
+public class ShowConversationActivity extends Activity implements OnClickListener, SimpleAdapter.ViewBinder<Object>, IPeerListListener {
+	public static final String EXTRA_RECIPIENT = "recipient";
+	public static final String EXTRA_DRAFT_TEXT = "draft_text";
+
+	public static Intent createIntent(Context context, String recipientSid) {
+		Intent intent = new Intent(context, ShowConversationActivity.class);
+		String normalizedRecipientSid = normalizeRecipientSid(recipientSid);
+		if (!TextUtils.isEmpty(normalizedRecipientSid)) {
+			intent.putExtra(EXTRA_RECIPIENT, normalizedRecipientSid);
+		}
+		return intent;
+	}
+
+	public static Intent createIntent(Context context, SubscriberId recipientSid) {
+		return recipientSid == null
+				? createIntent(context, (String) null)
+				: createIntent(context, recipientSid.toHex());
+	}
+
+	public static String normalizeRecipientSid(String recipientSid) {
+		return recipientSid == null ? null : recipientSid.toUpperCase(Locale.ROOT);
+	}
 
 	private final String TAG = "ShowConversation";
 	private ServalBatPhoneApplication app;
@@ -64,14 +89,19 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 	private Peer recipient;
 	// the message text field
 	private ListView list;
-	private TextView message;
+	private EditText message;
+	private TextView recipientMetaView;
+	private TextView threadStatusView;
+	private TextView emptyView;
 	private SimpleAdapter<Object> adapter;
+	private boolean receiverRegistered = false;
+	private int loadRequestGeneration = 0;
 
 	BroadcastReceiver receiver = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (intent.getAction().equals(MeshMS.NEW_MESSAGES)) {
+			if (MeshMS.NEW_MESSAGES.equals(intent.getAction())) {
 				populateList();
 			}
 		}
@@ -80,10 +110,8 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 
 	@Override
 	public void onClick(View view) {
-		switch (view.getId()){
-			case R.id.show_message_ui_btn_send_message:
-				sendMessage();
-				break;
+		if (view.getId() == R.id.show_message_ui_btn_send_message) {
+			sendMessage();
 		}
 	}
 
@@ -93,12 +121,19 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 		super.onCreate(savedInstanceState);
         app = ServalBatPhoneApplication.context;
 		setContentView(R.layout.show_conversation);
+		setTitle(R.string.show_conversation_title);
 		try {
 			this.identity = app.server.getIdentity();
 
-			message = (TextView) findViewById(R.id.show_conversation_ui_txt_content);
-			list = getListView();
-			adapter = new SimpleAdapter<Object>(this, this);
+			message = findViewById(R.id.show_conversation_ui_txt_content);
+			recipientMetaView = findViewById(R.id.show_conversation_ui_recipient_meta);
+			threadStatusView = findViewById(R.id.show_conversation_ui_status);
+			emptyView = findViewById(android.R.id.empty);
+			list = findViewById(android.R.id.list);
+			if (emptyView != null) {
+				list.setEmptyView(emptyView);
+			}
+			adapter = new SimpleAdapter<>(this, this);
 			list.setAdapter(adapter);
 
 			// get the thread id from the intent
@@ -110,8 +145,9 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 				Uri uri = mIntent.getData();
 				Log.v(TAG, "Received " + mIntent.getAction() + " " + uri);
 				if (uri != null) {
-					if (uri.getScheme().equals("sms")
-							|| uri.getScheme().equals("smsto")) {
+					String scheme = uri.getScheme();
+					if ("sms".equals(scheme)
+							|| "smsto".equals(scheme)) {
 						did = uri.getSchemeSpecificPart();
 						did = did.trim();
 						if (did.endsWith(","))
@@ -126,7 +162,7 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 			}
 
 			{
-				String recipientSidString = mIntent.getStringExtra("recipient");
+				String recipientSidString = mIntent.getStringExtra(EXTRA_RECIPIENT);
 				if (recipientSidString != null)
 					recipientSid = new SubscriberId(recipientSidString);
 			}
@@ -153,10 +189,23 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 						"No Subscriber id found");
 
 			recipient = PeerListService.getPeer(recipientSid);
-			TextView recipientView = (TextView) findViewById(R.id.show_conversation_ui_recipient);
+			TextView recipientView = findViewById(R.id.show_conversation_ui_recipient);
 			recipientView.setText(recipient.toString());
+			updateRecipientHeader();
+			setThreadStatus(R.string.show_conversation_status_ready);
 
-			findViewById(R.id.show_message_ui_btn_send_message).setOnClickListener(this);
+			String draftMessage = mIntent.getStringExtra(EXTRA_DRAFT_TEXT);
+			if (!TextUtils.isEmpty(draftMessage)) {
+				message.setText(draftMessage);
+				message.setSelection(draftMessage.length());
+				setThreadStatus(getString(R.string.show_conversation_status_draft_ready, recipient.toString()));
+			}
+
+			View sendButton = findViewById(R.id.show_message_ui_btn_send_message);
+			sendButton.setOnClickListener(this);
+			sendButton.setContentDescription(getString(
+					R.string.show_conversation_send_button_description,
+					recipient.toString()));
 
 			list.setStackFromBottom(true);
 			list.setTranscriptMode(
@@ -172,29 +221,33 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 	private void sendMessage() {
 		// send the message
 			CharSequence messageText = message.getText();
-			if (messageText==null || "".equals(messageText.toString()))
+			if (messageText == null || messageText.length() == 0)
 				return;
-			new AsyncTask<String, Void, Boolean>(){
-				@Override
-				protected void onPostExecute(Boolean ret) {
-					if (ret) {
-						message.setText("");
-						populateList();
-					}
+			final String outgoingMessage = messageText.toString();
+			app.runOnBackgroundThread(() -> {
+				boolean sent = false;
+				try {
+					app.server.getRestfulClient().meshmsSendMessage(identity.subscriber.sid, recipient.getSubscriberId(), outgoingMessage);
+					sent = true;
+				} catch (Exception e) {
+					Log.e(TAG, e.getMessage(), e);
+					app.displayToastMessage(e.getMessage());
 				}
 
-				@Override
-				protected Boolean doInBackground(String... args) {
-					try {
-						app.server.getRestfulClient().meshmsSendMessage(identity.sid, recipient.sid, args[0]);
-						return true;
-					} catch (Exception e) {
-						Log.e(TAG, e.getMessage(), e);
-						app.displayToastMessage(e.getMessage());
+				final boolean messageSent = sent;
+				runOnUiThread(() -> {
+					if (isFinishing()) {
+						return;
 					}
-					return false;
-				}
-			}.execute(messageText.toString());
+					if (messageSent) {
+						message.setText("");
+						setThreadStatus(R.string.show_conversation_status_sent);
+						populateList();
+					} else {
+						setThreadStatus(R.string.show_conversation_status_send_failed);
+					}
+				});
+			});
 	}
 
 	/*
@@ -203,85 +256,81 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 	private void populateList() {
 		if (!app.isMainThread()) {
 			// refresh the message list
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					populateList();
-				}
-			});
+			runOnUiThread(this::populateList);
 			return;
 		}
-		new AsyncTask<Void, List<Object>, List<Object>>(){
-			@Override
-			protected void onPostExecute(List<Object> listItems) {
-				if (listItems!=null)
-					adapter.setItems(listItems);
-			}
+		final int requestGeneration = ++loadRequestGeneration;
+		setThreadStatus(R.string.show_conversation_status_loading);
+		app.runOnBackgroundThread(() -> {
+			List<Object> finalItems = null;
+			try {
+				MeshMSMessageList results = app.server.getRestfulClient().meshmsListMessages(identity.subscriber.sid, recipient.getSubscriberId());
+				MeshMSMessage item;
+				LinkedList<Object> listItems = new LinkedList<>();
+				boolean firstRead = true, firstDelivered = true, firstWindow = true;
+				DateFormat df = DateFormat.getDateInstance();
+				DateFormat tf = DateFormat.getTimeInstance(DateFormat.SHORT);
+				long lastTimestamp = System.currentTimeMillis() / 1000;
+				String lastDate = df.format(new Date());
 
-			@Override
-			protected void onProgressUpdate(List<Object>... values) {
-				this.onPostExecute(values[0]);
-			}
-
-			@Override
-			protected List<Object> doInBackground(Void... voids) {
-				try{
-					MeshMSMessageList results = app.server.getRestfulClient().meshmsListMessages(identity.sid, recipient.sid);
-					MeshMSMessage item;
-					LinkedList<Object> listItems = new LinkedList<Object>();
-					boolean firstRead=true, firstDelivered=true, firstWindow = true;
-					DateFormat df = DateFormat.getDateInstance();
-					DateFormat tf = DateFormat.getTimeInstance(DateFormat.SHORT);
-					long lastTimestamp = System.currentTimeMillis() / 1000;
-					String lastDate = df.format(new Date());
-
-
-					while((item = results.nextMessage())!=null){
-						switch(item.type){
-							case MESSAGE_SENT:
-								if (item.isDelivered && firstDelivered){
-									listItems.addFirst(getString(R.string.meshms_delivered));
-									firstDelivered=false;
-								}
-								break;
-							case MESSAGE_RECEIVED:
-								if (item.isRead && firstRead){
-									listItems.addFirst(getString(R.string.meshms_read));
-									firstRead=false;
-								}
-								break;
-							default:
-								continue;
-						}
-
-						if (item.timestamp!=0){
-							String messageDate = df.format(new Date(item.timestamp*1000));
-							if (!messageDate.equals(lastDate)){
-								// add date row whenever the calendar date changes
-								listItems.addFirst("--- "+messageDate+" ---");
-							}else if(lastTimestamp - item.timestamp >= 30*60){
-								// add time row whenever 30 minutes have passed between messages
-								listItems.addFirst("--- "+tf.format(new Date(item.timestamp*1000))+" ---");
+				while ((item = results.next()) != null) {
+					switch (item.type) {
+						case MESSAGE_SENT:
+							if (item.isDelivered && firstDelivered) {
+								listItems.addFirst(getString(R.string.meshms_delivered));
+								firstDelivered = false;
 							}
-							lastDate = messageDate;
-							lastTimestamp = item.timestamp;
-						}
-
-						listItems.addFirst(item);
-						// show the first 10 items quickly
-						if (firstWindow && listItems.size()>10) {
-							firstWindow = false;
-							this.publishProgress(new ArrayList<Object>(listItems));
-						}
+							break;
+						case MESSAGE_RECEIVED:
+							if (item.isRead && firstRead) {
+								listItems.addFirst(getString(R.string.meshms_read));
+								firstRead = false;
+							}
+							break;
+						default:
+							continue;
 					}
-					return new ArrayList<Object>(listItems);
-				}catch(Exception e) {
-					Log.e(TAG, e.getMessage(), e);
-					app.displayToastMessage(e.getMessage());
+
+					if (item.timestamp != 0) {
+						String messageDate = df.format(new Date(item.timestamp * 1000));
+						if (!messageDate.equals(lastDate)) {
+							listItems.addFirst("--- " + messageDate + " ---");
+						} else if (lastTimestamp - item.timestamp >= 30 * 60) {
+							listItems.addFirst("--- " + tf.format(new Date(item.timestamp * 1000)) + " ---");
+						}
+						lastDate = messageDate;
+						lastTimestamp = item.timestamp;
+					}
+
+					listItems.addFirst(item);
+					if (firstWindow && listItems.size() > 10) {
+						firstWindow = false;
+						ArrayList<Object> partialItems = new ArrayList<>(listItems);
+						runOnUiThread(() -> applyConversationItems(requestGeneration, partialItems));
+					}
 				}
-				return null;
+
+				finalItems = new ArrayList<>(listItems);
+			} catch (Exception e) {
+				Log.e(TAG, e.getMessage(), e);
+				app.displayToastMessage(e.getMessage());
 			}
-		}.execute();
+
+			final List<Object> loadedItems = finalItems;
+			runOnUiThread(() -> {
+				if (loadedItems != null) {
+					applyConversationItems(requestGeneration, loadedItems);
+				}
+			});
+		});
+	}
+
+	private void applyConversationItems(int requestGeneration, List<Object> listItems) {
+		if (isFinishing() || requestGeneration != loadRequestGeneration) {
+			return;
+		}
+		adapter.setItems(listItems);
+		setThreadStatus(R.string.show_conversation_status_ready);
 	}
 
 	/*
@@ -292,11 +341,14 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 	@Override
 	public void onPause() {
 		PeerListService.removeListener(this);
-		this.unregisterReceiver(receiver);
+		if (receiverRegistered) {
+			this.unregisterReceiver(receiver);
+			receiverRegistered = false;
+		}
 		app.runOnBackgroundThread(new Runnable() {
 			@Override
 			public void run() {
-				app.meshMS.markRead(recipient.sid);
+				app.meshMS.markRead(recipient.getSubscriberId());
 			}
 		});
 		super.onPause();
@@ -309,9 +361,12 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 	 */
 	@Override
 	public void onResume() {
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(MeshMS.NEW_MESSAGES);
-		this.registerReceiver(receiver, filter);
+		if (!receiverRegistered) {
+			IntentFilter filter = new IntentFilter();
+			filter.addAction(MeshMS.NEW_MESSAGES);
+			ContextCompat.registerReceiver(this, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+			receiverRegistered = true;
+		}
 		// get the data
 		PeerListService.addListener(this);
 		populateList();
@@ -341,12 +396,36 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 
 	@Override
 	public void bindView(int position, Object object, View view) {
-		TextView messageText = (TextView)view.findViewById(R.id.message_text);
+		TextView messageText = view.findViewById(R.id.message_text);
 		if (object instanceof MeshMSMessage) {
 			MeshMSMessage meshMSMessage = (MeshMSMessage) object;
 			messageText.setText(meshMSMessage.text);
-		}else
-			messageText.setText(object.toString());
+			switch (meshMSMessage.type) {
+				case MESSAGE_SENT:
+					messageText.setContentDescription(getString(
+							R.string.show_conversation_message_sent_accessibility,
+							meshMSMessage.text));
+					break;
+				case MESSAGE_RECEIVED:
+					messageText.setContentDescription(getString(
+							R.string.show_conversation_message_received_accessibility,
+							recipient == null ? getString(R.string.contacts_header) : recipient.toString(),
+							meshMSMessage.text));
+					break;
+				default:
+					messageText.setContentDescription(getString(
+							R.string.show_conversation_status_accessibility,
+							meshMSMessage.text));
+					break;
+			}
+		}else {
+			String statusText = object.toString();
+			messageText.setText(statusText);
+			messageText.setContentDescription(getString(
+					R.string.show_conversation_status_accessibility,
+					statusText));
+		}
+		view.setContentDescription(messageText.getContentDescription());
 	}
 
 	@Override
@@ -371,13 +450,44 @@ public class ShowConversationActivity extends ListActivity implements OnClickLis
 	@Override
 	public void peerChanged(Peer p) {
 		if (p == recipient){
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					TextView recipientView = (TextView) findViewById(R.id.show_conversation_ui_recipient);
-					recipientView.setText(recipient.toString());
-				}
+			runOnUiThread(() -> {
+				TextView recipientView = findViewById(R.id.show_conversation_ui_recipient);
+				recipientView.setText(recipient.toString());
+				updateRecipientHeader();
+				View sendButton = findViewById(R.id.show_message_ui_btn_send_message);
+				sendButton.setContentDescription(getString(
+						R.string.show_conversation_send_button_description,
+						recipient.toString()));
 			});
+		}
+	}
+
+	private void updateRecipientHeader() {
+		if (recipientMetaView == null || recipient == null) {
+			return;
+		}
+		String did = recipient.getDid();
+		if (did == null || did.trim().isEmpty()) {
+			recipientMetaView.setText(getString(
+					R.string.show_conversation_recipient_meta_no_number,
+					recipient.getSubscriberId().abbreviation()));
+			return;
+		}
+		recipientMetaView.setText(getString(
+				R.string.show_conversation_recipient_meta,
+				did,
+				recipient.getSubscriberId().abbreviation()));
+	}
+
+	private void setThreadStatus(int statusResId) {
+		if (threadStatusView != null) {
+			threadStatusView.setText(statusResId);
+		}
+	}
+
+	private void setThreadStatus(String statusText) {
+		if (threadStatusView != null) {
+			threadStatusView.setText(statusText);
 		}
 	}
 }

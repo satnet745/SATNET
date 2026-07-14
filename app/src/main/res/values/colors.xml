@@ -30,7 +30,20 @@
      <color name="grey">#f999</color>
      <color name="customblack">#ff000000</color>
      <color name="orange">#ffcc7948</color>   
-    
+
+     <!-- SATNET UI -->
+     <color name="satnet_background">#FFF6F8FC</color>
+     <color name="satnet_surface">#FFFFFFFF</color>
+     <color name="satnet_surface_alt">#FFF0F4FA</color>
+     <color name="satnet_primary">#FF0E4A7B</color>
+     <color name="satnet_primary_dark">#FF083357</color>
+     <color name="satnet_accent">#FF2B8A3E</color>
+     <color name="satnet_stroke">#FFD7E1EE</color>
+     <color name="satnet_text_primary">#FF15253A</color>
+     <color name="satnet_text_secondary">#FF5A6B80</color>
+      <color name="satnet_alert">#FFC0392B</color>
+      <color name="satnet_divider">#FFD7E1EE</color>
+
 <!--     SIPDroid In-call UI - to be removed
     <color name="incall_textConnected">#99CE3F</color>  green
     <color name="incall_textConnected">#40CEA3</color>   

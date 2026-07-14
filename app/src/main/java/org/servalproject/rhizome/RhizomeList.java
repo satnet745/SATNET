@@ -41,11 +41,15 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
+import androidx.core.content.ContextCompat;
+
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.servald.ServalD;
 import org.servalproject.servaldna.BundleId;
 import org.servalproject.servaldna.ServalDCommand;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Rhizome list activity.  Presents the contents of the Rhizome store as a list of names.
@@ -59,12 +63,28 @@ public class RhizomeList extends ListActivity implements DialogInterface.OnDismi
 	int clickPosition;
 	SimpleCursorAdapter adapter;
 	private static final int MENU_REFRESH = 0;
-	private Handler handler;
+	private RefreshHandler handler;
+
+	private static class RefreshHandler extends Handler {
+		private final WeakReference<RhizomeList> activityRef;
+
+		RefreshHandler(RhizomeList activity) {
+			activityRef = new WeakReference<RhizomeList>(activity);
+		}
+
+		@Override
+		public void handleMessage(Message msg) {
+			RhizomeList activity = activityRef.get();
+			if (activity != null && !activity.isFinishing()) {
+				activity.listFiles();
+			}
+		}
+	}
 
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (intent.getAction().equals(Rhizome.ACTION_RECEIVE_FILE)) {
+			if (Rhizome.ACTION_RECEIVE_FILE.equals(intent.getAction())) {
 				if (!handler.hasMessages(1))
 					handler.sendEmptyMessageDelayed(1, 1000);
 			}
@@ -75,12 +95,7 @@ public class RhizomeList extends ListActivity implements DialogInterface.OnDismi
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(Rhizome.TAG, getClass().getName()+".onCreate()");
 		super.onCreate(savedInstanceState);
-		handler = new Handler(){
-			@Override
-			public void handleMessage(Message msg) {
-				listFiles();
-			}
-		};
+		handler = new RefreshHandler(this);
 		setContentView(R.layout.rhizome_list);
 	}
 
@@ -94,14 +109,15 @@ public class RhizomeList extends ListActivity implements DialogInterface.OnDismi
 		} catch (MalformedMimeTypeException e) {
 			Log.e("RhizomeList", e.toString(), e);
 		}
-		this.registerReceiver(receiver, filter, Rhizome.RECEIVE_PERMISSION,
-				null);
+		ContextCompat.registerReceiver(this, receiver, filter, Rhizome.RECEIVE_PERMISSION,
+				null, ContextCompat.RECEIVER_NOT_EXPORTED);
 		listFiles();
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
+		handler.removeMessages(1);
 		this.unregisterReceiver(receiver);
 		super.onPause();
 	}
@@ -175,8 +191,11 @@ public class RhizomeList extends ListActivity implements DialogInterface.OnDismi
 				RhizomeDetail detail = (RhizomeDetail) dialog;
 				Cursor c = adapter.getCursor();
 				c.moveToPosition(this.clickPosition);
+				int idColumn = c.getColumnIndex("id");
+				if (idColumn < 0)
+					throw new IllegalStateException("Missing id column in Rhizome cursor");
 
-				BundleId bid = new BundleId(c.getBlob(c.getColumnIndex("id")));
+				BundleId bid = new BundleId(c.getBlob(idColumn));
 				ServalDCommand.ManifestResult result = ServalDCommand
 						.rhizomeExportManifest(bid, null);
 				detail.setManifest(RhizomeManifest.fromByteArray(result.manifestText));

@@ -1,22 +1,22 @@
 package org.servalproject.system;
 
-import android.content.Context;
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import org.servalproject.Control;
 import org.servalproject.ServalBatPhoneApplication;
+import org.servalproject.permissions.RuntimePermissionGate;
 import org.servalproject.servaldna.ServalDCommand;
 import org.servalproject.servaldna.ServalDFailureException;
-import org.servalproject.servaldna.ServalDInterfaceException;
 import org.servalproject.system.bluetooth.BlueToothControl;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -39,17 +39,42 @@ public class NetworkManager {
 		return manager;
 	}
 
+	@SuppressLint("MissingPermission")
+	private List<ScanResult> getWifiScanResultsSafely() {
+		return control.wifiManager.getScanResults();
+	}
+
+	@SuppressLint("MissingPermission")
+	private List<WifiConfiguration> getConfiguredNetworksSafely() {
+		return control.wifiManager.getConfiguredNetworks();
+	}
+
 	// merge scan results based on SSID and capabilities
 	public Collection<ScanResults> getScanResults(){
 		if (!control.wifiManager.isWifiEnabled())
 			return null;
-		Map<String, ScanResults> newResults = new HashMap<String, ScanResults>();
-		List<ScanResult> resultsList = control.wifiManager.getScanResults();
+		if (!RuntimePermissionGate.hasPermissions(app, new String[]{Manifest.permission.ACCESS_FINE_LOCATION})) {
+			Log.i(TAG, "Skipping Wi-Fi scan results because location permission is not granted");
+			return null;
+		}
+		Map<String, ScanResults> newResults = new HashMap<>();
+		List<ScanResult> resultsList;
+		try {
+			resultsList = getWifiScanResultsSafely();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Unable to read Wi-Fi scan results", e);
+			return null;
+		}
 		if (resultsList!=null){
 			// build a map of pre-configured access points
-			List<WifiConfiguration> configured = control.wifiManager
-					.getConfiguredNetworks();
-			Map<String, WifiConfiguration> configuredMap = new HashMap<String, WifiConfiguration>();
+			List<WifiConfiguration> configured;
+			try {
+				configured = getConfiguredNetworksSafely();
+			} catch (SecurityException e) {
+				Log.w(TAG, "Unable to read configured Wi-Fi networks", e);
+				configured = null;
+			}
+			Map<String, WifiConfiguration> configuredMap = new HashMap<>();
 
 			if (configured != null) {
 				for (WifiConfiguration c : configured) {
@@ -197,9 +222,21 @@ public class NetworkManager {
 		if (serviceRunning != runService) {
 			Intent serviceIntent = new Intent(app, Control.class);
 			if (runService) {
-				app.startService(serviceIntent);
+				try {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+						app.startForegroundService(serviceIntent);
+					} else {
+						app.startService(serviceIntent);
+					}
+				} catch (RuntimeException e) {
+					Log.e(TAG, "Unable to start Control service during network state change", e);
+				}
 			} else {
-				app.stopService(serviceIntent);
+				try {
+					app.stopService(serviceIntent);
+				} catch (RuntimeException e) {
+					Log.e(TAG, "Unable to stop Control service during network state change", e);
+				}
 			}
 		}
 
@@ -223,3 +260,4 @@ public class NetworkManager {
 		networkStateChanged();
 	}
 }
+

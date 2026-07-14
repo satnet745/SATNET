@@ -19,9 +19,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="org.servalproject"
-      android:installLocation="auto">
-    
+      xmlns:tools="http://schemas.android.com/tools"
+      android:installLocation="preferExternal">
+
     <!-- Batphone permissions -->
     <permission 
         android:label="@string/rhizome_share_file_permission_label" 
@@ -36,8 +36,8 @@
         android:name="org.servalproject.rhizome.RECEIVE_FILE">
     </permission>
     <permission android:description="@string/system_permission_control_label" 
-        android:icon="@drawable/ic_launcher" 
-        android:label="@string/system_permission_control_label" 
+        android:icon="@drawable/ic_satnet_brand"
+        android:label="@string/system_permission_control_label"
         android:protectionLevel="signature" 
         android:name="org.servalproject.START_STOP"
         />
@@ -46,7 +46,7 @@
     <permission android:name="org.servalproject.meshms.SEND_MESHMS" 
         android:description="@string/system_permission_meshms_send_description" 
         android:protectionLevel="dangerous" 
-        android:permissionGroup="android.permission-group.MESSAGES" 
+
         android:label="@string/system_permission_meshms_send_label"
         />
 
@@ -60,16 +60,29 @@
 
     <!--  android permissions -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+  <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" tools:targetApi="o" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" tools:targetApi="34" />
 	<uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
-	<uses-permission android:name="android.permission.BLUETOOTH" />
-	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+	<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" tools:targetApi="s" />
+  <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" tools:targetApi="s" />
+  <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" tools:targetApi="s" />
 	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
-	<uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+	<uses-permission android:name="android.permission.CAMERA" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+	<uses-permission android:name="android.permission.SEND_SMS" />
+	<uses-permission android:name="android.permission.RECEIVE_SMS" />
+	<uses-permission android:name="android.permission.READ_SMS" />
+	<uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" android:maxSdkVersion="28" />
 	<uses-permission android:name="android.permission.WRITE_SETTINGS" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 	<uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -77,19 +90,23 @@
 	<uses-permission android:name="android.permission.CALL_PHONE" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" android:maxSdkVersion="22" />
 	<uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
-	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS" android:maxSdkVersion="22" />
 	<uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
 	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.READ_PROFILE"/>
+    <uses-permission android:name="android.permission.READ_PROFILE" android:maxSdkVersion="22"/>
+
+    <!-- SATNET AFRICA - Bitcoin & Voucher Network Permissions -->
+    <!-- Already have INTERNET, CAMERA, RECORD_AUDIO from above -->
+    <!-- Additional permissions for Bitcoin wallet operations -->
 
     <!-- uses features -->
-    <!--uses-feature android:name="android.hardware.camera" android:required="false" /-->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 	<uses-feature android:name="android.hardware.wifi" android:required="false" />
 	<uses-feature android:name="android.hardware.bluetooth" android:required="false" />
 	<uses-feature android:name="android.hardware.telephony" android:required="false" />
@@ -100,13 +117,19 @@
 	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 	
     <application
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/ic_satnet_brand"
         android:label="@string/app_name"
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
+        android:networkSecurityConfig="@xml/network_security_config"
+		android:usesCleartextTraffic="false"
+		tools:targetApi="n"
 		android:name=".ServalBatPhoneApplication">
         
         <activity android:name="PreparationWizard"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.PREPARATION" />
 
@@ -115,8 +138,8 @@
         <activity android:name=".Main"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
-            >
-        <intent-filter>   
+            android:exported="true">
+        <intent-filter>
             	<action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -124,51 +147,62 @@
         <activity android:name=".ui.ShareUsActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
             />
   		<activity android:name=".ui.SettingsScreenActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
             />
 		<activity android:name=".ui.SettingsMeshMSScreenActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
-            />     
+            android:exported="false"
+            />
             
     <activity android:name=".ui.AccountsSettingsActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
-            />   
+            android:exported="false"
+            />
     <activity android:name=".ui.Networks"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
         />
     <activity android:name=".ui.AdhocPreferences"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
-            />             
+            android:exported="false"
+            />
     <activity android:name=".ui.SetupActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
-            />             
+            android:exported="false"
+            />
       
  		<activity android:name=".ui.help.HtmlHelp"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
             />
 
         <activity android:name=".wizard.Wizard"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
             />
         <activity android:name=".wizard.SetPhoneNumber"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
             />
 
         <activity android:name=".batphone.CallDirector"
             android:excludeFromRecents="true"
             android:screenOrientation="portrait"
             android:taskAffinity="org.servalproject.Call"
+            android:exported="false"
             />
 
         <activity android:name=".batphone.UnsecuredCall"
@@ -176,29 +210,31 @@
             android:screenOrientation="portrait"
             android:launchMode="singleTask"
             android:taskAffinity="org.servalproject.Call"
-            >
+            android:exported="true">
             <intent-filter>
 	            <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT" />
-	            <data android:mimeType="vnd.android.cursor.item/org.servalproject.unsecuredSid"/>
+	            <data android:mimeType="vnd.android.cursor.item/org.servalproject.unsecuredsid"/>
 	        </intent-filter>
 	    </activity>
 
         <activity android:name=".LogActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
             />
         <activity android:name=".PeerList" 
-            android:label="Serval BatPhone - Peer List"
+            android:label="@string/peer_list_title"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
-            >
+            android:exported="false">
             <intent-filter>
                 <action android:name="org.servalproject.PICK_FROM_PEER_LIST" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-	    <receiver android:name="org.servalproject.batphone.BatPhone">
+	    <receiver android:name="org.servalproject.batphone.BatPhone"
+            android:exported="true">
 	        <intent-filter android:priority="1">
 	        	<action android:name="android.intent.action.NEW_OUTGOING_CALL" />
  	        </intent-filter>
@@ -229,12 +265,24 @@
                 <data android:scheme="file" />
 	        </intent-filter>
 	    </receiver>
-		 
+
+      <receiver android:name=".relay.SmsRelayReceiver"
+          android:exported="true"
+          android:permission="android.permission.BROADCAST_SMS">
+          <intent-filter android:priority="999">
+              <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+          </intent-filter>
+      </receiver>
+
 	    <service android:name=".Control"
-	             android:enabled="true"/>
-	    
-	    <service android:name=".account.AccountService">  
-	        <intent-filter>  
+               android:enabled="true"
+	           android:foregroundServiceType="dataSync"
+               android:exported="false"/>
+
+	    <service android:name=".account.AccountService"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCOUNT_AUTHENTICATOR">
+	        <intent-filter>
 	            <action android:name="android.accounts.AccountAuthenticator" />
 	        </intent-filter>  
 	        <meta-data android:name="android.accounts.AccountAuthenticator" android:resource="@xml/authenticator" />  
@@ -242,7 +290,8 @@
 	    
 	    <service 
 	        android:name=".account.SyncService"
-	        android:exported="true">
+          android:exported="true"
+          android:permission="android.permission.BIND_SYNC_ADAPTER">
 			<intent-filter>
 				<action android:name="android.content.SyncAdapter" />
 			</intent-filter>
@@ -260,24 +309,29 @@
             android:label="@string/rhizome_main_appname"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
             />
         <activity android:name=".rhizome.RhizomeList" 
             android:label="@string/rhizome_list_appname"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
             />
         <activity android:name=".rhizome.RhizomeSaved" 
             android:label="@string/rhizome_saved_appname"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
             />
     	<activity android:name=".rhizome.RhizomeStorage" 
     	    android:screenOrientation="portrait"
             android:launchMode="singleTop"
+            android:exported="false"
     	    />
 
     	<activity android:name=".rhizome.ShareFileActivity" 
-    	    android:label="@string/sf_name">
+    	    android:label="@string/sf_name"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -287,7 +341,8 @@
 
 		<service android:label="@string/rhizome_share_file_permission_label"
 		    android:name=".rhizome.RhizomeIntentService" 
-		    android:permission="org.servalproject.rhizome.ADD_FILE">
+		    android:permission="org.servalproject.rhizome.ADD_FILE"
+            android:exported="true">
 			<intent-filter>
 				<action android:name="org.servalproject.rhizome.ADD_FILE"/>
 			</intent-filter>
@@ -297,18 +352,32 @@
                   android:name=".provider.RhizomeProvider"
                   android:exported="true"
                   android:enabled="true"
+                  android:readPermission="org.servalproject.rhizome.RECEIVE_FILE"
+                  android:writePermission="org.servalproject.rhizome.ADD_FILE"
+                  android:grantUriPermissions="true"
                   android:label="Shared Files"
                   />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="org.servalproject.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <!-- serval meshms service -->
 
         <activity android:name=".messages.MessagesListActivity"
 		    android:screenOrientation="portrait"
             android:launchMode="singleTop"
+        android:exported="false"
 		    />
 		<activity android:name=".messages.ShowConversationActivity"
 		    android:screenOrientation="portrait"
-		    >
+            android:exported="true">
 		    <intent-filter>
 		        <action android:name="android.intent.action.SENDTO" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -323,11 +392,92 @@
 		<activity android:name=".ui.ContactsActivity"
 		    android:screenOrientation="portrait"
             android:launchMode="singleTop"
+        android:exported="false"
 		    />
 		<activity android:name=".ui.MapsActivity"
 		    android:screenOrientation="portrait"
             android:launchMode="singleTop"
+        android:exported="false"
 		    />
+
+		<!-- SATNET AFRICA Bitcoin & Voucher Network Activities -->
+    <activity android:name=".satnet.ui.SatnetRoleSetupActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_activity_label_role_setup"
+        />
+    <activity android:name=".satnet.ui.BitcoinWalletSetupActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_activity_label_wallet_setup"
+        />
+    <activity android:name=".satnet.ui.BitcoinWalletActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_activity_label_wallet"
+        />
+    <activity android:name=".satnet.ui.AgentVoucherActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_activity_label_agent"
+        />
+    <activity android:name=".satnet.ui.MerchantLightningActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_activity_label_merchant"
+        />
+    <activity android:name=".satnet.ui.VoucherRedemptionActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_activity_label_redeem"
+        />
+    <activity android:name=".satnet.ui.QRScannerActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_activity_label_scanner"
+        />
+    <activity android:name=".satnet.ui.VerifierDashboardActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_activity_label_verifier"
+        />
+    <activity android:name=".satnet.ui.SatnetMapsActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_activity_label_maps"
+        />
+    <activity android:name=".satnet.ui.SatnetMapsInboxActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_activity_label_maps_inbox"
+        />
+    <activity android:name=".satnet.ui.SendBitcoinActivity"
+        android:screenOrientation="portrait"
+        android:launchMode="singleTop"
+        android:exported="false"
+        android:theme="@style/Theme_Satnet"
+        android:label="@string/satnet_send_bitcoin_title"
+        />
 
     </application>
 

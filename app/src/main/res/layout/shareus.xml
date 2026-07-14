@@ -24,7 +24,8 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:background="@color/satnet_background" >
 
     <!-- Header -->
 
@@ -40,26 +41,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_below="@+id/logot_image"
+        android:layout_below="@id/headerLayout"
         android:text="@string/share_us_header" />
 
     <TextView
         android:id="@+id/share_wifi_instr"
-        style="@style/stextleft"
+        style="@style/sttextleft"
         android:layout_below="@+id/share_us_header"
         android:text="@string/share_wifi_instr"
         />
 
     <TextView
         android:id="@+id/share_wifi"
-        style="@style/stextleft"
+        style="@style/sttextleft"
         android:layout_below="@+id/share_wifi_instr"
         android:text="@string/share_wifi_off"
         />
 
     <TextView
     	android:id="@+id/share_us_text"
-        style="@style/stextleft"
+        style="@style/sttextleft"
         android:layout_marginTop="4dp"
         android:layout_below="@+id/share_wifi"
         android:text="@string/share_us_text" /> 
@@ -73,7 +74,7 @@
 
     <TextView
         android:id="@+id/share_us_warning"
-        style="@style/stextleft"
+        style="@style/sttextleft"
         android:layout_below="@+id/share_us_button"
         android:layout_centerHorizontal="true"
         android:text="@string/share_us_warning" />

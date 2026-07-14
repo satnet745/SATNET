@@ -1,39 +1,29 @@
-/**
- * Copyright (C) 2011 The Serval Project
- *
- * This file is part of Serval Software (http://www.servalproject.org)
- *
- * Serval Software is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ * SATNET maintenance note:
+ * This file is maintained as part of SATNET and builds on historical upstream work.
+ * Copyright (C) 2011 The Serval Project.
+ * Licensed under GPL-3.0-or-later; see LICENSE-SOFTWARE.md.
  */
 
-/**
+/*
  * @author Paul Gardner-Stephen <paul@servalproject.org>
  * @author Jeremy Lakeman <jeremy@servalproject.org>
  * @author Romana Challans <romana@servalproject.org>
  *
- *  Wizard: Set Phone Number And Name.
+ *  Wizard: set phone number and display name.
  *  Used for initial run and is called again to reset phone number.
  **/
 package org.servalproject.wizard;
 
+import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -50,6 +40,8 @@ import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.account.AccountService;
 import org.servalproject.servaldna.keyring.KeyringIdentity;
 
+import androidx.core.content.ContextCompat;
+
 public class SetPhoneNumber extends Activity {
 	private ServalBatPhoneApplication app;
 	private static final String TAG="SetPhoneNumber";
@@ -58,6 +50,43 @@ public class SetPhoneNumber extends Activity {
 	private TextView sid;
 	private Button button;
 	private KeyringIdentity identity;
+
+	private String getPhoneNumberFromDevice() {
+		PackageManager packageManager = getPackageManager();
+		if (packageManager == null || !packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
+			return null;
+		}
+
+		TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		if (telephonyManager == null) {
+			return null;
+		}
+
+		boolean hasPermission;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS)
+					== PackageManager.PERMISSION_GRANTED
+					|| ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+					== PackageManager.PERMISSION_GRANTED
+					|| ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)
+					== PackageManager.PERMISSION_GRANTED;
+		} else {
+			hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+					== PackageManager.PERMISSION_GRANTED;
+		}
+
+		if (!hasPermission) {
+			Log.i(TAG, "Skipping phone number autofill because telephony permission is not granted");
+			return null;
+		}
+
+		try {
+			return telephonyManager.getLine1Number();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Unable to read line1 number", e);
+			return null;
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,32 +116,28 @@ public class SetPhoneNumber extends Activity {
 
 							identity = app.server.setIdentityDetails(identity, params[0], params[1]);
 
-							// create the serval android acount if it doesn't
-							// already exist
-							Account account = AccountService
-									.getAccount(SetPhoneNumber.this);
-							if (account == null) {
-								account = AccountService.createAccount(SetPhoneNumber.this, getString(R.string.app_name));
+							// Create the SATNET Android account if possible, but do not block setup.
+							try {
+								Account account = AccountService.getAccount(SetPhoneNumber.this);
+								if (account == null) {
+									account = AccountService.createAccount(SetPhoneNumber.this, getString(R.string.app_name));
 
-								Intent ourIntent = SetPhoneNumber.this
-										.getIntent();
-								if (ourIntent != null
-										&& ourIntent.getExtras() != null) {
-									AccountAuthenticatorResponse response = ourIntent
-											.getExtras()
-											.getParcelable(
-													AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
-									if (response != null) {
-										Bundle result = new Bundle();
-										result.putString(
-												AccountManager.KEY_ACCOUNT_NAME,
-												account.name);
-										result.putString(
-												AccountManager.KEY_ACCOUNT_TYPE,
-												AccountService.TYPE);
-										response.onResult(result);
+									Intent ourIntent = SetPhoneNumber.this.getIntent();
+									if (ourIntent != null && ourIntent.getExtras() != null) {
+										AccountAuthenticatorResponse response = ourIntent
+												.getExtras()
+												.getParcelable(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
+										if (response != null) {
+											Bundle result = new Bundle();
+											result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+											result.putString(AccountManager.KEY_ACCOUNT_TYPE, AccountService.TYPE);
+											response.onResult(result);
+										}
 									}
 								}
+							} catch (SecurityException e) {
+								Log.w(TAG, "Contacts permission denied; continuing setup without contact sync", e);
+								app.displayToastMessage("Contacts permission not granted. Setup will continue without sync.");
 							}
 
 							app.startupComplete(identity);
@@ -165,8 +190,7 @@ public class SetPhoneNumber extends Activity {
 
 		if (existingName==null && existingNumber==null){
 			// try to get number from phone, probably wont work though...
-			TelephonyManager mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-			existingNumber = mTelephonyMgr.getLine1Number();
+			existingNumber = getPhoneNumberFromDevice();
 		}
 		number.setText(existingNumber);
 		name.setText(existingName);

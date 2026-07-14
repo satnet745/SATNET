@@ -1,35 +1,24 @@
-/**
- * Copyright (C) 2011 The Serval Project
- *
- * This file is part of Serval Software (http://www.servalproject.org)
- *
- * Serval Software is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ * SATNET maintenance note:
+ * This file is maintained as part of SATNET and builds on historical upstream work.
+ * Copyright (C) 2011 The Serval Project.
+ * Licensed under GPL-3.0-or-later; see LICENSE-SOFTWARE.md.
  */
 package org.servalproject;
 
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.servalproject.batphone.CallHandler;
 import org.servalproject.servald.IPeerListListener;
@@ -50,11 +39,10 @@ import java.util.List;
  *         to resolve the peer by calling ServalD in an async task.
  */
 public class PeerList extends ListActivity {
+	private static final String TAG = "PeerList";
 
 	private PeerListAdapter<Peer> listAdapter;
-
-	private boolean displayed = false;
-	private static final String TAG = "PeerList";
+	private TextView emptyView;
 
 	public static final String PICK_PEER_INTENT = "org.servalproject.PICK_FROM_PEER_LIST";
 
@@ -64,35 +52,62 @@ public class PeerList extends ListActivity {
 	public static final String SID = "org.servalproject.PeerList.sid";
 	public static final String NAME = "org.servalproject.PeerList.name";
 	public static final String RESOLVED = "org.servalproject.PeerList.resolved";
+	public static final String TITLE = "org.servalproject.PeerList.title";
 
 	private boolean returnResult = false;
+	private boolean listenerRegistered = false;
 
-	private List<Peer> peers = new ArrayList<Peer>();
+	private final List<Peer> peers = new ArrayList<Peer>();
+	private final IPeerListListener listener = new IPeerListListener() {
+		@Override
+		public void peerChanged(final Peer p) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if (!isFinishing()) {
+						peerUpdated(p);
+					}
+				}
+			});
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Intent intent = getIntent();
-		if (intent != null) {
-			if (PICK_PEER_INTENT.equals(intent.getAction())) {
-				returnResult = true;
-			}
-		}
+		applyIntentState(getIntent());
 
 		listAdapter = new PeerListAdapter<Peer>(this, peers);
 		listAdapter.setNotifyOnChange(false);
 		this.setListAdapter(listAdapter);
 
 		ListView lv = getListView();
+		lv.setBackgroundColor(Color.BLACK);
+		lv.setCacheColorHint(Color.BLACK);
+		emptyView = new TextView(this);
+		emptyView.setBackgroundColor(Color.BLACK);
+		emptyView.setGravity(Gravity.CENTER);
+		emptyView.setPadding(32, 64, 32, 64);
+		emptyView.setTextColor(Color.WHITE);
+		addContentView(emptyView, new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT));
+		lv.setEmptyView(emptyView);
+		updateEmptyState();
 
 		// TODO Long click listener for more options, eg text message
-		lv.setOnItemClickListener(new OnItemClickListener() {
+		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				try {
 					Peer p = listAdapter.getItem(position);
+					if (p == null) {
+						ServalBatPhoneApplication.context.displayToastMessage("Peer is no longer available");
+						updateEmptyState();
+						return;
+					}
 					if (returnResult) {
 						Log.i(TAG, "returning selected peer " + p);
 						Intent returnIntent = new Intent();
@@ -123,62 +138,86 @@ public class PeerList extends ListActivity {
 
 	@Override
 	protected void onNewIntent(Intent intent) {
-		// TODO Auto-generated method stub
 		super.onNewIntent(intent);
-		if (intent != null) {
-			if (PICK_PEER_INTENT.equals(intent.getAction())) {
-				returnResult = true;
-			}
-		}
+		setIntent(intent);
+		applyIntentState(intent);
+		updateEmptyState();
 	}
 
 	private void peerUpdated(Peer p) {
+		if (p == null) {
+			updateEmptyState();
+			return;
+		}
+		if (!p.isReachable()) {
+			if (peers.remove(p)) {
+				Collections.sort(peers, new PeerComparator());
+				listAdapter.notifyDataSetChanged();
+			}
+			updateEmptyState();
+			return;
+		}
 		if (!peers.contains(p)){
-			if (!p.isReachable())
-				return;
 			peers.add(p);
 		}
 		Collections.sort(peers, new PeerComparator());
 		listAdapter.notifyDataSetChanged();
+		updateEmptyState();
 	}
-
-	private IPeerListListener listener = new IPeerListListener() {
-		@Override
-		public void peerChanged(final Peer p) {
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					peerUpdated(p);
-				};
-
-			});
-		}
-	};
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		PeerListService.removeListener(listener);
-		displayed = false;
+		if (listenerRegistered) {
+			PeerListService.removeListener(listener);
+			listenerRegistered = false;
+		}
 		peers.clear();
 		listAdapter.notifyDataSetChanged();
+		updateEmptyState();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		displayed = true;
-
-		new AsyncTask<Void, Void, Void>() {
-
+		listenerRegistered = true;
+		updateEmptyState();
+		ServalBatPhoneApplication.context.runOnBackgroundThread(new Runnable() {
 			@Override
-			protected Void doInBackground(Void... params) {
+			public void run() {
 				PeerListService.addListener(listener);
-				return null;
 			}
+		});
+	}
 
-		}.execute();
+	private void applyIntentState(Intent intent) {
+		if (intent == null) {
+			return;
+		}
+		returnResult = PICK_PEER_INTENT.equals(intent.getAction());
+		String customTitle = intent.getStringExtra(TITLE);
+		if (customTitle != null && !customTitle.isEmpty()) {
+			setTitle(customTitle);
+		}
+	}
+
+	private void updateEmptyState() {
+		if (emptyView == null) {
+			return;
+		}
+		if (!peers.isEmpty()) {
+			emptyView.setText("");
+			return;
+		}
+		if (PeerListService.havePeers()) {
+			emptyView.setText(returnResult
+					? "Searching for reachable peers to share with…"
+					: "Searching for reachable peers…");
+		} else {
+			emptyView.setText(returnResult
+					? "No reachable peers are available yet. Stay on the mesh and try again when another peer appears."
+					: "No reachable peers are available yet.");
+		}
 	}
 
 }

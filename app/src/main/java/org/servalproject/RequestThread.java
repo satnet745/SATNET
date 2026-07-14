@@ -1,37 +1,15 @@
-/**
- * Copyright (C) 2011 The Serval Project
- *
- * This file is part of Serval Software (http://www.servalproject.org)
- *
- * Serval Software is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ * SATNET maintenance note:
+ * This file is maintained as part of SATNET and builds on historical upstream work.
+ * Copyright (C) 2011 The Serval Project.
+ * Licensed under GPL-3.0-or-later; see LICENSE-SOFTWARE.md.
  */
 /*
-Copyright Paul James Mutton, 2001-2004, http://www.jibble.org/
-
-This file is part of Mini Wegb Server / SimpleWebServer.
-
-This software is dual-licensed, allowing you to choose between the GNU
-General Public License (GPL) and the www.jibble.org Commercial License.
-Since the GPL may be too restrictive for use in a proprietary application,
-a commercial license is also provided. Full license information can be
-found at http://www.jibble.org/licenses/
-
-$Author: pjm2 $
-$Id: ServerSideScriptEngine.java,v 1.4 2004/02/01 13:37:35 pjm2 Exp $
-
-*/
+ * Includes code from Paul James Mutton's Mini Web Server / SimpleWebServer.
+ * Copyright Paul James Mutton, 2001-2004, <http://www.jibble.org/>
+ * Original project notes described dual GPL/commercial licensing; see the
+ * original upstream distribution for full third-party license details.
+ */
 
 package org.servalproject;
 
@@ -44,10 +22,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -56,16 +36,19 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
+import android.annotation.SuppressLint;
 import android.util.Log;
 
+import org.servalproject.relay.RelayServer;
+
 /**
- * Derived from; http://www.jibble.org/ Copyright Paul Mutton
+ * Derived from <https://www.jibble.org/>. Copyright Paul Mutton.
  */
 public class RequestThread extends Thread {
 
 	private final Socket _socket;
 
-	public static final Hashtable<String, String> MIME_TYPES = new Hashtable<String, String>();
+	public static final Hashtable<String, String> MIME_TYPES = new Hashtable<>();
 
 	static {
 		String image = "image/";
@@ -91,7 +74,7 @@ public class RequestThread extends Thread {
 				+ code
 				+ " OK\n" +
 				"Date: "
-				+ new Date().toString()
+				+ new Date()
 				+ "\n" +
 				"Content-Type: "
 				+ contentType
@@ -101,16 +84,22 @@ public class RequestThread extends Thread {
 				"Cache-Control: no-cache\n" +
 				((contentLength != -1) ? "Content-Length: " + contentLength
 						+ "\n" : "") +
-				"Last-modified: " + new Date(lastModified).toString() + "\n\n";
+				"Last-modified: " + new Date(lastModified) + "\n\n";
 		Log.v("BatPhone", "Returning header\n" + header);
 		writeString(out, header);
     }
 
 	private void sendError(OutputStream out, int code, String message)
 			throws IOException {
-        sendHeader(out, code, "text/html", message.length(), System.currentTimeMillis());
+		sendHeader(out, code, "text/html", message.length(), System.currentTimeMillis());
 		writeString(out, message);
-    }
+	}
+
+	private void sendJson(OutputStream out, int code, String json) throws IOException {
+		sendHeader(out, code, "application/json", json.getBytes(StandardCharsets.UTF_8).length,
+				System.currentTimeMillis());
+		writeString(out, json);
+	}
 
 	private String appName(PackageManager packageManager, PackageInfo info) {
 		ApplicationInfo appInfo = info.applicationInfo;
@@ -125,7 +114,7 @@ public class RequestThread extends Thread {
 		return name;
 	}
 
-	private class HTTPException extends Exception {
+	private static class HTTPException extends Exception {
 		private static final long serialVersionUID = 1L;
 
 		int code;
@@ -137,30 +126,24 @@ public class RequestThread extends Thread {
 	}
 
 	private void writeString(OutputStream out, String str) throws IOException {
-		out.write(str.getBytes());
+		out.write(str.getBytes(StandardCharsets.UTF_8));
 	}
 
+	@SuppressLint("QueryPermissionsNeeded")
 	private void listPackages(String path, OutputStream out) throws IOException {
 		final PackageManager packageManager = ServalBatPhoneApplication.context
 				.getPackageManager();
 		List<PackageInfo> packages = packageManager
 				.getInstalledPackages(0);
-		Set<PackageInfo> sortedPackages = new TreeSet<PackageInfo>(
-				new Comparator<PackageInfo>() {
-					@Override
-					public int compare(PackageInfo object1,
-							PackageInfo object2) {
-						String name1 = appName(packageManager,
-								object1);
-						if (name1 == null)
-							return -1;
-						String name2 = appName(packageManager,
-								object2);
-						if (name2 == null)
-							return 1;
-						return name1.compareTo(name2);
-					}
-				});
+		Set<PackageInfo> sortedPackages = new TreeSet<>((object1, object2) -> {
+			String name1 = appName(packageManager, object1);
+			if (name1 == null)
+				return -1;
+			String name2 = appName(packageManager, object2);
+			if (name2 == null)
+				return 1;
+			return name1.compareTo(name2);
+		});
 
 		for (PackageInfo info : packages) {
 			ApplicationInfo appInfo = info.applicationInfo;
@@ -188,9 +171,51 @@ public class RequestThread extends Thread {
 		writeString(out, "</p></body></html>");
 	}
 
+	private boolean handleRelayApi(String method, String path, BufferedReader in, OutputStream out,
+			int contentLength) throws IOException {
+		RelayServer relayServer = ServalBatPhoneApplication.context.relayServer;
+		if (!path.startsWith("/api/relay")) {
+			return false;
+		}
+
+		if (relayServer == null) {
+			sendJson(out, 503, "{\"status\":\"offline\"}");
+			return true;
+		}
+
+		if ("GET".equals(method) && "/api/relay/status".equals(path)) {
+			String json = String.format(Locale.ROOT,
+					"{\"status\":\"online\",\"relayPort\":%d,\"clients\":%d,\"queued\":%d}",
+					relayServer.getPort(),
+					relayServer.getConnectedClientCount(),
+					relayServer.getQueuedPacketCount());
+			sendJson(out, 200, json);
+			return true;
+		}
+
+		if ("POST".equals(method) && "/api/relay/send".equals(path)) {
+			char[] body = new char[Math.max(0, contentLength)];
+			int offset = 0;
+			while (offset < body.length) {
+				int read = in.read(body, offset, body.length - offset);
+				if (read < 0)
+					break;
+				offset += read;
+			}
+			String payload = new String(body, 0, offset).trim();
+			boolean accepted = relayServer.submitPacket(payload);
+			sendJson(out, accepted ? 202 : 400,
+					accepted ? "{\"status\":\"accepted\"}" : "{\"status\":\"invalid\"}");
+			return true;
+		}
+
+		sendJson(out, 404, "{\"status\":\"not_found\"}");
+		return true;
+	}
+
     @Override
 	public void run() {
-		BufferedReader in = null;
+		BufferedReader in;
 		OutputStream out = null;
 		InputStream content = null;
 
@@ -202,21 +227,38 @@ public class RequestThread extends Thread {
 			out = _socket.getOutputStream();
 
 			String request = in.readLine();
-			if (request == null
-					|| !request.startsWith("GET ")
-					|| !(request.endsWith(" HTTP/1.0") || request
-							.endsWith("HTTP/1.1"))) {
-				// Invalid request type (no "GET")
+			if (request == null) {
 				throw new HTTPException(500, "Invalid Method.");
 			}
-			String path = request.substring(4, request.length() - 9);
+			String[] parts = request.split(" ");
+			if (parts.length < 3 || !(parts[2].endsWith("HTTP/1.1") || parts[2].endsWith("HTTP/1.0"))) {
+				throw new HTTPException(500, "Invalid Method.");
+			}
+			String method = parts[0];
+			String path = parts[1];
 			Log.v("BatPhone", request);
-			while (!request.equals("")) {
+			int contentLength = 0;
+			while (request != null && !request.isEmpty()) {
 				request = in.readLine();
+				if (request != null && request.toLowerCase(Locale.ROOT).startsWith("content-length:")) {
+					try {
+						contentLength = Integer.parseInt(request.substring("content-length:".length()).trim());
+					} catch (NumberFormatException e) {
+						contentLength = 0;
+					}
+				}
 				Log.v("BatPhone", request);
 			}
+
+			if (handleRelayApi(method, path, in, out, contentLength)) {
+				return;
+			}
+
+			if (!"GET".equals(method)) {
+				throw new HTTPException(500, "Invalid Method.");
+			}
 			String contentType = null;
-			long contentLength = -1;
+			long responseLength = -1;
 			long contentModified = System.currentTimeMillis();
 
 			if (path.equals("/packages")) {
@@ -238,7 +280,7 @@ public class RequestThread extends Thread {
 				Log.v("BatPhone", "Serving file " + file);
 
 				contentType = MIME_TYPES.get(".apk");
-				contentLength = file.length();
+				responseLength = file.length();
 				contentModified = file.lastModified();
 				content = new BufferedInputStream(new FileInputStream(file),
 						4096);
@@ -254,18 +296,16 @@ public class RequestThread extends Thread {
 					ext = -1;
 				if (ext >= 0)
 					contentType = MIME_TYPES.get(path
-							.substring(ext).toLowerCase());
+							.substring(ext).toLowerCase(Locale.ROOT));
 				content = am.open(path.substring(1));
 				Log.v("BatPhone", "Serving asset " + path.substring(1));
 			}
 
-			if (content == null)
-				throw new HTTPException(404, "File Not Found.");
 
 			if (contentType == null)
 				contentType = "application/octet-stream";
 
-			sendHeader(out, 200, contentType, contentLength, contentModified);
+			sendHeader(out, 200, contentType, responseLength, contentModified);
 
 			byte[] buffer = new byte[256];
 			int bytesRead;
@@ -305,12 +345,14 @@ public class RequestThread extends Thread {
 				try {
 					out.close();
 				} catch (IOException e1) {
+					Log.v("BatPhone", String.valueOf(e1.getMessage()), e1);
 				}
 			}
 			if (content != null) {
 				try {
 					content.close();
 				} catch (IOException e1) {
+					Log.v("BatPhone", String.valueOf(e1.getMessage()), e1);
 				}
 			}
 		}

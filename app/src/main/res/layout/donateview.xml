@@ -33,11 +33,14 @@
 
 	<!-- Body -->
 
-	<RelativeLayout android:layout_width="fill_parent"
-		android:layout_height="wrap_content">
+  <RelativeLayout
+    android:id="@+id/donateContent"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+	android:layout_below="@id/headerLayout"
+	android:layout_above="@id/donateButton">
 
-		<TextView android:id="@+id/donate_header"
-			android:layout_below="@id/headerLayout" 
+    <TextView android:id="@+id/donate_header"
 			style="@style/shelpscreensheader"
 			android:text="@string/donateTitle" />
 
@@ -45,7 +48,7 @@
 		    android:layout_below="@+id/donate_header"
 			style="@style/sbody" 
 			android:layout_width="fill_parent" 
-			android:layout_height="wrap_content" />
+      android:layout_height="match_parent" />
 
 	</RelativeLayout>
 	    		    
@@ -53,7 +56,7 @@
 	     style="@style/sbtnrhizome"
 	     android:layout_alignParentBottom="true"
 	     android:layout_centerHorizontal="true"
-	     android:layout_below="@+id/donatebrowser"
+       android:layout_below="@id/donateContent"
     	android:text="@string/donateButton" />
 	
     	<!-- Pre HTML Based Help -->	   

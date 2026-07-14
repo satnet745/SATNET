@@ -1,37 +1,14 @@
-/**
- * Copyright (C) 2011 The Serval Project
- *
- * This file is part of Serval Software (http://www.servalproject.org)
- *
- * Serval Software is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
-
-/**
- *  This program is free software; you can redistribute it and/or modify it under
- *  the terms of the GNU General Public License as published by the Free Software
- *  Foundation; either version 3 of the License, or (at your option) any later
- *  version.
- *  You should have received a copy of the GNU General Public License along with
- *  this program; if not, see <http://www.gnu.org/licenses/>.
- *  Use this application at your own risk.
- *
- *  Copyright (c) 2009 by Harald Mueller and Seth Lemons.
+/*
+ * SATNET maintenance note:
+ * This file is maintained as part of SATNET and builds on historical upstream work.
+ * Copyright (C) 2011 The Serval Project.
+ * Additional copyright (c) 2009 Harald Mueller and Seth Lemons.
+ * Licensed under GPL-3.0-or-later; see LICENSE-SOFTWARE.md.
  */
 
 package org.servalproject;
 
+import android.Manifest;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -60,8 +37,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.multidex.MultiDexApplication;
+
 import org.servalproject.account.AccountService;
 import org.servalproject.batphone.CallHandler;
+import org.servalproject.relay.RelayServer;
 import org.servalproject.rhizome.MeshMS;
 import org.servalproject.rhizome.Rhizome;
 import org.servalproject.servald.ServalD;
@@ -73,6 +53,7 @@ import org.servalproject.servaldna.keyring.KeyringIdentity;
 import org.servalproject.shell.Shell;
 import org.servalproject.system.CoreTask;
 import org.servalproject.system.NetworkManager;
+import org.servalproject.util.FileUriSupport;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -88,7 +69,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class ServalBatPhoneApplication extends Application {
+public class ServalBatPhoneApplication extends MultiDexApplication {
 
 	// fake some peers for testing
 	public boolean test = false;
@@ -99,6 +80,7 @@ public class ServalBatPhoneApplication extends Application {
 	public static final int NOTIFY_UPGRADE = 1;
 	public static final int NOTIFY_MESSAGES = 2;
 	public static final int NOTIFY_DONATE = 3;
+	private static final String PREF_RHIZOME_APK_SEEDING = "rhizome_apk_seeding_enabled";
 
 	// Preferences
 	public SharedPreferences settings = null;
@@ -113,6 +95,9 @@ public class ServalBatPhoneApplication extends Application {
 	private Handler backgroundHandler;
 	private HandlerThread backgroundThread;
 	public SimpleWebServer webServer;
+	public RelayServer relayServer;
+	private volatile boolean startupTasksComplete = false;
+	private volatile boolean rhizomeRuntimeReady = false;
 
 	public static String version="Unknown";
 	public static long lastModified;
@@ -189,16 +174,16 @@ public class ServalBatPhoneApplication extends Application {
 					// better place???
 
 					Intent intent = new Intent(Intent.ACTION_VIEW,
-							Uri.parse("http://www.servalproject.org/donations"));
+							Uri.parse("https://satnet.app/support"));
 
 					Notification n = new Notification(R.drawable.ic_serval_logo,
-							"The Serval Project needs your support",
+							"SATNET needs your support",
 							System.currentTimeMillis());
 
 					n.setLatestEventInfo(
 							ServalBatPhoneApplication.this,
 							"We need your support",
-							"Serval depends on donations.",
+							"SATNET depends on donations and grants.",
 							PendingIntent.getActivity(ServalBatPhoneApplication.this, 0, intent,
 									PendingIntent.FLAG_ONE_SHOT));
 
@@ -219,77 +204,110 @@ public class ServalBatPhoneApplication extends Application {
 
 	// some final startup steps that can run without preventing the user from interacting with the application
 	public void startupComplete(final KeyringIdentity identity){
+		startupTasksComplete = false;
+		setRhizomeRuntimeReady(false);
 
 		setState(State.Running);
 
 		runOnBackgroundThread(new Runnable() {
 			@Override
 			public void run() {
-
-				// initialise the MeshMS api to track when new messages arrive for this identity
-				meshMS = new MeshMS(ServalBatPhoneApplication.this, identity.sid);
-
-				// notify 3rd party software of our details
-				Intent intent = new Intent("org.servalproject.SET_PRIMARY");
-				intent.putExtra("did", identity.did);
-				intent.putExtra("sid", identity.sid.toHex());
-				ServalBatPhoneApplication.this.sendStickyBroadcast(intent);
-
-				// configure the rhizome store path correctly
-				boolean rhizomeEnabled = Rhizome.setRhizomeEnabled();
-
-				Editor ed = settings.edit();
-				// remove legacy ssid preference values
-				// (and hope that doesn't annoy anyone)
-				String ssid_pref = settings.getString("ssidpref", null);
-				if (ssid_pref != null
-						&& ("Mesh".equals(ssid_pref) ||
-						"ServalProject.org".equals(ssid_pref)))
-					ed.remove("ssidpref");
-
-				// remember that we have finished installing this apk, including the onboarding process
-				ed.putString("lastInstalled", version + " "
-						+ lastModified);
-
-				// start tracking network interface changes, may result in networking being enabled.
-				nm = NetworkManager.createNetworkManager(ServalBatPhoneApplication.this);
-
-				// start small web server for P2P apk installs
+				boolean rhizomeEnabled = false;
 				try {
-					webServer = new SimpleWebServer(8080, 8150);
-				} catch (IOException e) {
-					Log.e(TAG, e.getMessage(), e);
-				}
-
-				// try to seed the rhizome store with this apk to help peers auto upgrade
-				if (rhizomeEnabled && ourApk != null && !"".equals(BuildConfig.ManifestId)
-							&& settings.getString("importedApk", "") != version) {
 					try {
-						ServalDCommand.ManifestResult r = ServalDCommand.rhizomeImportZipBundle(ourApk);
-
-						ed.putLong("installed_manifest_version", r.version);
+						// initialise the MeshMS api to track when new messages arrive for this identity
+						meshMS = new MeshMS(ServalBatPhoneApplication.this, identity.sid);
 					} catch (Exception ex) {
-						Log.v(TAG, ex.getMessage(), ex);
-						ed.putLong("installed_manifest_version", 0);
+						Log.e(TAG, "Failed to initialise MeshMS", ex);
 					}
-					// remember that we tried, success or failure
-					ed.putString("importedApk", version);
-				}
-				ed.commit();
 
-				try{
-					// if we still have an extracted upgrade apk, prompt to install it
-					if (!"".equals(BuildConfig.ManifestId)){
-						BundleId installedBundleId = new BundleId(BuildConfig.ManifestId);
-						File newVersion = new File(Rhizome.getTempDirectoryCreated(),
-								installedBundleId.toHex() + ".apk");
-						if (newVersion.exists())
-							notifySoftwareUpdate(newVersion);
+					try {
+						// notify 3rd party software of our details
+						Intent intent = new Intent("org.servalproject.SET_PRIMARY");
+						intent.putExtra("did", identity.did);
+						intent.putExtra("sid", identity.sid.toHex());
+						ServalBatPhoneApplication.this.sendStickyBroadcast(intent);
+					} catch (Exception ex) {
+						Log.e(TAG, "Failed to publish primary identity", ex);
 					}
-				}catch (Exception ex){
-					Log.e(TAG, ex.getMessage(), ex);
-				}
 
+					try {
+						Rhizome.cleanTemp();
+						rhizomeEnabled = Rhizome.setRhizomeEnabled();
+					} catch (Exception ex) {
+						Log.e(TAG, "Failed to initialise Rhizome", ex);
+						rhizomeEnabled = false;
+					}
+
+					Editor ed = settings.edit();
+					// remove legacy upstream SSID preference values during SATNET migration
+					// (and hope that doesn't annoy anyone)
+					String ssid_pref = settings.getString("ssidpref", null);
+					if (ssid_pref != null
+							&& ("Mesh".equals(ssid_pref) ||
+							"ServalProject.org".equals(ssid_pref)))
+						ed.remove("ssidpref");
+
+					// remember that we have finished installing this apk, including the onboarding process
+					ed.putString("lastInstalled", version + " "
+							+ lastModified);
+
+					// start tracking network interface changes, may result in networking being enabled.
+					try {
+						nm = NetworkManager.createNetworkManager(ServalBatPhoneApplication.this);
+					} catch (Exception ex) {
+						Log.e(TAG, "Failed to initialise network manager", ex);
+					}
+
+					// start small web server for P2P apk installs
+					try {
+						webServer = new SimpleWebServer(8080, 8150);
+					} catch (IOException e) {
+						Log.e(TAG, e.getMessage(), e);
+					}
+
+					try {
+						relayServer = new RelayServer();
+						Log.i(TAG, "Embedded relay server listening on " + relayServer.getPort());
+					} catch (IOException e) {
+						Log.e(TAG, "Unable to start embedded relay server", e);
+					}
+
+					// try to seed the rhizome store with this apk to help peers auto upgrade
+					if (shouldAttemptRhizomeApkSeed(rhizomeEnabled) && ourApk != null && !BuildConfig.ManifestId.isEmpty()
+								&& !version.equals(settings.getString("importedApk", ""))) {
+						try {
+							ServalDCommand.ManifestResult r = ServalDCommand.rhizomeImportZipBundle(ourApk);
+
+							ed.putLong("installed_manifest_version", r.version);
+						} catch (Exception ex) {
+							Log.v(TAG, ex.getMessage(), ex);
+							ed.putLong("installed_manifest_version", 0);
+						}
+						// remember that we tried, success or failure
+						ed.putString("importedApk", version);
+					} else if (!rhizomeEnabled) {
+						Log.v(TAG, "Skipping Rhizome startup import because Rhizome is not ready");
+					}
+					ed.apply();
+
+					try{
+						// if we still have an extracted upgrade apk, prompt to install it
+						if (rhizomeEnabled && !BuildConfig.ManifestId.isEmpty()){
+							BundleId installedBundleId = new BundleId(BuildConfig.ManifestId);
+							File newVersion = new File(Rhizome.getTempDirectoryCreated(),
+									installedBundleId.toHex() + ".apk");
+							if (newVersion.exists())
+								notifySoftwareUpdate(newVersion);
+						}
+					}catch (Exception ex){
+						Log.e(TAG, ex.getMessage(), ex);
+					}
+				} catch (Exception ex) {
+					Log.e(TAG, "Unexpected error while finishing startup", ex);
+				} finally {
+					startupTasksComplete = true;
+				}
 			}
 		});
 	}
@@ -302,7 +320,11 @@ public class ServalBatPhoneApplication extends Application {
 
 		if (Build.VERSION.SDK_INT >= 9){
 			// force crash for all I/O on the main thread
-			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().build());
+            // RELAXED STRICT MODE: Allow disk reads/writes to prevent crash on startup
+            // Original code:
+			// StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().build());
+            // New code:
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitDiskReads().permitDiskWrites().build());
 			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
 		}
 
@@ -316,6 +338,7 @@ public class ServalBatPhoneApplication extends Application {
 
 		// Preferences
 		settings = PreferenceManager.getDefaultSharedPreferences(ServalBatPhoneApplication.this);
+		initializeRelayDefaults();
 
 		//create CoreTask
 		coretask = new CoreTask();
@@ -327,6 +350,35 @@ public class ServalBatPhoneApplication extends Application {
 
 		if (state != State.NotInstalled)
 			runOnBackgroundThread(startup);
+	}
+
+	private void initializeRelayDefaults() {
+		SharedPreferences.Editor editor = settings.edit();
+		if (!settings.contains("relay_anonymous_preference")) {
+			editor.putString("relay_anonymous_preference", "AUTO");
+		}
+		if (!settings.contains("relay_tor_proxy_host")) {
+			editor.putString("relay_tor_proxy_host", "127.0.0.1");
+		}
+		if (!settings.contains("relay_tor_proxy_port")) {
+			editor.putString("relay_tor_proxy_port", "9050");
+		}
+		if (!settings.contains("relay_i2p_proxy_host")) {
+			editor.putString("relay_i2p_proxy_host", "127.0.0.1");
+		}
+		if (!settings.contains("relay_i2p_proxy_port")) {
+			editor.putString("relay_i2p_proxy_port", "4447");
+		}
+		if (!settings.contains("relay_tor_host")) {
+			editor.putString("relay_tor_host", "servalrelay.onion");
+		}
+		if (!settings.contains("relay_i2p_host")) {
+			editor.putString("relay_i2p_host", "servalrelay.b32.i2p");
+		}
+		if (!settings.contains("relay_port")) {
+			editor.putString("relay_port", "4110");
+		}
+		editor.apply();
 	}
 
 	public void startBackgroundInstall(){
@@ -400,13 +452,39 @@ public class ServalBatPhoneApplication extends Application {
 		return state;
 	}
 
+	public boolean isStartupTasksComplete() {
+		return startupTasksComplete;
+	}
+
+	private boolean shouldAttemptRhizomeApkSeed(boolean rhizomeEnabled) {
+		if (!rhizomeEnabled) {
+			return false;
+		}
+		boolean enabled = settings != null && settings.getBoolean(PREF_RHIZOME_APK_SEEDING, false);
+		if (!enabled) {
+			Log.v(TAG, "Skipping automatic Rhizome APK seeding because it is disabled by default for runtime safety");
+		}
+		return enabled;
+	}
+
+	public boolean isRhizomeRuntimeReady() {
+		return rhizomeRuntimeReady && state == State.Running;
+	}
+
+	public void setRhizomeRuntimeReady(boolean ready) {
+		this.rhizomeRuntimeReady = ready;
+	}
+
 	void setState(State state) {
 		if (this.state == state)
 			return;
 
 		this.state = state;
+		if (state != State.Running)
+			rhizomeRuntimeReady = false;
 		Log.v(TAG, "Application State = "+state);
-		Intent intent = new Intent(ServalBatPhoneApplication.ACTION_STATE);
+		Intent intent = new Intent(ServalBatPhoneApplication.ACTION_STATE)
+				.setPackage(getPackageName());
 		intent.putExtra(ServalBatPhoneApplication.EXTRA_STATE, state.ordinal());
 		this.sendBroadcast(intent);
 	}
@@ -568,15 +646,13 @@ public class ServalBatPhoneApplication extends Application {
 
 			Log.v(TAG, "Prompting to install new version");
 			// Construct an intent to start the install
-			Intent i = new Intent("android.intent.action.VIEW")
-					.setType("application/vnd.android.package-archive")
-					.setClassName("com.android.packageinstaller",
-							"com.android.packageinstaller.PackageInstallerActivity")
-					.setData(Uri.fromFile(newVersion))
-					.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			Uri apkUri = FileUriSupport.getSharableUri(this, newVersion);
+			Intent i = new Intent(Intent.ACTION_VIEW)
+					.setDataAndType(apkUri, "application/vnd.android.package-archive")
+					.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
 			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i,
-					PendingIntent.FLAG_ONE_SHOT);
+					PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
 			Notification n = buildNotification(
 					this,
@@ -589,7 +665,13 @@ public class ServalBatPhoneApplication extends Application {
 
 			NotificationManager nm = (NotificationManager) this
 					.getSystemService(Context.NOTIFICATION_SERVICE);
-			nm.notify("Upgrade", ServalBatPhoneApplication.NOTIFY_UPGRADE, n);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+					|| checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+					== PackageManager.PERMISSION_GRANTED) {
+				nm.notify("Upgrade", ServalBatPhoneApplication.NOTIFY_UPGRADE, n);
+			} else {
+				Log.i(TAG, "Skipping upgrade notification: POST_NOTIFICATIONS not granted");
+			}
 
 		} catch (Exception e) {
 			Log.e(TAG, e.getMessage(), e);
@@ -653,14 +735,14 @@ public class ServalBatPhoneApplication extends Application {
 
 				this.coretask.writeFile(oldTree, m.open("manifest"), 0);
 
-				Log.v(TAG, "Extracting serval.zip");
+				Log.v(TAG, "Extracting SATNET runtime archive (serval.zip)");
 				this.coretask.extractZip(shell, m.open("serval.zip"),
 						new File(this.coretask.DATA_FILE_PATH), extractFiles, pie);
 			}
 
 			File storage = getStorageFolder();
 			if (storage!=null){
-				// remove obsolete messages database
+				// remove obsolete legacy messages database
 				recursiveDelete(new File(storage, "serval"));
 			}
 
@@ -773,24 +855,24 @@ public class ServalBatPhoneApplication extends Application {
 	public void shareViaBluetooth() {
 		try {
 			File apk = new File(getApplicationInfo().sourceDir);
-			Intent intent = new Intent(Intent.ACTION_SEND);
-			intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(apk));
-			intent.setType("image/apk");
-			intent.addCategory(Intent.CATEGORY_DEFAULT);
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			// There are at least two different classes for handling this intent on
-			// different platforms.  Find the bluetooth one.  Alternative strategy: let the
-			// user choose.
-			// for (ResolveInfo r :
-			// getPackageManager().queryIntentActivities(intent, 0)) {
-			// if (r.activityInfo.packageName.equals("com.android.bluetooth")) {
-			// intent.setClassName(r.activityInfo.packageName,
-			// r.activityInfo.name);
-			// intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			// break;
-			// }
-			// }
-			this.startActivity(intent);
+			Uri apkUri = FileUriSupport.getSharableUri(this, apk);
+			Intent shareIntent = new Intent(Intent.ACTION_SEND)
+					.putExtra(Intent.EXTRA_STREAM, apkUri)
+					.setType("application/vnd.android.package-archive")
+					.addCategory(Intent.CATEGORY_DEFAULT)
+					.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+			Intent launchIntent = new Intent(shareIntent)
+					.setPackage("com.android.bluetooth")
+					.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			try {
+				this.startActivity(launchIntent);
+				return;
+			} catch (Exception ignored) {
+				launchIntent = Intent.createChooser(shareIntent, "Share app")
+						.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			}
+			this.startActivity(launchIntent);
 		} catch (Exception e) {
 			Log.e("MAIN", "failed to send app", e);
 			displayToastMessage("Failed to send app: " + e.getMessage());

@@ -20,7 +20,8 @@
  -->
 	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
           android:layout_width="fill_parent"
-          android:layout_height="fill_parent" >
+          android:layout_height="fill_parent"
+          android:background="@color/satnet_background" >
 
           <!-- Header -->
 
@@ -30,13 +31,15 @@
           <!-- Body -->
           
            <TextView android:id="@+id/noMaps"
-         		style="@style/stext"
-         		android:text="@string/mapInfo" 
+	         		style="@style/sttext"
+	         		android:layout_below="@id/headerLayout"
+	         		android:layout_marginTop="16dp"
+         		android:text="@string/mapInfo"
          		android:autoLink="web" 
          		android:linksClickable="true"/>
 
          	<TextView android:id="@+id/enquiryEmail"
-             	style="@style/splainurlcentre"
+	             	style="@style/stplainurlcentre"
             	 android:layout_alignBottom="@+id/noMaps"
              	android:text="@string/emailEnquiries" />
            

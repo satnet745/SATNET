@@ -24,54 +24,88 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:background="@color/satnet_background" >
 
     <!-- Header -->
 
-    <include
+    <RelativeLayout
         android:id="@+id/headerLayout"
-        layout="@layout/header_layout" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/satnet_card_surface"
+        android:padding="16dp">
+
+        <include layout="@layout/header_layout" />
+
+    </RelativeLayout>
+
+    <!-- Divider -->
+
+    <View
+        android:id="@+id/headerDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/headerLayout"
+        android:background="@color/satnet_divider" />
 
     <!-- Body -->
 
-    <RelativeLayout
-        android:id="@+id/wizard_layout"
-        android:layout_below="@+id/logot_image"
-        android:layout_centerVertical="true"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-    >
+    <ScrollView
+        android:id="@+id/wizard_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/headerDivider"
+        android:fillViewport="true">
 
-        <TextView
-            android:id="@+id/wizard_header"
-            style="@style/share_header"
-            android:text="@string/welcome"
-            android:layout_alignParentTop="true"/>
+        <LinearLayout
+            android:id="@+id/wizard_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingTop="24dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="24dp">
 
-        <TextView
-            android:id="@+id/wizard_start1"
-            style="@style/stext"
-            android:layout_below="@+id/wizard_header"
-            android:text="@string/start1" />
-        
-        <TextView
-            android:id="@+id/wizard_start2"
-            style="@style/stext"
-            android:layout_below="@+id/wizard_start1"
-            android:text="@string/start2" />
-    
-    	<Button 
-    	    android:id="@+id/btnwizard"
-			android:text="@string/btnwizard"
-			android:layout_below="@+id/wizard_start2"
-            style="@style/sbtnrhizome" />
+            <TextView
+                android:id="@+id/wizard_header"
+                style="@style/share_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="@string/welcome" />
 
-        <ProgressBar
-            android:id="@+id/progress"
-            style="@style/sphonewidget"
-            android:layout_below="@id/wizard_start2"
-            android:layout_centerHorizontal="true" />
+            <TextView
+                android:id="@+id/wizard_start1"
+                style="@style/sttext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="start"
+                android:text="@string/start1" />
 
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/wizard_start2"
+                style="@style/sttext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="start"
+                android:text="@string/start2" />
+
+            <Button
+                android:id="@+id/btnwizard"
+                style="@style/sbtnrhizome"
+                android:layout_marginTop="20dp"
+                android:text="@string/btnwizard" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                style="@style/sphonewidget"
+                android:layout_marginTop="20dp" />
+        </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>

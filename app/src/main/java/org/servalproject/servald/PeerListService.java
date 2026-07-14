@@ -1,21 +1,8 @@
-/**
- * Copyright (C) 2011 The Serval Project
- *
- * This file is part of Serval Software (http://www.servalproject.org)
- *
- * Serval Software is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ * SATNET maintenance note:
+ * This file is maintained as part of SATNET and builds on historical upstream work.
+ * Copyright (C) 2011 The Serval Project.
+ * Licensed under GPL-3.0-or-later; see LICENSE-SOFTWARE.md.
  */
 package org.servalproject.servald;
 
@@ -111,7 +98,7 @@ public class PeerListService {
 	}
 
 	static final int CACHE_TIME = 60000;
-	private static List<IPeerListListener> listeners = new ArrayList<IPeerListListener>();
+	private static final List<IPeerListListener> listeners = new java.util.concurrent.CopyOnWriteArrayList<IPeerListListener>();
 
 	public static void resolve(final Peer p){
 		if (!p.isReachable())
@@ -194,7 +181,10 @@ public class PeerListService {
 	}
 
 	public static void addListener(IPeerListListener callback) {
-		listeners.add(callback);
+		if (callback == null)
+			return;
+		if (!listeners.contains(callback))
+			listeners.add(callback);
 		// send the peers that may already have been found. This may result
 		// in the listener receiving a peer multiple times
 		for (Peer p : peers.values()) {
@@ -207,8 +197,13 @@ public class PeerListService {
 
 			if (changed)
 				notifyListeners(p);
-			else
-				callback.peerChanged(p);
+			else {
+				try {
+					callback.peerChanged(p);
+				} catch (RuntimeException e) {
+					Log.e(TAG, "Peer listener callback failed during registration replay", e);
+				}
+			}
 
 			if (p.cacheUntil < SystemClock.elapsedRealtime())
 				resolve(p);
@@ -221,7 +216,11 @@ public class PeerListService {
 
 	public static void notifyListeners(Peer p) {
 		for (IPeerListListener l : listeners) {
-			l.peerChanged(p);
+			try {
+				l.peerChanged(p);
+			} catch (RuntimeException e) {
+				Log.e(TAG, "Peer listener callback failed", e);
+			}
 		}
 	}
 

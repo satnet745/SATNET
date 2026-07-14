@@ -1,39 +1,73 @@
 
- <!-- Header -->
- 
- <merge xmlns:android="http://schemas.android.com/apk/res/android">      
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-     <ImageView
-         android:id="@+id/logot_image"
-         style="@style/slogo"
-         android:contentDescription="@string/logoid" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-     <TextView
-         android:id="@+id/header"
-         style="@style/sheader"
-         android:layout_alignTop="@+id/logot_image"
-         android:layout_toRightOf="@+id/logot_image"
-         android:text="@string/header" />
+        <ImageView
+            android:id="@+id/logot_image"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:contentDescription="@string/logoid"
+            android:src="@drawable/ic_satnet_brand" />
 
-     <TextView
-         android:id="@+id/url"
-         style="@style/surl"
-         android:layout_alignBottom="@+id/logot_image"
-         android:layout_alignLeft="@+id/header"
-         android:text="@string/url" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-     <TextView
-         android:id="@+id/warning1"
-         style="@style/swarning1"
-         android:layout_alignParentRight="true"
-         android:layout_alignParentTop="true"
-         android:text="@string/warning1" />
+            <TextView
+                android:id="@+id/header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/header"
+                android:textColor="@color/satnet_text_primary"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-     <TextView
-         android:id="@+id/warning2"
-         style="@style/swarning2"
-         android:layout_alignRight="@+id/warning1"
-         android:layout_below="@+id/warning1"
-         android:text="@string/warning2" />
+            <TextView
+                android:id="@+id/url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/url"
+                android:textColor="@color/satnet_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/satnet_badge_background"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingTop="6dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/warning1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/warning1"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/warning2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/warning2"
+                android:textColor="@android:color/white"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
 </merge>
      

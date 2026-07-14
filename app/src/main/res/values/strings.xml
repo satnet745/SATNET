@@ -19,30 +19,29 @@
  * along with this source code; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  -->
-  <!-- @author Romana Challans <romana@servalproject.org> -->
-  
+  <!-- Maintained by SATNET contributors -->
+
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-     <!-- Serval General -->
-    <string name="header">Serval Project</string>
-    <string name="logoid">Serval Project Logo</string>
-    <string name="url">servalproject.org</string>
-    <string name="warning1">EXPERIMENTAL</string>
-    <string name="warning2">SOFTWARE</string>
-	<string name="app_name">Serval Mesh</string>
+     <!-- SATNET General -->
+    <string name="header">SatPhone</string>
+    <string name="logoid">SatPhone logo</string>
+    <string name="url">satnet.app</string>
+    <string name="warning1">SATNET</string>
+    <string name="warning2">MESH</string>
+  <string name="app_name">SatPhone</string>
 	<string name="agree">I agree</string>
 	<string name="cancel">Cancel</string>
 	
-	<!-- Serval Main -->
-	<!-- These must say Serval Mesh, not Serval Network, because Serval provides the protocol, not the infrastructure.
-	This has important implications for telecommunications law in various countries. -->
-	<string name="callLabel">Call</string>    
+  <!-- Main navigation -->
+  <!-- Keep user-facing wording aligned with SATNET branding. -->
+	<string name="callLabel">Call</string>
     <string name="messageLabel">Messages</string>    
     <string name="contactsLabel">Contacts</string>    
     <string name="mapsLabel">Maps</string>    
     <string name="sharingLabel">Share Files</string>    
-    <string name="servalLabel">Share Us</string>    
-    <string name="settingsLabel">Settings</string>  
+    <string name="servalLabel">Share SATNET</string>
+    <string name="settingsLabel">Settings</string>
     <string name="powerLabel">Power</string>    
     <string name="helpLabel">Help</string>	
     <string name="connectLabel">Connect</string>
@@ -54,44 +53,41 @@
     <string name="state_broken">Broken!</string>
 
 	
-	<!-- Serval Buttons -->
+  <!-- Buttons -->
 	<string name="btnwizard">SETUP WIZARD</string>
 	<string name="btnPhOk">OK</string>
 	
-	<!-- Serval Phone Set -->
+  <!-- Phone setup -->
 	<string name="cancelcall">Cancel</string>
 	<string name="searchpeers">Search</string>
-    <string name="searchingpeers">Searching...</string>
+    <string name="searchingpeers">Searching&#8230;</string>
     <string name="callcellular">Call via cellular network</string>
 
-    <!-- Serval General -->
+    <!-- General -->
     <string name="setphone">Enter Phone No.</string>
     <string name="setname">Display Name.</string>
     <string name="statusstar">Status Indicator</string>
     
-	<!-- Serval About -->
-	<string name="aboutTitle">About</string>	
-	<string name="emailEnquiries">enquiry@servalproject.org</string>  
-    
-	<!-- Serval Donations -->
-	<string name="donateTitle">Make a Donation</string>	
-	<string name="donateButton">Donate via PayPal</string>	
-	  
-    <!-- Serval Instruction -->
+  <!-- About -->
+	<string name="aboutTitle">About</string>
+  <string name="emailEnquiries">satnet.app</string>
+
+  <!-- Donations -->
+	<string name="donateTitle">Make a Donation</string>
+  <string name="donateButton">Support in Bitcoin</string>
+
+    <!-- Instructions -->
     <string name="setdetails">Set Name and Number</string>
     <string name="phoneInstr">Please enter your phone number.\nIt cannot match an emergency number, \nand must be at least 5 digits long.</string>
 	      
-	<!-- Serval Security -->
-    <string name="security_header">Serval Security</string>
-    	
-	<!-- Serval Maps -->
-	<string name="mapInfo">You do not currently have Serval Maps installed. 
-	    \n\nServal Maps is currently under development and it will be coming to the 
-	    Android Marketplace soon. 
-	    \n\nFor more information please visit the Serval Maps web site 
-	    \nhttp://developer.servalproject.org/wiki
-	    \nIn the meantime, if you have any queries, 
-	    \nplease contact us at \n\n</string>
+  <!-- Security -->
+    <string name="security_header">SATNET Security</string>
+
+  <!-- Maps -->
+  <string name="mapInfo">SATNET Maps is part of the current SATNET feature set.
+      \n\nUse the main SATNET interface to open local-first mapping, temporary coordinates, secure saved bookmarks, and encrypted Rhizome bookmark exchange.
+      \n\nFor more information please visit the SATNET web site
+      \nhttps://satnet.app</string>
 
 	<string name="broadcast_meshms_message">Broadcast messages are sent to the whole network.</string>
 
@@ -116,8 +112,8 @@
     <string name="server_idle">Idle</string>
     <string name="server_nopeers">No Peers</string>
 
-    <string name="connecting">Connecting...</string>
-    <string name="connecting_to">Connecting to %1$s...</string>
+    <string name="connecting">Connecting&#8230;</string>
+    <string name="connecting_to">Connecting to %1$s&#8230;</string>
     <string name="connected_to">Connected to %1$s.</string>
     <string name="ssid_none">[Hidden network]</string>
     <plurals name="open_networks">
@@ -129,8 +125,8 @@
         <item quantity="other">%d known networks.</item>
     </plurals>
     <plurals name="serval_networks">
-        <item quantity="one">%d Serval network.</item>
-        <item quantity="other">%d Serval networks.</item>
+        <item quantity="one">%d SATNET network.</item>
+        <item quantity="other">%d SATNET networks.</item>
     </plurals>
 
     <string name="wifi_client">Wi-Fi</string>
@@ -139,11 +135,107 @@
     <string name="bluetooth">Bluetooth</string>
 
     <string name="bluetooth_not_discoverable">On, but not discoverable</string>
+    <string name="bluetooth_permission_required">Bluetooth permission required to enable mesh discovery</string>
+    <string name="bluetooth_permission_denied">Bluetooth permission denied</string>
+    <string name="bluetooth_permission_dialog_title">Bluetooth access required</string>
+    <string name="bluetooth_permission_rationale">SATNET needs Bluetooth access to discover nearby peers, keep mesh links active, and request discoverable mode on Android 12 and newer.</string>
+    <string name="bluetooth_permission_continue">Continue</string>
+    <string name="bluetooth_permission_settings_message">Bluetooth access was denied and may have been marked as &quot;Don&apos;t ask again&quot;. Open App Info and allow Bluetooth permissions to enable Bluetooth mesh discovery.</string>
+    <string name="bluetooth_permission_open_settings">Open settings</string>
 
     <string name="network_target">Queued</string>
     <string name="hotspot_restoring">Attempting to restore your hotspot configuration</string>
 
     <string name="meshms_delivered">delivered</string>
     <string name="meshms_read">read</string>
-    <string name="ongoing_call">Serval Phone Call</string>
-</resources>
+    <string name="ongoing_call">SATNET Call</string>
+    <string name="peer_list_title">SATNET - Peer List</string>
+
+    <!-- Video calling strings -->
+    <string name="video_call">Video Call</string>
+    <string name="video_enabled">Video Enabled</string>
+    <string name="video_disabled">Video Disabled</string>
+    <string name="toggle_video">Toggle Video</string>
+    <string name="switch_camera">Switch Camera</string>
+    <string name="start_video_call">Start Video Call</string>
+    <string name="incoming_video_call">Incoming Video Call</string>
+    <string name="video_call_in_progress">Video Call in Progress</string>
+
+    <!-- Extended range calling strings -->
+    <string name="route_direct">Direct Connection</string>
+    <string name="route_multihop">Multi-Hop Mesh</string>
+    <string name="route_relay">Internet Relay</string>
+    <string name="route_hybrid">Hybrid Route</string>
+    <string name="hop_count">%d hops</string>
+    <string name="peer_nearby">Nearby</string>
+    <string name="peer_faraway">Faraway</string>
+    <string name="relay_connected">Relay Connected</string>
+    <string name="relay_disconnected">Relay Disconnected</string>
+    <string name="route_discovering">Discovering route&#8230;</string>
+    <string name="route_found">Route found</string>
+    <string name="route_not_found">No route available</string>
+    <string name="route_indicator_label">Active route</string>
+    <string name="route_indicator_none">Direct / mesh</string>
+    <string name="route_indicator_format">Active route: %1$s</string>
+    <string name="route_indicator_with_hops">%1$s • %2$d hops</string>
+    <string name="relay_api_status_ok">Relay API online</string>
+    <string name="relay_api_bad_request">Invalid relay API request</string>
+
+    <!-- Censorship-resistant relay strings -->
+    <string name="route_sms">SMS Relay</string>
+    <string name="route_tor">Tor (Anonymous)</string>
+    <string name="route_i2p">I2P (Anonymous)</string>
+    <string name="route_sneakernet">Store-and-Forward</string>
+    <string name="censorship_resistant">Censorship-Resistant</string>
+    <string name="tor_required">Requires Orbot</string>
+    <string name="i2p_required">Requires I2P Android</string>
+    <string name="sms_charges_apply">SMS charges may apply</string>
+    <string name="anonymous_connection">Anonymous connection</string>
+     <string name="delayed_delivery">Delayed delivery</string>
+
+     <string name="settings">Settings</string>
+     <string name="about">About</string>
+
+     <!-- Bitcoin Send Activity Strings -->
+     <string name="satnet_send_amount_btc_hint">Enter amount in BTC</string>
+     <string name="satnet_send_amount_sats_hint">Enter amount in satoshis</string>
+     <string name="satnet_send_estimating_fees">Estimating fees...</string>
+     <string name="satnet_send_estimate_fee_button">Estimate Fees</string>
+     <string name="satnet_send_fees_updated">Fee estimates updated</string>
+     <string name="satnet_send_fee_estimation_failed">Failed to estimate fees: %s</string>
+     <string name="satnet_send_enter_recipient">Please enter a recipient address</string>
+     <string name="satnet_send_enter_amount">Please enter an amount</string>
+     <string name="satnet_send_preview_failed">Failed to preview transaction: %s</string>
+     <string name="satnet_send_incomplete_form">Please fill in all fields</string>
+     <string name="satnet_send_error">Error: %s</string>
+     <string name="satnet_send_broadcasting">Broadcasting...</string>
+     <string name="satnet_send_button">Send Bitcoin</string>
+     <string name="satnet_send_broadcast_failed">Failed to broadcast transaction: %s</string>
+     <string name="satnet_send_address_pasted">Address pasted from clipboard</string>
+     <string name="satnet_send_clipboard_error">Failed to access clipboard</string>
+     <string name="satnet_send_loading">Loading...</string>
+     <string name="satnet_send_loading_preview">Loading transaction preview...</string>
+     <string name="satnet_send_success">Transaction Successful</string>
+     <string name="satnet_send_txid_copied">Transaction ID copied to clipboard</string>
+     <string name="satnet_send_enter_password">Enter wallet password</string>
+     <string name="satnet_send_password_required">Password is required</string>
+
+     <!-- Additional Bitcoin Send Activity Strings -->
+     <string name="satnet_send_bitcoin_title">Send Bitcoin</string>
+     <string name="satnet_send_recipient_label">Recipient Address</string>
+     <string name="satnet_send_recipient_hint">Enter Bitcoin address</string>
+     <string name="satnet_send_amount_label">Amount</string>
+     <string name="satnet_send_fee_rate_label">Fee Rate</string>
+     <string name="satnet_send_slow">Slow</string>
+     <string name="satnet_send_fast">Fast</string>
+     <string name="satnet_send_preview_button">Preview Transaction</string>
+     <string name="satnet_send_password_hint">Enter password</string>
+     <string name="satnet_wallet_password_hint">Wallet password</string>
+     <string name="satnet_send_cancel">Cancel</string>
+     <string name="satnet_send_confirm">Confirm</string>
+     <string name="satnet_send_preview_title">Transaction Preview</string>
+     <string name="satnet_send_txid_label">Transaction ID</string>
+     <string name="satnet_send_copy">Copy</string>
+     <string name="satnet_send_close">Close</string>
+     <string name="satnet_wallet_send_button">Send Bitcoin</string>
+ </resources>

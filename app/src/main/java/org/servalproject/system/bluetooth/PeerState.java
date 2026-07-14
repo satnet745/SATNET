@@ -2,7 +2,6 @@ package org.servalproject.system.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -15,6 +14,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.SortedSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,6 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class PeerState implements Runnable{
 	private final BlueToothControl control;
 	public final BluetoothDevice device;
+	public final String deviceKey;
 	private Connector connector;
 	public Date lastScan;
 	public int runningServal=-1;
@@ -45,7 +46,7 @@ public class PeerState implements Runnable{
 				while(i.hasNext()){
 					PeerReader r = i.next();
 					if (SystemClock.elapsedRealtime() - r.lastReceived > 10000) {
-						Log.v(TAG, "Closing expired connection to "+device.getAddress());
+						Log.v(TAG, "Closing expired connection to " + deviceKey);
 						i.remove();
 						onClosed(r);
 					}
@@ -58,35 +59,46 @@ public class PeerState implements Runnable{
 		}
 	};
 
-	PeerState(BlueToothControl control, BluetoothDevice device, byte[] addrBytes){
+	PeerState(BlueToothControl control, BluetoothDevice device, byte[] addrBytes, String deviceKey){
 		this.control = control;
 		this.device = device;
 		this.addrBytes = addrBytes;
+		this.deviceKey = deviceKey;
 		this.app = ServalBatPhoneApplication.context;
 	}
 
 	public void connect() throws IOException {
-		if (connector!=null || (!readers.isEmpty()) || (!control.adapter.isEnabled()))
+		if (connector!=null || (!readers.isEmpty()) || (!control.isAdapterEnabled()))
 			return;
-		int bondState = device.getBondState();
+		int bondState;
+		try {
+			bondState = device.getBondState();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while reading bond state", e);
+			return;
+		}
 		if (bondState == BluetoothDevice.BOND_BONDING)
 			return;
 		boolean paired = (bondState == BluetoothDevice.BOND_BONDED);
-		if (!paired && Build.VERSION.SDK_INT <10)
-			return;
 
 		synchronized (this) {
 			if (connector!=null)
 				return;
 
 			BluetoothSocket socket;
-			if (paired) {
-				socket = device.createRfcommSocketToServiceRecord(BlueToothControl.SECURE_UUID);
-			} else {
-				socket = device.createInsecureRfcommSocketToServiceRecord(BlueToothControl.INSECURE_UUID);
-			}
+				try {
+					if (paired) {
+						socket = device.createRfcommSocketToServiceRecord(BlueToothControl.SECURE_UUID);
+					} else {
+						socket = device.createInsecureRfcommSocketToServiceRecord(BlueToothControl.INSECURE_UUID);
+					}
+				} catch (SecurityException e) {
+					Log.w(TAG, "Bluetooth permission denied while creating RFCOMM socket", e);
+					return;
+				}
 
-			int bias = device.getAddress().toLowerCase().compareTo(control.adapter.getAddress().toLowerCase())*500;
+			int bias = deviceKey.toLowerCase(Locale.ROOT)
+					.compareTo(control.getLocalPeerKey().toLowerCase(Locale.ROOT)) * 500;
 
 			PeerReader r = new PeerReader(control, this, socket, paired, bias);
 			connector = new Connector(control, this, r);
@@ -108,14 +120,14 @@ public class PeerState implements Runnable{
 		reader.start();
 
 		if (writerThread==null) {
-			writerThread = new Thread(this, "Writer" + device.getAddress());
+			writerThread = new Thread(this, "Writer" + deviceKey);
 			writerThread.start();
 			app.runOnBackgroundThread(expireConnections,5000);
 		}
 	}
 
 	public void queuePacket(byte payload[]){
-		if (!control.adapter.isEnabled())
+		if (!control.isAdapterEnabled())
 			return;
 
 		synchronized (queue) {

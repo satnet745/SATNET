@@ -4,4 +4,4 @@
 * Improved support for more recent versions of Android
 * Improved feedback while networks are changing
 
-For a complete list of changes, see https://github.com/servalproject/batphone/blob/master/CURRENT-RELEASE.md
+For a complete list of changes, see CURRENT-RELEASE.md in this project.

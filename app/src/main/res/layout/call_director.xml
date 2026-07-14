@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
  <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     			android:layout_width="match_parent"
-    			android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/black">
 
 <Button android:id="@+id/call"
     style="@style/sbtnrhizome"
@@ -13,29 +14,39 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_below="@+id/call"
-    android:layout_above="@+id/phone_number" >
+    android:layout_above="@+id/phone_number"
+    android:background="@android:color/transparent"
+    android:cacheColorHint="@color/black" >
 
 </ListView>
 
     <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/messages_conversation_card"
+            android:autofillHints="phone"
+            android:hint="@string/setphone"
             android:inputType="phone"
             android:ems="10"
             android:id="@+id/phone_number"
-            android:layout_above="@+id/search"/>
+            android:layout_above="@+id/search"
+            android:textColorHint="#FF9AA39A"
+            android:padding="12dp"
+            android:textColor="@color/white"/>
 
     <Button android:id="@+id/search"
     style="@style/sbtnrhizomeleft"
     android:layout_alignParentBottom="true" 
-	android:layout_alignParentLeft="true"
+	android:layout_alignParentStart="true"
     android:text="@string/searchpeers" />
 
 <Button
     android:id="@+id/cancel"
     style="@style/sbtnrhizomeright"
     android:layout_alignParentBottom="true"
-    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
     android:text="@string/cancelcall" />
 
 </RelativeLayout>

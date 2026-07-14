@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batphone Build Fix</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #e74c3c;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        .error-box {
+            background: #ffe6e6;
+            border-left: 5px solid #e74c3c;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .solution-box {
+            background: #e6f7ff;
+            border-left: 5px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .success-box {
+            background: #e6ffe6;
+            border-left: 5px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #c7254e;
+        }
+        .command-box {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 10px 5px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .btn-secondary {
+            background: #2196F3;
+        }
+        .btn-secondary:hover {
+            background: #0b7dda;
+        }
+        ol, ul {
+            line-height: 1.8;
+        }
+        .highlight {
+            background: yellow;
+            padding: 2px 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ Batphone Build Error - LibSodium Missing</h1>
+
+        <div class="error-box">
+            <h2>❌ The Error</h2>
+            <p>Your Android NDK build is failing with:</p>
+            <code>Android NDK: ERROR: LOCAL_SRC_FILES points to a missing file<br>
+            libsodium-android-armv7-a/lib/libsodium.a</code>
+        </div>
+
+        <div class="solution-box">
+            <h2>✅ The Solution</h2>
+            <p><strong>LibSodium needs to be compiled (one-time setup)</strong></p>
+            <p>I've created automated scripts to fix this for you!</p>
+        </div>
+
+        <h2>🚀 Quick Fix - Choose One:</h2>
+
+        <h3>Option 1: Automated Batch Script (EASIEST)</h3>
+        <ol>
+            <li>Open File Explorer</li>
+            <li>Navigate to: <code>C:\Users\Test\AndroidStudioProjects\batphone\</code></li>
+            <li>Double-click: <span class="highlight">FIX_BUILD_NOW.bat</span></li>
+            <li>Follow the prompts</li>
+            <li>Rebuild in Android Studio</li>
+        </ol>
+
+        <h3>Option 2: PowerShell Script</h3>
+        <div class="command-box">
+            cd C:\Users\Test\AndroidStudioProjects\batphone<br>
+            .\build-libsodium.ps1
+        </div>
+
+        <h3>Option 3: Manual WSL Build</h3>
+        <div class="command-box">
+            wsl<br>
+            cd /mnt/c/Users/Test/AndroidStudioProjects/batphone/app/src/main/jni/libsodium<br>
+            ./autogen.sh<br>
+            cd dist-build<br>
+            ./android-armv7-a.sh
+        </div>
+
+        <h2>📥 Don't Have WSL or Git Bash?</h2>
+        <p><strong>Install WSL (Recommended):</strong></p>
+        <ol>
+            <li>Open PowerShell as Administrator</li>
+            <li>Run: <code>wsl --install</code></li>
+            <li>Restart computer</li>
+            <li>Run <code>FIX_BUILD_NOW.bat</code> again</li>
+        </ol>
+
+        <p><strong>Or Install Git Bash:</strong></p>
+        <p>
+            <a href="https://git-scm.com/download/win" class="btn btn-secondary" target="_blank">
+                Download Git for Windows
+            </a>
+        </p>
+
+        <div class="success-box">
+            <h2>✔️ After Building LibSodium</h2>
+            <ol>
+                <li>Open Android Studio</li>
+                <li>Build → Clean Project</li>
+                <li>Build → Rebuild Project</li>
+                <li>✅ Build will succeed!</li>
+            </ol>
+        </div>
+
+        <h2>📚 Documentation Available</h2>
+        <p>I've created comprehensive guides in your project folder:</p>
+        <ul>
+            <li><strong>BUILD_ERROR_FIX.md</strong> - Quick reference</li>
+            <li><strong>LIBSODIUM_SOLUTION.md</strong> - Detailed instructions</li>
+            <li><strong>LIBSODIUM_BUILD.md</strong> - Step-by-step guide</li>
+        </ul>
+
+        <h2>❓ Why Is LibSodium Needed?</h2>
+        <p>LibSodium provides <strong>cryptographic security</strong> for SATNET mesh features:</p>
+        <ul>
+            <li>✅ End-to-end encryption</li>
+            <li>✅ Secure messaging</li>
+            <li>✅ Digital signatures</li>
+            <li>✅ Authentication</li>
+        </ul>
+        <p><strong>This is a ONE-TIME setup!</strong></p>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #eee;">
+            <h3>🎯 TL;DR</h3>
+            <p><span class="highlight">Double-click FIX_BUILD_NOW.bat in project folder</span></p>
+            <p>That's it!</p>
+        </div>
+    </div>
+</body>
+</html>
+

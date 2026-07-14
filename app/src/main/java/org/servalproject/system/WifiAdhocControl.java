@@ -82,7 +82,7 @@ public class WifiAdhocControl {
 				if (value != null)
 					ed.putString(key, value);
 			}
-			ed.commit();
+			ed.apply();
 
 			WifiAdhocNetwork network = WifiAdhocNetwork.getAdhocNetwork(app,
 					name);
@@ -174,7 +174,7 @@ public class WifiAdhocControl {
 		Editor ed = app.settings.edit();
 		ed.putString(ADHOC_PROFILE, newConfig == null ? null
 				: newConfig.preferenceName);
-		ed.commit();
+		ed.apply();
 	}
 
 	private void waitForMode(Shell shell, WifiMode mode, String ipAddr)
@@ -348,7 +348,7 @@ public class WifiAdhocControl {
 		Editor ed = app.settings.edit();
 		ed.putString("detectedChipset", ret ? detection.getChipset()
 				: "UnKnown");
-		ed.commit();
+		ed.apply();
 
 		return ret;
 	}

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="Autofill,TextFields"
+    style="@style/SatnetScreenScroll">
+
+    <LinearLayout
+        style="@style/SatnetScreenContent">
+
+        <TextView
+            style="@style/SatnetHeaderTitle"
+            android:text="@string/satnet_merchant_title" />
+
+        <TextView
+            style="@style/SatnetHeaderSubtitle"
+            android:text="@string/satnet_merchant_subtitle" />
+
+        <TextView
+            android:id="@+id/merchant_stage_badge_text"
+            style="@style/SatnetHeaderBadge"
+            android:text="@string/satnet_merchant_stage_placeholder" />
+
+        <TextView
+            android:id="@+id/merchant_runtime_status_text"
+            style="@style/SatnetHeaderStatus"
+            android:text="@string/satnet_merchant_runtime_placeholder" />
+
+        <EditText
+            android:id="@+id/amount_sats_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:hint="@string/satnet_merchant_amount_hint"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            tools:ignore="Autofill,TextFields" />
+
+        <EditText
+            android:id="@+id/description_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:autofillHints=""
+            android:hint="@string/satnet_merchant_description_hint"
+            android:importantForAutofill="no"
+            android:inputType="textCapSentences"
+            tools:ignore="Autofill,TextFields" />
+
+        <Button
+            android:id="@+id/generate_invoice_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/satnet_merchant_generate_button" />
+
+        <TextView
+            android:id="@+id/invoice_output"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#EEEEEE"
+            android:fontFamily="monospace"
+            android:minLines="4"
+            android:padding="12dp"
+            android:text="@string/satnet_merchant_invoice_placeholder" />
+
+        <TextView
+            android:id="@+id/invoice_meta_output"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/satnet_merchant_invoice_meta_placeholder"
+            android:textColor="#666666" />
+
+        <ImageView
+            android:id="@+id/invoice_qr_image"
+            android:layout_width="256dp"
+            android:layout_height="256dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@string/satnet_merchant_invoice_qr_description"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/copy_invoice_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/satnet_merchant_copy_button"
+            android:enabled="false" />
+
+        <Button
+            android:id="@+id/share_invoice_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/satnet_merchant_share_button" />
+
+    </LinearLayout>
+</ScrollView>
+

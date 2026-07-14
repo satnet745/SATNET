@@ -1,86 +1,141 @@
-Serval Mesh Privacy Policy
-==========================
-[Serval Project][], January 2013
+SATNET Privacy Policy
+=====================
+Last updated: 2026-04-18
 
-This policy describes the handling of User Provided Information and Advertising
-Material by the [Serval Project][] and its [Serval Mesh][] application for
-Android.
+This policy describes how the open-source `SATNET` Android app in this repository handles personal data, identifiers, files, messaging data, and SATNET-related wallet/voucher data.
 
-What information does Serval Mesh obtain and how is it used?
-------------------------------------------------------------
+This document applies to the software shipped from this repository. If a distributor, partner, NGO, enterprise operator, or hosted service adds servers, analytics, support tooling, identity checks, or regional integrations, that operator must publish its own additional privacy notice.
 
-Serval Mesh obtains your chosen phone number and optionally a name (your
-Provided Information) when first started.  Your Provided Information is stored
-only on the device.  When using a Serval Mesh network, other devices will
-receive your Provided Information and display it to identify you as part of
-normal operation.
+## Summary
 
-Serval Mesh creates a unique numeric identifier (Serval ID, aka SID) when first
-started, and thereafter associates your Provided Information with that SID when
-communicating with other devices on the Serval Mesh network.  The SID remains
-unchanged even if you change your Provided Information.
+- Core identity, messaging, file-sharing, and SATNET data are designed to be stored primarily on the device.
+- The app exchanges data with peers over mesh, local-network, Bluetooth, Wi-Fi, and other connectivity paths required for app features.
+- If SATNET exchange-rate or directory features are enabled, the app may contact configured external HTTPS providers.
+- Files or messages you intentionally share may be copied to other participating devices and may persist beyond your own device.
+- The project does not intentionally include advertising SDKs or surveillance-based monetisation in the default app configuration.
 
-Removing (un-installing) the Serval Mesh application from your device will
-erase your Provided Information and SID.
+## Data the app may process
 
-Third parties do not receive and have no access to your Provided Information.
+Depending on enabled features and how you use the app, the app may process:
 
-The Serval Project does not collect your Provided Information from the Serval
-Mesh application.
+### Identity and profile data
 
-The Serval Project may collect files shared using the Rhizome file distribution
-service.
+- your chosen display name
+- your chosen phone number or alias, if entered
+- your SATNET ID / subscriber identifier (SID)
+- contact mappings created on your device
 
-Data retention, managing your Provided Information
---------------------------------------------------
+### Communications and mesh data
 
-Your Provided Information remains on your device until you change or remove it.
+- call metadata needed to route voice sessions
+- MeshMS message content and message state
+- peer identifiers and reachability state
+- local network status used to operate mesh features
 
-Copies of files shared by the user using the Rhizome file distribution service
-may be retained on other devices on the network indefinitely.
+### Shared file and Rhizome data
 
-What advertising material does Serval Mesh display?
----------------------------------------------------
+- files you intentionally share
+- file names, MIME types, manifests, bundle identifiers, and related metadata
+- locally cached copies of files opened or exported through the app
 
-The Serval Project does not disseminate or display any advertising material via
-Serval Mesh.
+### SATNET, wallet, and voucher data
 
-Children
---------
+If SATNET or Bitcoin-related features are enabled in your build or deployment, the app may process:
 
-The Serval Project does not use Serval Mesh to knowingly solicit information
-from or market to children under the age of 13.
- 
-Security
---------
+- wallet seed or encrypted wallet material stored locally
+- wallet addresses and transaction metadata
+- voucher payloads, issuance/redemption state, and verifier/merchant role data
+- configured settlement network information (for example testnet vs mainnet)
+- exchange-rate lookup requests to configured external providers
 
-Serval Mesh protects all voice call and MeshMS network traffic using Elliptic
-Curve Cryptography.  Messages and calls can only be deciphered by the device
-that generated the intended recipient's SID.
+### Diagnostic and security data
 
-Physical security of the device remains the responsibility of the user.
+- local logs necessary for debugging, crash investigation, and security review
+- build integrity metadata such as checksums, version identifiers, and release evidence
 
-Changes
--------
+## Where data is stored
 
-The Serval Project may update this Privacy Policy from time to time for any
-reason.  The Serval Project will notify you of any changes to this Privacy
-Policy by updating the [online Serval Mesh Privacy Policy][].  You are advised
-to consult the online Privacy Policy regularly for any changes.
+By default, app data is primarily stored on the device running the app.
 
-Your Consent
-------------
+- Android backup is disabled in the app manifest.
+- Android data extraction is restricted by app configuration.
+- Some cached or temporary files may be created while opening, importing, exporting, or sharing content.
+- If you uninstall the app, locally stored app data is generally removed by Android, except where you explicitly exported/shared data or other devices retained copies.
 
-By using Serval Mesh, consent to the Serval Project processing your Provided
-Information as set forth in this Privacy Policy now and as amended in future.
+## What data leaves the device
+
+Data may leave the device in the following cases:
+
+1. **Peer-to-peer communication**  
+   When you use calling, messaging, peer discovery, or file-sharing, identifiers and content required for those features are exchanged with peers and intermediate nodes as part of network operation.
+
+2. **Rhizome file distribution**  
+   Files and manifests you intentionally share may be replicated to other devices. Those copies may persist outside your control.
+
+3. **SATNET external providers**  
+   If SATNET exchange-rate or relay/directory features are enabled, the app may make HTTPS requests to configured providers. Those providers may receive your device IP address, request timestamps, and requested resources.
+
+4. **App-to-app sharing**  
+   If you export, view, open, or share files using other apps, those apps receive the data you chose to share and are governed by their own privacy policies.
+
+## Permissions and why they may be used
+
+The app requests a broad set of Android permissions because it includes mesh networking, calling, messaging, file sharing, QR, Bluetooth/Wi-Fi, contacts, and optional SATNET functionality. Depending on device version and enabled features, these may include:
+
+- camera access for QR scanning and image capture flows
+- microphone/audio access for calling features
+- Bluetooth and Wi-Fi permissions for peer discovery and mesh operation
+- contacts permissions for contact linking/import/export features
+- notifications for call/message/update status
+- storage/media access for opening and sharing files
+- network access for mesh coordination, updates, and optional external SATNET services
+
+Users and distributors should disable features they do not need and only grant runtime permissions required for intended use.
+
+## Security posture
+
+- The app is intended to use signed release artifacts for public distribution.
+- Core communications and wallet-sensitive code paths are expected to be reviewed and regression-tested before release.
+- Physical access to the device, device compromise, malicious side-loaded apps, unsafe backups outside app control, or insecure partner deployments can still expose user data.
+- Users remain responsible for device passcodes, screen-lock settings, update hygiene, and secure handling of exported recovery material.
+
+## Ads, analytics, and monetisation
+
+The default project policy is:
+
+- no advertising SDKs
+- no protocol-fee coercion
+- no custodial-by-default wallet mode
+- no surveillance-based monetisation
+
+If a downstream build adds analytics, telemetry, hosted services, customer support tooling, or financial integrations, that deployment must disclose them separately.
+
+## Retention
+
+- Profile, messaging, wallet, and voucher data remain on-device until deleted, reset, rotated, overwritten, or removed by uninstall.
+- Shared Rhizome content may remain on other devices indefinitely once replicated.
+- Release evidence, audit notes, and signed-artifact metadata may be retained by maintainers or operators for compliance, incident response, and supply-chain integrity.
+
+## Children
+
+This app is not designed as a child-directed service. Operators should not knowingly use it to solicit personal information from children without appropriate legal authority and disclosures.
+
+## International and operator-specific deployments
+
+Community, humanitarian, enterprise, or commercial deployments may have additional legal requirements involving financial services, telecommunications, sanctions screening, export controls, consumer protection, or regional privacy law. Those obligations are the responsibility of the deploying operator.
+
+## Changes to this policy
+
+This policy may be updated as features, integrations, or release practices change. Public releases should version this document and include the updated copy in release evidence.
+
+## Contact and repository source
+
+- Source repository privacy document: `PRIVACY.md`
+- Current release notes: `CURRENT-RELEASE.md`
 
 -----
-**Copyright 2013 Serval Project Inc.**  
+**Copyright 2026 SATNET contributors**  
 ![CC-BY-4.0](./cc-by-4.0.png)
 This document is available under the [Creative Commons Attribution 4.0 International licence][CC BY 4.0].
 
-
-[Serval Project]: http://www.servalproject.org/
-[Serval Mesh]: ./CURRENT-RELEASE.md
-[online Serval Mesh Privacy Policy]: https://github.com/servalproject/batphone/blob/development/PRIVACY.md
 [CC BY 4.0]: ./LICENSE-DOCUMENTATION.md

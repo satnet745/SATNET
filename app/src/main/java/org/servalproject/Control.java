@@ -16,6 +16,7 @@ import org.servalproject.servald.PeerListService;
  *
  */
 public class Control extends Service {
+	private static final int CONTROL_NOTIFICATION_ID = 1001;
 	private ServalBatPhoneApplication app;
 	private boolean showingNotification = false;
 	private int peerCount = -1;
@@ -33,7 +34,7 @@ public class Control extends Service {
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		PendingIntent pendingIntent = PendingIntent.getActivity(app, 0, intent,
-				PendingIntent.FLAG_UPDATE_CURRENT);
+				PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
 		Notification notification = ServalBatPhoneApplication.buildNotification(
 				Control.this,
@@ -44,8 +45,13 @@ public class Control extends Service {
 				Notification.FLAG_ONGOING_EVENT
 		);
 
-		this.startForeground(-1, notification);
-		showingNotification = true;
+		try {
+			this.startForeground(CONTROL_NOTIFICATION_ID, notification);
+			showingNotification = true;
+		} catch (RuntimeException e) {
+			Log.e(TAG, "Failed to promote Control service to the foreground", e);
+			showingNotification = false;
+		}
 	}
 
 	public void updatePeerCount(int peerCount) {

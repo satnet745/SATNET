@@ -35,7 +35,7 @@ class PeerReader implements Runnable, Comparable<PeerReader>{
 	public void start(){
 		if (thread!=null)
 			return;
-		thread = new Thread(this, "Reader"+peer.device.getAddress());
+		thread = new Thread(this, "Reader" + peer.deviceKey);
 		thread.start();
 	}
 
@@ -47,12 +47,12 @@ class PeerReader implements Runnable, Comparable<PeerReader>{
 	public void run() {
 		try {
 			InputStream in = socket.getInputStream();
-			byte buff[] = new byte[BlueToothControl.MTU+2];
+			byte[] buff = new byte[BlueToothControl.MTU + 2];
 			int offset=0;
 			while(thread == Thread.currentThread()){
 				if (offset>=2){
 					int msgLen = (buff[0]&0xFF) | ((buff[1]&0xFF) << 8);
-					if (msgLen > buff.length -2 || msgLen<0)
+					if (msgLen > buff.length - 2)
 						throw new IllegalStateException(msgLen+" is greater than the link MTU");
 					if (offset >= msgLen+2) {
 						control.receivedPacket(peer.addrBytes, buff, 2, msgLen);

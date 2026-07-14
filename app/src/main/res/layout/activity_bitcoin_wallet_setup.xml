@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="Autofill"
+    style="@style/SatnetScreenScroll">
+
+    <LinearLayout
+        style="@style/SatnetScreenContent">
+
+        <TextView
+            android:id="@+id/wallet_setup_screen_title"
+            style="@style/SatnetHeaderTitle"
+            android:text="@string/satnet_wallet_setup_title" />
+
+        <TextView
+            android:id="@+id/wallet_setup_screen_subtitle"
+            style="@style/SatnetHeaderSubtitle"
+            android:text="@string/satnet_wallet_setup_subtitle" />
+
+        <TextView
+            android:id="@+id/wallet_setup_stage_badge_text"
+            style="@style/SatnetHeaderBadge"
+            android:text="@string/satnet_wallet_setup_stage_placeholder" />
+
+        <TextView
+            android:id="@+id/wallet_setup_runtime_status_text"
+            style="@style/SatnetHeaderStatus"
+            android:text="@string/satnet_wallet_setup_runtime_placeholder" />
+
+        <LinearLayout
+            style="@style/SatnetCardSection">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_wallet_setup_mode_title"
+                android:textColor="@color/satnet_text_secondary"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/setup_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/mode_create"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/satnet_wallet_setup_mode_create_new"
+                    android:textColor="@color/satnet_text_primary" />
+
+                <RadioButton
+                    android:id="@+id/mode_import"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/satnet_wallet_setup_mode_import_restore"
+                    android:textColor="@color/satnet_text_primary" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/create_section"
+            style="@style/SatnetCardSection">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_wallet_setup_recovery_phrase_title"
+                android:textColor="@color/satnet_text_secondary"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/generated_phrase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/satnet_output_background"
+                android:fontFamily="monospace"
+                android:padding="12dp"
+                android:textColor="@color/satnet_text_primary"
+                android:textIsSelectable="true" />
+
+            <Button
+                android:id="@+id/copy_button"
+                style="@style/SatnetSecondaryButton"
+                android:text="@string/satnet_wallet_setup_copy_clipboard" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/import_section"
+            style="@style/SatnetCardSection"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_wallet_setup_enter_recovery_phrase"
+                android:textColor="@color/satnet_text_secondary"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/mnemonic_input"
+                style="@style/SatnetInputField"
+                android:minLines="3"
+                android:autofillHints=""
+                android:gravity="top|start"
+                android:hint="@string/satnet_wallet_setup_recovery_phrase_hint"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine|textVisiblePassword"
+                tools:ignore="Autofill"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/wallet_pin_section_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/satnet_wallet_setup_pin_title"
+            android:textColor="@color/satnet_text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            style="@style/SatnetCardSection">
+
+            <EditText
+                android:id="@+id/pin_input"
+                style="@style/SatnetInputField"
+                android:autofillHints=""
+                android:hint="@string/satnet_wallet_setup_pin_hint"
+                android:importantForAutofill="no"
+                android:inputType="numberPassword"
+                tools:ignore="Autofill" />
+
+            <EditText
+                android:id="@+id/pin_confirm_input"
+                style="@style/SatnetInputField"
+                android:autofillHints=""
+                android:hint="@string/satnet_wallet_setup_pin_confirm_hint"
+                android:importantForAutofill="no"
+                android:inputType="numberPassword"
+                tools:ignore="Autofill" />
+
+            <Button
+                android:id="@+id/next_button"
+                style="@style/SatnetPrimaryButton"
+                android:layout_marginTop="16dp"
+                android:text="@string/satnet_wallet_setup_create_button" />
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+</ScrollView>

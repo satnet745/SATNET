@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Voucher expiry hours -->
+    <array name="expiry_hours">
+        <item>1 hour</item>
+        <item>6 hours</item>
+        <item>24 hours</item>
+        <item>7 days</item>
+        <item>30 days</item>
+    </array>
+
+    <!-- Voucher denominations in satoshis -->
+    <array name="denominations">
+        <item>1,000 sats</item>
+        <item>5,000 sats</item>
+        <item>10,000 sats</item>
+        <item>50,000 sats</item>
+    </array>
+
+    <!-- Merchant types -->
+    <array name="merchant_types">
+        <item>Retail Shop</item>
+        <item>Restaurant</item>
+        <item>Service Provider</item>
+        <item>Transport</item>
+        <item>Other</item>
+    </array>
+</resources>
+

@@ -35,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -379,7 +380,7 @@ public class RhizomeManifest implements Cloneable {
 		if (mBundle == null)
 			mBundle = new Bundle();
 		mBundle.putString("service", this.mService);
-		mBundle.putString("id", mManifestId == null ? null : mManifestId.toHex().toUpperCase());
+		mBundle.putString("id", mManifestId == null ? null : mManifestId.toHex().toUpperCase(Locale.ROOT));
 		mBundle.putString("date", mDateMillis == null ? null : "" + mDateMillis);
 		mBundle.putString("version", mVersion == null ? null : "" + mVersion);
 		mBundle.putString("filesize", mFilesize == null ? null : "" + mFilesize);

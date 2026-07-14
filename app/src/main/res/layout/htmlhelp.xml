@@ -34,7 +34,7 @@
 	<!-- Body -->
 
      <WebView android:id="@+id/help_browser"
-      android:layout_below="@+id/logot_image"
+	  android:layout_below="@id/headerLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 

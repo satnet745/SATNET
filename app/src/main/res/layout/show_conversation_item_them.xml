@@ -3,18 +3,20 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="100dp"
-        android:layout_marginBottom="5dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginBottom="4dp"
     >
 
 <TextView
     android:id="@+id/message_text"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
     android:background="@drawable/message_item_them"
-    android:textSize="20dp"/>
+    android:maxWidth="260dp"
+    android:padding="12dp"
+    android:textColor="@color/white"/>
 
 </RelativeLayout>

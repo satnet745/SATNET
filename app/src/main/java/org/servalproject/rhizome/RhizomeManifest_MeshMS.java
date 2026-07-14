@@ -24,6 +24,8 @@ import android.os.Bundle;
 
 import org.servalproject.servaldna.SubscriberId;
 
+import java.util.Locale;
+
 /**
  * Represents a Rhizome MeshMS manifest, with methods to serialise to/from a byte stream for storage
  * on disk.
@@ -67,9 +69,9 @@ public class RhizomeManifest_MeshMS extends RhizomeManifest {
 	protected void makeBundle() {
 		super.makeBundle();
 		if (mSender != null)
-			mBundle.putString("sender", mSender.toHex().toUpperCase());
+			mBundle.putString("sender", mSender.toHex().toUpperCase(Locale.ROOT));
 		if (mRecipient != null)
-			mBundle.putString("recipient", mRecipient.toHex().toUpperCase());
+			mBundle.putString("recipient", mRecipient.toHex().toUpperCase(Locale.ROOT));
 	}
 
 	/** Return the 'sender' field (SID).

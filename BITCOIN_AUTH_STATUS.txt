@@ -1,0 +1,110 @@
+# P2P Bitcoin Authorization Status - SUMMARY
+
+## Direct Answer
+
+**Are P2P Bitcoin send and receive activities enabled for all SATNET roles?**
+
+### ❌ NO - But for the WRONG reason!
+
+Currently, P2P Bitcoin send/receive are **NOT properly gated** - they're accessible to everyone with NO role-based authorization.
+
+---
+
+## The Critical Issues
+
+### 1. Missing Capability Definitions
+- `CAP_BITCOIN_SEND` does NOT exist in `SatnetRoleManager.java`
+- `CAP_BITCOIN_RECEIVE` does NOT exist
+- Both operations are completely unprotected
+
+### 2. No Authorization Enforcement
+| Component | Status |
+|-----------|--------|
+| BitcoinWallet.createAndSignTransaction() | ❌ NO CHECKS |
+| BitcoinWallet.broadcastTransaction() | ❌ NO CHECKS |
+| SendBitcoinActivity | ❌ NO ROLE GATE |
+| Role limits enforcement | ❌ MISSING |
+| Suspension checks | ❌ MISSING |
+| Daily/monthly limits | ❌ MISSING |
+
+### 3. Current Authorization State by Role
+
+| Role | Can Send Bitcoin | Can Receive | Limits | Suspended Check |
+|------|---|---|---|---|
+| ROLE_USER | ✅ YES (UNAUTH) | ✅ YES | ❌ NO | ❌ NO |
+| ROLE_AGENT | ✅ YES (UNAUTH) | ✅ YES | ❌ NO | ❌ NO |
+| ROLE_MERCHANT | ✅ YES (UNAUTH) | ✅ YES | ❌ NO | ❌ NO |
+| ROLE_VERIFIER | ✅ YES (UNAUTH) | ✅ YES | ❌ NO | ❌ NO |
+| NO ROLE | ✅ YES (UNAUTH) | ✅ YES | ❌ NO | ❌ NO |
+
+**Result:** ANYONE including unauthenticated users can send Bitcoin. **SECURITY CRITICAL.**
+
+---
+
+## Required Fixes (Priority Order)
+
+### P1: Define Capabilities
+```java
+// Add to SatnetRoleManager.java (after line 91)
+public static final int CAP_BITCOIN_SEND = 1 << 11;
+public static final int CAP_BITCOIN_RECEIVE = 1 << 12;
+```
+
+### P2: Add Authorization to BitcoinWallet
+- Check role-based auth before `createAndSignTransaction()`
+- Check role limits (daily/monthly)
+- Check role status (suspended/review required)
+- Verify role is registered
+
+### P3: Gate UI Access
+- Add authorization check in `SendBitcoinActivity.onCreate()`
+- Finish activity if user lacks `CAP_BITCOIN_SEND`
+
+### P4: Map to Roles
+Update `getCapabilityMaskForRole()` to grant `CAP_BITCOIN_SEND` to:
+- ROLE_USER (base capability)
+- ROLE_AGENT (inherited from USER)
+- ROLE_MERCHANT (inherited from USER)
+- ROLE_VERIFIER (inherited from USER)
+
+### P5: Add Audit Logging
+Log all Bitcoin send attempts to audit trail with:
+- Transaction ID
+- Role used
+- Amount
+- Recipient (hash for privacy)
+- Timestamp
+- Success/failure status
+
+---
+
+## Recommended Role Limits
+
+| Role | Daily Limit | Monthly Limit | Notes |
+|------|---|---|---|
+| ROLE_USER | Configurable | Configurable | Default: unlimited or conservative |
+| ROLE_AGENT | 5M sats | 100M sats | Based on voucher issuing role |
+| ROLE_MERCHANT | 10M sats | 200M sats | Based on settlement processing |
+| ROLE_VERIFIER | Configurable | Configurable | Full access or configurable |
+
+---
+
+## Files to Modify
+
+1. **SatnetRoleManager.java** - Add capabilities (5 min)
+2. **BitcoinWallet.java** - Add authorization checks (15 min)
+3. **SendBitcoinActivity.java** - Add UI gate (5 min)
+4. **Tests** - Add authorization tests (20 min)
+
+**Total Estimated Fix Time:** 1-2 hours
+
+---
+
+## Security Risk Level: 🔴 CRITICAL
+
+If deployed to production without fixes, any user can send unlimited Bitcoin regardless of assigned role or account status.
+
+---
+
+See: P2P_BITCOIN_AUTHORIZATION_AUDIT.md for detailed analysis
+

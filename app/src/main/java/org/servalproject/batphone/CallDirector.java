@@ -77,17 +77,14 @@ public class CallDirector extends ListActivity implements OnClickListener, IPeer
 
 	@Override
 	public void onClick(View view) {
-		switch(view.getId()){
-			case R.id.call:
-				BatPhone.call(phone_number.getText().toString());
-				closeNow();
-				break;
-			case R.id.cancel:
-				closeNow();
-				break;
-			case R.id.search:
-				searchMesh(false);
-				break;
+		int id = view.getId();
+		if (id == R.id.call) {
+			BatPhone.call(phone_number.getText().toString());
+			closeNow();
+		} else if (id == R.id.cancel) {
+			closeNow();
+		} else if (id == R.id.search) {
+			searchMesh(false);
 		}
 	}
 

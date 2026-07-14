@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/send_bitcoin_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/satnet_send_bitcoin_title"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Recipient Address -->
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_send_recipient_label"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/recipient_address_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/satnet_send_recipient_hint"
+                android:inputType="text"
+                android:lines="3"
+                android:gravity="top"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Amount -->
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_send_amount_label"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <EditText
+                    android:id="@+id/amount_input"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/satnet_send_amount_sats_hint"
+                    android:inputType="number"
+                    android:layout_marginEnd="8dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/amount_unit_toggle"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="sats"
+                    android:padding="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+            <!-- Fee Rate Selection -->
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/satnet_send_fee_rate_label"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/satnet_send_slow"
+                    android:layout_marginEnd="8dp" />
+
+                <SeekBar
+                    android:id="@+id/fee_rate_slider"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:max="100" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/satnet_send_fast"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/fee_rate_display"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="10 sat/vB" />
+
+                <Button
+                    android:id="@+id/estimate_fee_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/satnet_send_estimate_fee_button" />
+
+            </LinearLayout>
+
+            <!-- Fee and Total Display -->
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/estimated_fee_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Est. Fee: 0 sats"
+                android:layout_marginBottom="4dp" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/total_cost_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total: 0.00000000 BTC (0 sats)"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:spacing="8dp">
+
+        <Button
+            android:id="@+id/preview_transaction_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/satnet_send_preview_button"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/send_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/satnet_send_button"
+            android:layout_marginStart="4dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
+

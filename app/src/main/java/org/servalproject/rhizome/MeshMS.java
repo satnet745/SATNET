@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.servalproject.R;
@@ -33,7 +32,8 @@ public class MeshMS {
 	public void bundleArrived(RhizomeManifest_MeshMS meshms) throws RhizomeManifest.MissingField {
 		if (sid.equals(meshms.getRecipient())){
 			initialiseNotification();
-			app.sendBroadcast(new Intent(NEW_MESSAGES));
+			Intent refreshIntent = new Intent(NEW_MESSAGES).setPackage(app.getPackageName());
+			app.sendBroadcast(refreshIntent);
 		}
 	}
 
@@ -53,12 +53,7 @@ public class MeshMS {
 	// build an initial notification on startup
 	public void initialiseNotification() {
 		if (app.isMainThread()){
-			app.runOnBackgroundThread(new Runnable() {
-				@Override
-				public void run() {
-					initialiseNotification();
-				}
-			});
+			app.runOnBackgroundThread(this::initialiseNotification);
 			return;
 		}
 
@@ -77,17 +72,17 @@ public class MeshMS {
 					continue;
 
 				messageHash =
-						conv.theirSid.hashCode() ^
+						conv.them.sid.hashCode() ^
 								(int) conv.lastMessageOffset ^
 								(int) (conv.lastMessageOffset >> 32);
 
-				Log.v(TAG, conv.theirSid.abbreviation()+", lastOffset = "+conv.lastMessageOffset+", hash = "+messageHash+", read = "+conv.isRead);
+				Log.v(TAG, conv.them.sid.abbreviation()+", lastOffset = "+conv.lastMessageOffset+", hash = "+messageHash+", read = "+conv.isRead);
 
 				// remember the recipient, if it is the only recipient with unread messages
 				if (unread) {
 					recipient = null;
 				} else {
-					recipient = conv.theirSid;
+					recipient = conv.them.sid;
 				}
 				unread = true;
 			}
@@ -113,12 +108,15 @@ public class MeshMS {
 		if (recipient==null) {
 			intent.setClass(app, MessagesListActivity.class);
 		}else{
-			intent.setClass(app, ShowConversationActivity.class);
-			intent.putExtra("recipient", recipient.toHex().toUpperCase());
+			intent = ShowConversationActivity.createIntent(app, recipient)
+					.setAction(Intent.ACTION_MAIN)
+					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+							| Intent.FLAG_ACTIVITY_SINGLE_TOP
+							| Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		}
 
 		PendingIntent pendingIntent = PendingIntent.getActivity(app, 0,
-				intent, PendingIntent.FLAG_UPDATE_CURRENT);
+				intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
 		Notification n = ServalBatPhoneApplication.buildNotification(
 				app,
@@ -133,8 +131,7 @@ public class MeshMS {
 		n.defaults |= Notification.DEFAULT_VIBRATE
 				| Notification.DEFAULT_LIGHTS;
 
-		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(app);
+		SharedPreferences settings = app.settings;
 		String sound = settings.getString("meshms_notification_sound",
 				null);
 		if (sound == null) {

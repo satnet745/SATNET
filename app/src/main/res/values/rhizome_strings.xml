@@ -25,17 +25,23 @@
     <!-- RHIZOME -->
 
         <!-- activity labels -->
-        <string name="rhizome_main_appname">Serval Share Files</string>
-        <string name="rhizome_list_appname">Serval Find Shared Files</string>
-        <string name="rhizome_saved_appname">Serval Saved Files</string>
-        
+        <string name="rhizome_main_appname">SATNET Share Files</string>
+        <string name="rhizome_list_appname">SATNET Find Shared Files</string>
+        <string name="rhizome_saved_appname">SATNET Saved Files</string>
+
         <!-- for the intents and services -->
         <string name="rhizome_share_file_permission_label">Add files to Rhizome</string>
-        <string name="rhizome_share_file_permission_description">Add files via the Serval Mesh using Rhizome</string>
+        <string name="rhizome_share_file_permission_description">Add files via SATNET using Rhizome</string>
         <string name="rhizome_receive_file_permission_label">Receive files from Rhizome</string>
-        <string name="rhizome_receive_file_permission_description">Receive files via the Serval Mesh using Rhizome</string>
- 		<string name="rhizome_share_file_toast">File shared via Serval Mesh</string>
-        
+        <string name="rhizome_receive_file_permission_description">Receive files via SATNET using Rhizome</string>
+		<string name="rhizome_share_file_toast">File shared via SATNET</string>
+    <string name="rhizome_storage_total_size">Total Size: %1$s GB (%2$s MB)</string>
+    <string name="rhizome_storage_free_space">Free Space: %1$s GB (%2$s MB)</string>
+    <string name="rhizome_storage_remaining_space">Remaining Space: %1$s GB (%2$s MB)</string>
+    <string name="rhizome_storage_summary">%1$s\n%2$s</string>
+    <string name="rhizome_storage_found">SD card found!</string>
+    <string name="rhizome_storage_not_found">SD card not found! SD card is &quot;%1$s&quot;.</string>
+
         <!-- for the UI -->
         <string name="rhizome_header">Share Files</string>
         <string name="share_button">Share</string>
@@ -50,8 +56,8 @@
         <string name="sf_name">Share via Mesh</string>
   
 <!-- Share us -->
-	<string name="share_us_header"><b>Sharing Serval Software</b></string>
-	<string name="share_us_button_text">Share Serval</string>
+  <string name="share_us_header"><b>Sharing SATNET</b></string>
+  <string name="share_us_button_text">Share SATNET</string>
     <string name="share_wifi_instr">You can share this software directly with another nearby phone via Wi-Fi.</string>
     <string name="share_wifi_off">First connect this phone to a Wi-Fi network, or turn on the Portable Wi-Fi hotspot via the connection screen, then return here for further instructions.</string>
     <string name="share_wifi">Simply connect the phone to %1$s and open %2$s in the web browser</string>

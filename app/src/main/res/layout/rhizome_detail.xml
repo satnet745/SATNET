@@ -26,44 +26,44 @@
     android:padding="5dip"
     >
     <TextView
-        style="@style/stextleftsmall"
+        style="@style/sttextleftsmall"
         android:background="@null"
         android:text="Name"
         />
     <TextView
         android:id="@+id/detail_name"
         android:background="@null"
-        style="@style/stextleft"
+        style="@style/sttextleft"
         />
     <TextView
-        style="@style/stextleftsmall"
+        style="@style/sttextleftsmall"
         android:background="@null"
         android:text="Date shared"
         />
     <TextView
         android:id="@+id/detail_date"
         android:background="@null"
-        style="@style/stextleft"
+        style="@style/sttextleft"
         />
     <TextView
-        style="@style/stextleftsmall"
+        style="@style/sttextleftsmall"
         android:background="@null"
         android:text="Size"
         />
     <TextView
         android:id="@+id/detail_size"
         android:background="@null"
-        style="@style/stextleft"
+        style="@style/sttextleft"
         />
     <TextView
-        style="@style/stextleftsmall"
+        style="@style/sttextleftsmall"
         android:background="@null"
         android:text="Version"
         />
     <TextView
         android:id="@+id/detail_version"
         android:background="@null"
-        style="@style/stextleft"
+        style="@style/sttextleft"
         />
     <Button
             android:id="@+id/Unshare"

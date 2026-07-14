@@ -1,0 +1,71 @@
+═══════════════════════════════════════════════════════════════
+                    ⚠️ BUILD ERROR - ACTION REQUIRED ⚠️
+═══════════════════════════════════════════════════════════════
+
+Your build is failing because libsodium hasn't been compiled yet.
+
+═══════════════════════════════════════════════════════════════
+                         🚀 QUICK FIX
+═══════════════════════════════════════════════════════════════
+
+METHOD 1: If you have WSL
+--------------------------
+1. Open Command Prompt
+2. Type: wsl
+3. Copy and paste this ENTIRE command (one line):
+
+cd /mnt/c/Users/Test/AndroidStudioProjects/batphone/app/src/main/jni/libsodium && ./autogen.sh && cd dist-build && export ANDROID_NDK_HOME=/mnt/c/Users/Test/AppData/Local/Android/Sdk/ndk/21.4.7075529 && ./android-armv7-a.sh
+
+4. Press Enter and wait 1-2 minutes
+
+
+METHOD 2: If you have Git Bash
+-------------------------------
+1. Open Git Bash
+2. Copy and paste this ENTIRE command (one line):
+
+cd /c/Users/Test/AndroidStudioProjects/batphone/app/src/main/jni/libsodium && ./autogen.sh && cd dist-build && export ANDROID_NDK_HOME=/c/Users/Test/AppData/Local/Android/Sdk/ndk/21.4.7075529 && ./android-armv7-a.sh
+
+3. Press Enter and wait 1-2 minutes
+
+
+METHOD 3: PowerShell Script
+----------------------------
+1. Open PowerShell in project folder
+2. Run: .\build-libsodium.ps1
+
+
+═══════════════════════════════════════════════════════════════
+              📥 DON'T HAVE WSL OR GIT BASH YET?
+═══════════════════════════════════════════════════════════════
+
+Install WSL (RECOMMENDED):
+1. Open PowerShell as Administrator
+2. Run: wsl --install
+3. Restart computer
+4. Use Method 1 above
+
+Or Install Git Bash:
+1. Download from: https://git-scm.com/download/win
+2. Install it
+3. Use Method 2 above
+
+
+═══════════════════════════════════════════════════════════════
+                      ✅ AFTER BUILDING
+═══════════════════════════════════════════════════════════════
+
+In Android Studio:
+1. Build → Clean Project
+2. Build → Rebuild Project
+3. ✅ Build succeeds!
+
+
+═══════════════════════════════════════════════════════════════
+
+This is a ONE-TIME setup. You'll never need to do it again!
+
+For detailed help, open: BUILD_FIX_GUIDE.html (in this folder)
+
+═══════════════════════════════════════════════════════════════
+

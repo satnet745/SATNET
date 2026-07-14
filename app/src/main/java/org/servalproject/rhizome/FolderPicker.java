@@ -146,7 +146,7 @@ public class FolderPicker extends Dialog implements OnItemClickListener, OnClick
 	private void updatePreference() {
 		Editor ed = this.mSharedPreferences.edit();
 		ed.putString(mfolderPreference, mPath.toString());
-		ed.commit();
+		ed.apply();
 	}
 
 	@Override

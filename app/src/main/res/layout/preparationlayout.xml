@@ -25,7 +25,8 @@
  
 	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
           android:layout_width="fill_parent"
-          android:layout_height="fill_parent" >
+	          android:layout_height="fill_parent"
+	          android:background="@color/satnet_background" >
 
           <!-- Header -->
 
@@ -38,7 +39,7 @@
 		<TextView
 		    android:id="@+id/welcome"
 		    style="@style/spreptext"
-		    android:layout_below="@+id/logot_image"
+		    android:layout_below="@id/headerLayout"
 		    android:gravity="left|top"
 		    android:text="@string/welcomePreparing" />
 					

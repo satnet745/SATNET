@@ -1,23 +1,11 @@
-/* Copyright (C) 2012 The Serval Project
- *
- * This file is part of Serval Software (http://www.servalproject.org)
- *
- * Serval Software is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ * SATNET maintenance note:
+ * This file is maintained as part of SATNET and builds on historical upstream work.
+ * Copyright (C) 2012 The Serval Project.
+ * Licensed under GPL-3.0-or-later; see LICENSE-SOFTWARE.md.
  */
 
-/**
+/*
  * Wizard - initial settings, reset phone.
  * @author Paul Gardner-Stephen <paul@servalproject.org>
  * @author Jeremy Lakeman <jeremy@servalproject.org>
@@ -84,12 +72,19 @@ public class PreparationWizard extends Activity implements LogOutput,
 			}
 		};
 
+		if (app.nm == null || app.nm.control == null) {
+			log("Network manager is not ready yet. Please return and try again.");
+			done.setVisibility(View.VISIBLE);
+			return;
+		}
 		this.control = app.nm.control;
 
 		PowerManager powerManager = (PowerManager) this
 				.getSystemService(Context.POWER_SERVICE);
-		wakeLock = powerManager.newWakeLock(
-				PowerManager.SCREEN_DIM_WAKE_LOCK, "PREPARATION_WAKE_LOCK");
+		if (powerManager != null) {
+			wakeLock = powerManager.newWakeLock(
+					PowerManager.SCREEN_DIM_WAKE_LOCK, "org.servalproject:PREPARATION_WAKE_LOCK");
+		}
 	}
 
 	@Override
@@ -123,7 +118,8 @@ public class PreparationWizard extends Activity implements LogOutput,
 	private void next() {
 		switch (state) {
 		case 0:
-			wakeLock.acquire();
+			if (wakeLock != null && !wakeLock.isHeld())
+				wakeLock.acquire(10 * 60 * 1000L);
 			log("Ensure wifi radio is off");
 			control.off(completion);
 			break;
@@ -161,7 +157,8 @@ public class PreparationWizard extends Activity implements LogOutput,
 			}
 		}
 
-		wakeLock.release();
+		if (wakeLock != null && wakeLock.isHeld())
+			wakeLock.release();
 		state = -1;
 		this.runOnUiThread(new Runnable() {
 			@Override
@@ -201,10 +198,8 @@ public class PreparationWizard extends Activity implements LogOutput,
 
 	@Override
 	public void onClick(View view) {
-		switch (view.getId()) {
-		case R.id.done:
+		if (view.getId() == R.id.done) {
 			finish();
-			break;
 		}
 	}
 }

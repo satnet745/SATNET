@@ -1,59 +1,59 @@
-Release Notes for Serval Mesh 0.93
+Release Notes for SATNET 0.93
 ==================================
-[Serval Project][], May 2016
+[SATNET][], historical release notes refreshed May 2026
 
-These notes accompany the release in April 2016 of version 0.93 of the [Serval
-Mesh][] app for [Android 2.2 “Froyo”][] and above.
+These notes accompany the release in April 2016 of version 0.93 of the [SATNET]
+app for [Android 2.2 “Froyo”][] and above.
 
-What is Serval Mesh?
+What is SATNET?
 --------------------
 
-Serval Mesh is an app for [Android 2.2 “Froyo”][] and above.  It provides free,
+SATNET is an app for [Android 2.2 “Froyo”][] and above.  It provides free,
 secure phone-to-phone voice calling, SMS and file sharing over [Wi-Fi][] or [Bluetooth][],
 without the need for a SIM card or a commercial mobile telephone carrier.  In
 other words, it lets your Android phone call other Android phones running
-Serval Mesh within Wi-Fi range.
+SATNET within Wi-Fi range.
 
-The [Serval Mesh Privacy Policy][] describes how Serval Mesh handles your
+The [SATNET Privacy Policy][] describes how SATNET handles your
 personal and other sensitive information.
 
 Warnings
 --------
 
-Serval Mesh is **EXPERIMENTAL SOFTWARE**.  It has not yet reached version 1.0,
+SATNET is **EXPERIMENTAL SOFTWARE**.  It has not yet reached version 1.0,
 and is intended for pre-production, demonstration purposes only.  It may not
 work as advertised, it may lose or alter messages and files that it carries, it
 may consume a lot of space, speed and battery, and it may crash unexpectedly.
 
-On the Serval Mesh "Connect" screen, connecting to "Ad Hoc Mesh" will request
+On the SATNET "Connect" screen, connecting to "Ad Hoc Mesh" will request
 [root permission][] (super-user) on your Android device in order to put Wi-Fi
-into [Ad-Hoc mode][].  If you grant super-user permission to Serval Mesh, it
+into [Ad-Hoc mode][].  If you grant super-user permission to SATNET, it
 will attempt to reinstall the Wi-Fi driver software on your device, which
 **could result in YOUR DEVICE BECOMING PERMANENTLY DISABLED ("BRICKED").**
 
-On the Serval Mesh "Connect" screen, selecting "Portable Wi-Fi Hotspot" will
+On the SATNET "Connect" screen, selecting "Portable Wi-Fi Hotspot" will
 put your device's Wi-Fi into [Access Point mode][].  If you have a mobile data
 plan, **this will give nearby devices access to your mobile data plan, and
 COULD COST YOU MONEY.**
 
-The Serval Mesh "Connect" screen allows you to connect to other Serval Mesh
+The SATNET "Connect" screen allows you to connect to other SATNET
 devices that act as Access Points (Hotspots) or Ad Hoc peers.  If you do so,
-**this will cut off normal Wi-Fi network access** while Serval Mesh is running,
+**this will cut off normal Wi-Fi network access** while SATNET is running,
 and services like Google Updates, E-mail, social media and other notifications
 may not work.
 
-Serval Mesh telephony is a “best effort” service, primarily intended for when
+SATNET telephony is a “best effort” service, primarily intended for when
 conventional telephony is not possible or cost effective, and **MUST NOT BE
 RELIED UPON** for emergencies in place of carrier-grade communications systems.
-The Serval Project cannot be held responsible for any performance or
+The SATNET project cannot be held responsible for any performance or
 non-performance of the technologies that they provide in good will, and if you
-use these technologies you must agree to indemnify the Serval Project from any
+use these technologies you must agree to indemnify the SATNET project from any
 such claims.
 
-The Serval Mesh software copies all files shared using the [Rhizome][] file
-distribution service to other phones and devices running the Serval Mesh
-software, regardless of size, content or intended recipient.  The Serval
-Project cannot be held responsible for the legality or propriety of any files
+The SATNET software copies all files shared using the [Rhizome][] file
+distribution service to other phones and devices running SATNET,
+regardless of size, content or intended recipient.  The SATNET
+project cannot be held responsible for the legality or propriety of any files
 received via Rhizome, nor for any loss, damage or offence caused by the
 transmission or receipt of any content via Rhizome.
 
@@ -86,10 +86,10 @@ What's new since 0.92
 Supported Devices
 -----------------
 
-This release of Serval Mesh has been tested on a variety of Android devices, and is
+This release of SATNET has been tested on a variety of Android devices, and is
 expected to run on almost any Android phone. It does NOT require root.
 
-Prior releases of Serval Mesh are known to work on the following devices, which
+Prior releases of SATNET are known to work on the following devices, which
 is included for historical purposes, as many of the following devices support
 ad-hoc Wi-Fi mode for those for whom that is interesting:
 
@@ -113,7 +113,7 @@ ad-hoc Wi-Fi mode for those for whom that is interesting:
 
  * **HTC/Google G1** (“Dream”)
 
-Previous releases of Serval Mesh were known to work on the following devices with
+Previous releases of SATNET were known to work on the following devices with
 minor problems:
 
  * **Samsung Galaxy S2 GT-I9100**, running Android 2.3 (rooted): Ad-Hoc Wi-Fi is
@@ -141,7 +141,7 @@ See the [Mobile Device Compatability Table][] for more details and devices.
 Known Issues
 ------------
 
- * While Serval Mesh services are enabled and you are connected to a Wi-Fi
+ * While SATNET services are enabled and you are connected to a Wi-Fi
    network with active peers, Android may be prevented from sleeping. This 
    may drain the battery quickly -- see [batphone issue #91][].
 
@@ -169,10 +169,10 @@ Known Issues
    space as it grows -- see [serval-dna issue #28][].  This cannot be worked
    around.
 
- * If a user starts a Serval Hotspot on the "Connect" screen, then the
+ * If a user starts a SATNET hotspot on the "Connect" screen, then the
    application overwrites the user's own personal hotspot name (and settings)
-   with "ap.servalproject.org".  When the Serval Hotspot is turned off, Serval
-   Mesh restores the user's own personal hotspot settings, which involves
+   with "ap.satnet.app".  When the SATNET hotspot is turned off, SATNET
+   restores the user's own personal hotspot settings, which involves
    turning the user's Wi-Fi hotspot on and off briefly.  This could cause some
    concern or confusion, but is the only way that Android provides to restore
    hotspot settings.
@@ -183,21 +183,20 @@ There are more known bugs and issues listed under the GitHub Issues page for
 Copyright and licensing
 -----------------------
 
-Serval Mesh is [free software][] produced by the [Serval Project][] and many
-[contributors][].  The copyright in all source code is owned by Serval Project
-Inc., an organisation incorporated in the state of South Australia in the
-Commonwealth of Australia.
+SATNET is [free software][] produced by the SATNET project and many
+[contributors][].  The historical upstream copyright in much of the source code
+belongs to the original project authors in South Australia.
 
-The Java/XML source code of Serval Mesh is licensed to the public under the
+The Java/XML source code of SATNET is licensed to the public under the
 [GNU General Public License version 3][GPL3].  The [serval-dna][] component of
-Serval Mesh is licensed to the public under the [GNU General Public License
+SATNET is licensed to the public under the [GNU General Public License
 version 2][GPL2].
 
 All [technical documentation][] is licensed to the public under the [Creative
 Commons Attribution 4.0 International license][CC BY 4.0].
 
-All source code and technical documentation is freely available from the Serval
-Project's [batphone][] and [serval-dna][] Git repositories on [GitHub][].
+All source code and technical documentation is freely available from the
+project's [batphone][] and [serval-dna][] Git repositories on [GitHub][].
 
 Acknowledgements
 ----------------
@@ -206,7 +205,7 @@ This release would not have been possible without the support of
 [United States Agency for International Development][USAID]
 and [Radio Free Asia][RFA].
 
-Earlier development of Serval Mesh has been funded by the [New America
+Earlier development of SATNET has been funded by the [New America
 Foundation's][NAF] [Open Technology Institute][OTI], the [Shuttleworth
 Foundation][], [Nlnet Foundation][], [OpenITP][], and our "True Believers":
 
@@ -215,61 +214,60 @@ Foundation][], [Nlnet Foundation][], [OpenITP][], and our "True Believers":
  * Andrew G. Morgan, California, USA
  * Fred Fisher
 
-The Serval Project was founded by [Dr Paul Gardner-Stephen][pgs] and [Romana
+The original upstream project was founded by [Dr Paul Gardner-Stephen][pgs] and [Romana
 Challans][timelady], both academic staff at the [School of Computer Science,
 Engineering and Mathematics][CSEM] at [Flinders University][] in South
-Australia.  Their work on the Serval Project is made possible by the ongoing
+Australia.  Their work on the original project was made possible by the ongoing
 support of the university.
 
 Disclaimer
 ----------
 
-SERVAL MESH refers to the software, protocols, systems and other goods,
-tangible and intangible produced by The Serval Project, Serval Project, Inc.,
-and Serval Project Pty Limited.
+SATNET refers to the software, protocols, systems and other goods,
+tangible and intangible produced by the current project together with the
+historical upstream codebase it builds upon.
 
-SERVAL MESH COMES WITH NO WARRANTY, EXPRESSED OR IMPLIED, AND IS NOT FIT FOR
+SATNET COMES WITH NO WARRANTY, EXPRESSED OR IMPLIED, AND IS NOT FIT FOR
 MERCHANTABILITY FOR ANY PURPOSE. USE AT YOUR SOLE RISK.
 
-SERVAL MESH WILL REDUCE THE BATTERY LIFE OF DEVICES ON WHICH IT RUNS.
+SATNET WILL REDUCE THE BATTERY LIFE OF DEVICES ON WHICH IT RUNS.
 
-SERVAL MESH MAY CONSUME ALL STORAGE, both LOCAL and EXTERNAL (eg, MICRO SD
+SATNET MAY CONSUME ALL STORAGE, both LOCAL and EXTERNAL (eg, MICRO SD
 CARD) ON THE DEVICES ON WHICH IT RUNS.
 
-SERVAL MESH SHOULD NOT BE INSTALLED ON DEVICES WHICH ARE DEPENDED UPON FOR
+SATNET SHOULD NOT BE INSTALLED ON DEVICES WHICH ARE DEPENDED UPON FOR
 EMERGENCY COMMUNICATION.
 
-SERVAL MESH MAY TRANSMIT SOME DATA IN THE CLEAR.
+SATNET MAY TRANSMIT SOME DATA IN THE CLEAR.
 
-SERVAL MESH PROTECTIONS against IMPERSONATION or OTHER MISAPPROPRIATION of
+SATNET PROTECTIONS against IMPERSONATION or OTHER MISAPPROPRIATION of
 IDENTITY ESTABLISHING FACTORS MAY BE DEFECTIVE and MAY NOT PERFORM AS EXPECTED.
 
-SERVAL MESH SHOULD NOT BE RELIED UPON IN AN EMERGENCY is it is an INCOMPLETE
+SATNET SHOULD NOT BE RELIED UPON IN AN EMERGENCY as it is an INCOMPLETE
 PROTOTYPE and BEST EFFORT in nature, and may FAIL TO OPERATE.
 
-SERVAL MESH may COST YOU MONEY if you have a MOBILE DATA PLAN by TURNING OFF
+SATNET may COST YOU MONEY if you have a MOBILE DATA PLAN by TURNING OFF
 WI-FI NETWORK ACCESS or by allowing NEARBY DEVICES TO USE YOUR DATA PLAN
 WITHOUT YOUR KNOWLEDGE OR CONSENT.
 
-SERVAL MESH may REVEAL AND/OR BROADCAST YOUR LOCATION, IDENTITY OR OTHER
+SATNET may REVEAL AND/OR BROADCAST YOUR LOCATION, IDENTITY OR OTHER
 INFORMATION through its normal operation.
 
-SERVAL MESH is an INCOMPLETE, PRE-PRODUCTION software, experimental in nature
+SATNET is INCOMPLETE, PRE-PRODUCTION software, experimental in nature
 and is not to be considered fit for merchantability for any purpose.  It has
 many defects, omissions and errors that will hamper its fulfilling of its
 intended purposes.
 
 -----
-**Copyright 2016 Serval Project Inc.**  
+**Copyright 2016 original upstream authors; SATNET documentation refresh 2026.**  
 ![CC-BY-4.0](./cc-by-4.0.png)
 This document is available under the [Creative Commons Attribution 4.0
 International licence][CC BY 4.0].
 
 
-[Serval Project]: http://www.servalproject.org/
-[Serval Mesh]: https://play.google.com/store/apps/details?id=org.servalproject
-[Serval Mesh Privacy Policy]: ../PRIVACY.md
-[Serval Security Framework]: https://github.com/servalproject/serval-docs/blob/master/serval-security-framework/ServalSecurityFramework.odt
+[SATNET]: ../README.md
+[SATNET Privacy Policy]: ../PRIVACY.md
+[SATNET Security Framework]: https://github.com/servalproject/serval-docs/tree/master/serval-security-framework
 [version 0.08]: ../doc/RELEASE-0.08.md
 [version 0.90]: ../doc/RELEASE-0.90.md
 [version 0.91]: ../doc/RELEASE-0.91.md

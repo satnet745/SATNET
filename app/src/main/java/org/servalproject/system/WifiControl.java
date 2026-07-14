@@ -1,5 +1,7 @@
 package org.servalproject.system;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -16,6 +18,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import org.servalproject.ServalBatPhoneApplication;
+import org.servalproject.permissions.RuntimePermissionGate;
 import org.servalproject.shell.Command;
 import org.servalproject.shell.Shell;
 
@@ -178,23 +181,38 @@ public class WifiControl {
 		handler.sendEmptyMessageDelayed(TRANSITION, delay);
 	}
 
+	@SuppressLint("InvalidWakeLockTag")
+	private PowerManager.WakeLock createWakeLock(PowerManager pm) {
+		return pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "org.servalproject:WifiControl");
+	}
+
+	@SuppressLint("WakelockTimeout")
+	private void acquireWakeLock() {
+		wakelock.acquire();
+	}
+
+	@SuppressLint("MissingPermission")
+	private List<WifiConfiguration> getConfiguredNetworksSafely() {
+		return this.wifiManager.getConfiguredNetworks();
+	}
+
 	WifiControl(Context context) {
 		app = ServalBatPhoneApplication.context;
+		Context appContext = context.getApplicationContext();
 		currentState = new Stack<Level>();
-		wifiManager = (WifiManager) context
+		wifiManager = (WifiManager) appContext
 				.getSystemService(Context.WIFI_SERVICE);
 		wifiApManager = WifiApControl.getApControl(wifiManager);
-		connectivityManager = (ConnectivityManager) context
+		connectivityManager = (ConnectivityManager) appContext
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 
 		adhocControl = new WifiAdhocControl(this);
 		commotionAdhoc = new CommotionAdhoc();
 		meshTether = new MeshTether(commotionAdhoc);
 
-		PowerManager pm = (PowerManager) context
+		PowerManager pm = (PowerManager) appContext
 				.getSystemService(Context.POWER_SERVICE);
-		wakelock = pm
-				.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WifiControl");
+		wakelock = createWakeLock(pm);
 
 		// Are we recovering from a crash / reinstall?
 		handlerThread = new HandlerThread("WifiControl");
@@ -536,7 +554,7 @@ public class WifiControl {
 			if (WifiAdhocControl.isAdhocSupported()) {
 				if (this.adhocRepaired)
 					throw new IOException(
-							"Failed to start wifi driver after disabling Serval's adhoc support. Rebooting your phone should fix it.");
+							"Failed to start the Wi-Fi driver after disabling SATNET ad hoc support. Rebooting your phone should fix it.");
 
 				this.adhocRepaired = true;
 				Shell shell = getRootShell();
@@ -1058,7 +1076,7 @@ public class WifiControl {
 			if (dest == null)
 				wakelock.release();
 			else
-				wakelock.acquire();
+				acquireWakeLock();
 		}
 
 		if (oldDestination != null) {
@@ -1088,7 +1106,16 @@ public class WifiControl {
 			}
 
 			// enable all disabled networks.
-			List<WifiConfiguration> networks = this.wifiManager.getConfiguredNetworks();
+			List<WifiConfiguration> networks = null;
+			if (RuntimePermissionGate.hasPermissions(app, new String[]{Manifest.permission.ACCESS_FINE_LOCATION})) {
+				try {
+					networks = getConfiguredNetworksSafely();
+				} catch (SecurityException e) {
+					Log.w(TAG, "Unable to read configured Wi-Fi networks while restoring state", e);
+				}
+			} else {
+				Log.i(TAG, "Skipping disabled Wi-Fi network restore because location permission is not granted");
+			}
 			if (networks!=null){
 				for (WifiConfiguration c : networks) {
 					if (c.status == WifiConfiguration.Status.DISABLED) {

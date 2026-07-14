@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+  <!-- Deny cleartext by default; explicit loopback exemptions below preserve the embedded local REST services. -->
+  <base-config cleartextTrafficPermitted="false" />
+
+    <!-- Keep explicit loopback entries for clarity. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>

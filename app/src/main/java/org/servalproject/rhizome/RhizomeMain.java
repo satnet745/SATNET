@@ -25,7 +25,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
@@ -69,8 +68,8 @@ public class RhizomeMain extends Activity implements OnClickListener {
 			return;
 		}
 
-		switch (view.getId()) {
-		case R.id.rhizome_share:
+		int id = view.getId();
+		if (id == R.id.rhizome_share) {
 			DialogInterface.OnClickListener fileConfirm = new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface di, int which) {
@@ -88,14 +87,11 @@ public class RhizomeMain extends Activity implements OnClickListener {
 					android.R.style.Theme, settings,
 					"rhizome_share_dialog_last_folder", true);
 			shareDialog.show();
-			break;
-		case R.id.rhizome_find:
+		} else if (id == R.id.rhizome_find) {
 			RhizomeMain.this.startActivity(new Intent(this, RhizomeList.class));
-			break;
-		case R.id.rhizome_saved:
+		} else if (id == R.id.rhizome_saved) {
 			RhizomeMain.this
 					.startActivity(new Intent(this, RhizomeSaved.class));
-			break;
 		}
 	}
 
@@ -133,8 +129,6 @@ public class RhizomeMain extends Activity implements OnClickListener {
 			StatFs stats = new StatFs(Environment.getExternalStorageDirectory()
 					.getPath());
 
-			String outputInfo = "Total Size: ";
-
 			BigDecimal blockCount = new BigDecimal(stats.getBlockCount());
 			BigDecimal blockSize = new BigDecimal(stats.getBlockSize());
 			BigDecimal availBlocks = new BigDecimal(stats.getAvailableBlocks());
@@ -149,16 +143,17 @@ public class RhizomeMain extends Activity implements OnClickListener {
 			// Output the SD card's total size in gigabytes, megabytes
 			BigDecimal totalSizeGb = totalSize.divide(gb);
 			BigDecimal totalSizeMb = totalSize.divide(mb);
-			outputInfo += numberFormat.format(totalSizeGb) + " GB ("
-					+ numberFormat.format(totalSizeMb) + " MB)\n";
+			String totalSizeText = getString(R.string.rhizome_storage_total_size,
+					numberFormat.format(totalSizeGb), numberFormat.format(totalSizeMb));
 
 			// Output the SD card's available free space in gigabytes,
 			// megabytes
 			BigDecimal freeSpaceGb = freeSpace.divide(gb);
 			BigDecimal freeSpaceMb = freeSpace.divide(mb);
-			outputInfo += "Free Space: "
-					+ numberFormat.format(freeSpaceGb) + " GB ("
-					+ numberFormat.format(freeSpaceMb) + " MB)";
+			String freeSpaceText = getString(R.string.rhizome_storage_free_space,
+					numberFormat.format(freeSpaceGb), numberFormat.format(freeSpaceMb));
+			String outputInfo = getString(R.string.rhizome_storage_summary,
+					totalSizeText, freeSpaceText);
 
 			progressBar.setMax(totalSizeMb.intValue());
 			progressBar.setProgress(totalSizeMb.subtract(freeSpaceMb)
@@ -170,8 +165,8 @@ public class RhizomeMain extends Activity implements OnClickListener {
 		{
 			// output the SD card state
 			progressLabel.setTextColor(Color.RED);
-			progressLabel.setText("SD card not found! SD card is \""
-					+ state + "\".");
+			progressLabel.setText(getString(R.string.rhizome_storage_not_found,
+					state));
 		}
 	}
 
@@ -190,26 +185,25 @@ public class RhizomeMain extends Activity implements OnClickListener {
 	}
 
 	private void runSync(String cmd) {
-		new AsyncTask<String, Void, Void>() {
+		final String command = cmd;
+		ServalBatPhoneApplication.context.runOnBackgroundThread(new Runnable() {
 			@Override
-			protected Void doInBackground(String... arg0) {
+			public void run() {
 				try {
-					if ("push".equals(arg0[0]))
+					if ("push".equals(command))
 						ServalDCommand.rhizomeDirectPush();
-					else if ("pull".equals(arg0[0]))
+					else if ("pull".equals(command))
 						ServalDCommand.rhizomeDirectPull();
-					else if ("sync".equals(arg0[0]))
+					else if ("sync".equals(command))
 						ServalDCommand.rhizomeDirectSync();
-					else {
-						Log.e("RhizomeMain", "unsupported operation: " + arg0[0]);
-					}
+					else
+						Log.e(TAG, "unsupported operation: " + command);
 				} catch (Exception e) {
-					Log.e("RhizomeMain", e.toString(), e);
+					Log.e(TAG, e.toString(), e);
 					ServalBatPhoneApplication.context.displayToastMessage(e.toString());
 				}
-				return null;
 			}
-		}.execute(cmd);
+		});
 	}
 
 	@Override

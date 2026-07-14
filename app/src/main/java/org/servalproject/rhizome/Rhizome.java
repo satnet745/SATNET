@@ -29,6 +29,8 @@ import org.servalproject.BuildConfig;
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.provider.RhizomeProvider;
+import org.servalproject.relay.RhizomeRelay;
+import org.servalproject.voucher.VoucherAuditRhizomeSync;
 import org.servalproject.servald.ServalD;
 import org.servalproject.servald.ServalDMonitor;
 import org.servalproject.servaldna.BundleId;
@@ -119,8 +121,11 @@ public class Rhizome {
 				}
 			}
 		} catch (ServalDFailureException e) {
+			enable = false;
 			Log.e(TAG, e.toString(), e);
 		}
+		if (ServalBatPhoneApplication.context != null)
+			ServalBatPhoneApplication.context.setRhizomeRuntimeReady(enable);
 		return enable;
 	}
 
@@ -182,9 +187,13 @@ public class Rhizome {
 	public static void cleanTemp() {
 		try {
 			File dir = getTempDirectory();
-			if (dir.isDirectory())
-				for (File file: dir.listFiles())
+			if (dir.isDirectory()) {
+				File[] files = dir.listFiles();
+				if (files == null)
+					return;
+				for (File file: files)
 					safeDelete(file);
+			}
 		}
 		catch (Exception e) {
 			Log.w(Rhizome.TAG, "error cleaning Rhizome temporary directory", e);
@@ -304,25 +313,37 @@ public class Rhizome {
 		@Override
 		public void run() {
 			try {
+				ServalBatPhoneApplication app = ServalBatPhoneApplication.context;
+				if (app == null || !app.isRhizomeRuntimeReady()) {
+					Log.v(TAG, "Ignoring Rhizome bundle while runtime is not ready");
+					return;
+				}
 				if (manifest instanceof RhizomeManifest_MeshMS) {
 					RhizomeManifest_MeshMS meshms = (RhizomeManifest_MeshMS) manifest;
-					KeyringIdentity identity = ServalBatPhoneApplication.context.server.getIdentity();
+					KeyringIdentity identity = app.server.getIdentity();
 					if (identity!=null && identity.sid.equals(meshms.getRecipient()))
-                        if (ServalBatPhoneApplication.context.meshMS!=null)
-                            ServalBatPhoneApplication.context.meshMS.bundleArrived(meshms);
+	                        if (app.meshMS!=null)
+	                            app.meshMS.bundleArrived(meshms);
 					else if (meshms.getRecipient().isBroadcast()) {
                         // TODO?
 					} else
 						Log.d(Rhizome.TAG, "not for me (is for " + meshms.getRecipient() + ")");
 				} else if (manifest instanceof RhizomeManifest_File) {
 					RhizomeManifest_File file = (RhizomeManifest_File) manifest;
+					if (VoucherAuditRhizomeSync.handleBundle(app, file)) {
+						return;
+					}
+					if (RhizomeRelay.handleBundle(file)) {
+						return;
+					}
 					// If file size is zero, then this is an "unshared" file, and has no payload.
 					// We cannot form a URI because there is no file hash.  It is not clear whether
 					// we ought to announce this as a received file, anyway, because technically it
 					// is not: it is an instruction to remove a file that we received previously.
 					if (file.getFilesize() != 0) {
 						Intent mBroadcastIntent = new Intent(
-								ACTION_RECEIVE_FILE);
+								ACTION_RECEIVE_FILE)
+								.setPackage(ServalBatPhoneApplication.context.getPackageName());
 
 						mBroadcastIntent.setDataAndType(Uri.parse("content://"
 										+ RhizomeProvider.AUTHORITY + "/"
@@ -346,6 +367,8 @@ public class Rhizome {
 		private void testUpgrade(RhizomeManifest_File file) {
 			try {
 				ServalBatPhoneApplication app = ServalBatPhoneApplication.context;
+				if (app == null || !app.isRhizomeRuntimeReady() || !app.isStartupTasksComplete())
+					return;
 				if ("".equals(BuildConfig.ManifestId))
 					return;
 
@@ -368,7 +391,7 @@ public class Rhizome {
 					SharedPreferences.Editor ed = app.settings.edit();
 					// well, not exactly. but this will prevent us from trying this manifest again.
 					ed.putLong("installed_manifest_version", file.mVersion);
-					ed.commit();
+					ed.apply();
 				}
 
 			} catch (Exception e) {

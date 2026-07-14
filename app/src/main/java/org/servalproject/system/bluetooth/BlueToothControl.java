@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -19,9 +18,9 @@ import org.servalproject.system.NetworkState;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
@@ -31,7 +30,7 @@ import java.util.UUID;
  */
 public class BlueToothControl extends AbstractExternalInterface{
 	final BluetoothAdapter adapter;
-	private final String myAddress;
+	private final String localPeerKey;
 	private int state;
 	private int scanMode;
 	private String currentName;
@@ -61,6 +60,140 @@ public class BlueToothControl extends AbstractExternalInterface{
 		}
 	}
 
+	private boolean safeIsEnabled() {
+		try {
+			return adapter.isEnabled();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while checking adapter enabled state", e);
+			return false;
+		}
+	}
+
+	private int safeGetState() {
+		try {
+			return adapter.getState();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while reading adapter state", e);
+			return BluetoothAdapter.STATE_OFF;
+		}
+	}
+
+	private int safeGetScanMode() {
+		try {
+			return adapter.getScanMode();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while reading scan mode", e);
+			return BluetoothAdapter.SCAN_MODE_NONE;
+		}
+	}
+
+	private boolean safeIsDiscovering() {
+		try {
+			return adapter.isDiscovering();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while checking discovery state", e);
+			return false;
+		}
+	}
+
+	private String safeGetName() {
+		try {
+			return adapter.getName();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while reading adapter name", e);
+			return null;
+		}
+	}
+
+	private void safeStartDiscovery() {
+		try {
+			adapter.startDiscovery();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while starting discovery", e);
+		}
+	}
+
+	private void safeGetBondedDevices() {
+		try {
+			adapter.getBondedDevices();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while reading bonded devices", e);
+		}
+	}
+
+	private String safeGetAdapterAddress() {
+		try {
+			return adapter.getAddress();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while reading adapter address", e);
+			return null;
+		}
+	}
+
+	String getLocalPeerKey() {
+		return localPeerKey;
+	}
+
+	boolean isAdapterEnabled() {
+		return safeIsEnabled();
+	}
+
+	String getPeerKey(BluetoothDevice device) {
+		if (device == null)
+			return "bt:unknown";
+		try {
+			String address = device.getAddress();
+			if (address != null && !"".equals(address))
+				return address;
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while reading device address", e);
+		}
+		return "bt:" + Integer.toHexString(System.identityHashCode(device));
+	}
+
+	private String safeGetDeviceName(BluetoothDevice device) {
+		if (device == null)
+			return null;
+		try {
+			return device.getName();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while reading device name", e);
+			return null;
+		}
+	}
+
+	private void safeSetName(String name) {
+		try {
+			adapter.setName(name);
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while setting adapter name", e);
+		}
+	}
+
+	private void safeCancelDiscovery() {
+		try {
+			adapter.cancelDiscovery();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while cancelling discovery", e);
+		}
+	}
+
+	private void safeDisable() {
+		try {
+			adapter.disable();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while disabling adapter", e);
+		}
+	}
+
+	private void safeEnable() {
+		try {
+			adapter.enable();
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while enabling adapter", e);
+		}
+	}
+
 	public static BlueToothControl getBlueToothControl(ChannelSelector selector, int loopbackMdpPort) throws IOException {
 		BluetoothAdapter a = BluetoothAdapter.getDefaultAdapter();
 		if (a==null) return null;
@@ -70,12 +203,13 @@ public class BlueToothControl extends AbstractExternalInterface{
 	private BlueToothControl(ChannelSelector selector, int loopbackMdpPort, BluetoothAdapter a) throws IOException {
 		super(selector, loopbackMdpPort);
 		adapter = a;
-		myAddress = adapter.getAddress();
+		String adapterAddress = safeGetAdapterAddress();
+		localPeerKey = adapterAddress == null || "".equals(adapterAddress) ? "bt:self" : adapterAddress;
 		state = -1;
-		scanMode = adapter.getScanMode();
+		scanMode = safeGetScanMode();
 		app = ServalBatPhoneApplication.context;
-		lastScan = adapter.isDiscovering()?SystemClock.elapsedRealtime():0;
-		String myName = adapter.getName();
+		lastScan = safeIsDiscovering()?SystemClock.elapsedRealtime():0;
+		String myName = safeGetName();
 		if (myName==null || myName.startsWith(SERVAL_PREFIX)){
 			myName = app.settings.getString(BLUETOOTH_NAME, "");
 		}
@@ -131,7 +265,7 @@ public class BlueToothControl extends AbstractExternalInterface{
 	}
 
 	private void listen(){
-		if (!adapter.isEnabled() || !app.isEnabled())
+		if (!safeIsEnabled() || !app.isEnabled())
 			return;
 		if (secureListener!=null)
 			return;
@@ -151,19 +285,21 @@ public class BlueToothControl extends AbstractExternalInterface{
 			secureListener = new Listener("BluetoothSL", secure, true);
 			secureListener.start();
 			Log.v(TAG, "Listening for; " + SECURE_UUID);
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while opening secure server socket", e);
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
 		}
 		BluetoothServerSocket insecure = null;
-		if (Build.VERSION.SDK_INT >= 10) {
-			try {
-				insecure = adapter.listenUsingInsecureRfcommWithServiceRecord(app_name, INSECURE_UUID);
-				insecureListener = new Listener("BluetoothISL", insecure, false);
-				insecureListener.start();
-				Log.v(TAG, "Listening for; " + INSECURE_UUID);
-			} catch (IOException e) {
-				Log.e(TAG, e.getMessage(), e);
-			}
+		try {
+			insecure = adapter.listenUsingInsecureRfcommWithServiceRecord(app_name, INSECURE_UUID);
+			insecureListener = new Listener("BluetoothISL", insecure, false);
+			insecureListener.start();
+			Log.v(TAG, "Listening for; " + INSECURE_UUID);
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while opening insecure server socket", e);
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage(), e);
 		}
 		up();
 		startDiscovery();
@@ -227,10 +363,11 @@ public class BlueToothControl extends AbstractExternalInterface{
 
 		@Override
 		public void run() {
-			while (running && adapter.isEnabled()) {
+			while (running && safeIsEnabled()) {
 				try {
 					BluetoothSocket client = socket.accept();
-					Log.v(TAG, "Incoming connection from "+client.getRemoteDevice().getAddress());
+					String remotePeerKey = getPeerKey(client.getRemoteDevice());
+					Log.v(TAG, "Incoming connection from " + remotePeerKey);
 					PeerState peer = getPeer(client.getRemoteDevice());
 					peer.onConnected(client, secure);
 				}catch (Exception e){
@@ -241,17 +378,17 @@ public class BlueToothControl extends AbstractExternalInterface{
 	}
 
 	public PeerState getPeer(BluetoothDevice device){
-		PeerState s = this.peers.get(device.getAddress());
+		String peerKey = getPeerKey(device);
+		PeerState s = this.peers.get(peerKey);
 		if (s==null){
-			s = new PeerState(this, device, getAddress(device));
-			this.peers.put(device.getAddress(), s);
+			s = new PeerState(this, device, getAddress(device), peerKey);
+			this.peers.put(peerKey, s);
 		}
 		return s;
 	}
 
 	private byte[] getAddress(BluetoothDevice device){
-		// TODO convert mac address string to hex bytes?
-		return device.getAddress().getBytes();
+		return getPeerKey(device).getBytes(StandardCharsets.UTF_8);
 	}
 
 	private PeerState getDevice(byte[] address){
@@ -277,15 +414,7 @@ public class BlueToothControl extends AbstractExternalInterface{
 			return null;
 		try {
 			byte data[];
-			if (Build.VERSION.SDK_INT >= 9) {
-				data=name.substring(7).getBytes(UTF8);
-			}else{
-				try {
-					data=name.substring(7).getBytes("UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					throw new IllegalStateException(e);
-				}
-			}
+			data=name.substring(7).getBytes(UTF8);
 			int dataLen = data.length;
 			byte next;
 
@@ -407,20 +536,12 @@ public class BlueToothControl extends AbstractExternalInterface{
 			ret[j-1] = (byte) 0xD4;
 			ret[j++]= (byte) 0x80;
 		}
-		if (Build.VERSION.SDK_INT >= 9){
-			return SERVAL_PREFIX + new String(ret, 0, j, UTF8);
-		}else{
-			try {
-				return SERVAL_PREFIX + new String(ret, 0, j, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				throw new IllegalStateException(e);
-			}
-		}
+		return SERVAL_PREFIX + new String(ret, 0, j, UTF8);
 	}
 
 	private void receivedName(PeerState peer){
 		try {
-			byte packet[]=decodeName(peer.device.getName());
+			byte packet[]=decodeName(safeGetDeviceName(peer.device));
 			if (packet != null)
 				this.receivedPacket(getAddress(peer.device), packet);
 		} catch (IOException e) {
@@ -447,7 +568,7 @@ public class BlueToothControl extends AbstractExternalInterface{
 		// check for broken bluetooth state...
 		long now = SystemClock.elapsedRealtime();
 
-		if (this.lastScan!=0 && this.lastScan + 240000 < now && adapter.isDiscovering()){
+		if (this.lastScan!=0 && this.lastScan + 240000 < now && safeIsDiscovering()){
 			Log.v(TAG, "Last scan started " + (SystemClock.elapsedRealtime() - this.lastScan) + "ms ago, probably need to restart bluetooth");
 		}
 
@@ -469,6 +590,8 @@ public class BlueToothControl extends AbstractExternalInterface{
 		if (!app.isEnabled())
 			return;
 		BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+		if (device == null)
+			return;
 		PeerState peer = getPeer(device);
 		peer.lastScan = new Date();
 		processName(peer);
@@ -478,14 +601,16 @@ public class BlueToothControl extends AbstractExternalInterface{
 		if (!app.isEnabled())
 			return;
 		BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+		if (device == null)
+			return;
 		PeerState peer = getPeer(device);
 		processName(peer);
 	}
 
 	public void onScanModeChanged(Intent intent){
 		scanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, 0);
-		Log.v(TAG, "Scan mode changed; "+scanMode+" "+adapter.isEnabled());
-		if (adapter.isEnabled())
+		Log.v(TAG, "Scan mode changed; "+scanMode+" "+safeIsEnabled());
+		if (safeIsEnabled())
 			up();
 	}
 
@@ -496,16 +621,16 @@ public class BlueToothControl extends AbstractExternalInterface{
 	}
 
 	private void startDiscovery(){
-		if (!app.isEnabled() || state!=BluetoothAdapter.STATE_ON || !adapter.isEnabled())
+		if (!app.isEnabled() || state!=BluetoothAdapter.STATE_ON || !safeIsEnabled())
 			return;
 
-		if (Connector.connecting || adapter.isDiscovering()) {
+		if (Connector.connecting || safeIsDiscovering()) {
 			scanAgain = true;
 			return;
 		}
 
 		// TODO, do we need to grab a wakelock until discovery finishes?
-		adapter.startDiscovery();
+		safeStartDiscovery();
 		scanAgain = false;
 	}
 
@@ -525,17 +650,17 @@ public class BlueToothControl extends AbstractExternalInterface{
 			this.state = state;
 			Log.v(TAG, "State changed; " + state);
 		}
-		scanMode = adapter.getScanMode();
+		scanMode = safeGetScanMode();
 		if (state == BluetoothAdapter.STATE_ON && app.isEnabled()) {
 			listen();
-			adapter.getBondedDevices(); // TODO connect to paired neighbours?
+			safeGetBondedDevices(); // TODO connect to paired neighbours?
 		}else{
 			stopListening();
 		}
 	}
 
 	public void onEnableChanged(){
-		setState(adapter.getState());
+		setState(safeGetState());
 	}
 
 	public void onStateChange(Intent intent){
@@ -545,13 +670,13 @@ public class BlueToothControl extends AbstractExternalInterface{
 
 	public void setEnabled(boolean enabled){
 		if (state==BluetoothAdapter.STATE_ON && !enabled)
-			adapter.disable();
+			safeDisable();
 		if (state==BluetoothAdapter.STATE_OFF && enabled)
-			adapter.enable();
+			safeEnable();
 	}
 
 	public NetworkState getState(){
-		switch (adapter.getState()){
+		switch (safeGetState()){
 			case BluetoothAdapter.STATE_ON:
 				return NetworkState.Enabled;
 			case BluetoothAdapter.STATE_OFF:
@@ -571,18 +696,18 @@ public class BlueToothControl extends AbstractExternalInterface{
 			originalName = name;
 			SharedPreferences.Editor e = app.settings.edit();
 			e.putString(BLUETOOTH_NAME, name);
-			e.commit();
-		}else if (!name.equals(currentName)){
+			e.apply();
+		}else if (name != null && !name.equals(currentName)){
 			Log.v(TAG, "name ("+name+")!= currentName ("+currentName+")!? ");
 		}
 	}
 
 	public boolean isDiscoverable(){
-		return adapter.getScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+		return safeGetScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 	}
 
 	public boolean isEnabled(){
-		return adapter.isEnabled();
+		return safeIsEnabled();
 	}
 
 	public void requestDiscoverable(Context context){
@@ -592,18 +717,22 @@ public class BlueToothControl extends AbstractExternalInterface{
 		Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 3600);
 		// TODO notify user .... ?
-		context.startActivity(discoverableIntent);
+		try {
+			context.startActivity(discoverableIntent);
+		} catch (SecurityException e) {
+			Log.w(TAG, "Bluetooth permission denied while requesting discoverable mode", e);
+		}
 	}
 
 	public void setName(String name){
 		// fails if the adapter is off...
 		currentName = name;
-		adapter.setName(name);
+		safeSetName(name);
 	}
 
 	public void cancelDiscovery(){
-		if (adapter.isDiscovering())
-			adapter.cancelDiscovery();
+		if (safeIsDiscovering())
+			safeCancelDiscovery();
 	}
 
 

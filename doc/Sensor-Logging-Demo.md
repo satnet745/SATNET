@@ -1,8 +1,8 @@
 Sensor Logging Demonstration
 ============================
-[Serval Project][], November 2012, updated March 2013
+[SATNET][], originally written November 2012, refreshed April 2026
 
-These are instructions for demonstrating the prototype of the [Serval Project][]
+These are instructions for demonstrating the prototype of the [SATNET][]
 sensor logger.
 
 Overview
@@ -21,7 +21,7 @@ Each subject carries an Android phone with two apps installed:
    times a second and appends the readings to a log file.  Every hour it
    injects the log file into [Rhizome][] and starts a new file.
 
- * The [Serval Mesh][] app runs the [Rhizome][] file distribution service,
+ * The [SATNET][] app runs the [Rhizome][] file distribution service,
    which stores all files that have been injected to date and exchanges them
    over WiFi with any other phone that comes into range.  It periodically
    attempts to upload all files it carries (including those received from other
@@ -40,8 +40,8 @@ In this demonstration:
 
 1. the Android apps are installed on two or more Android devices (phones);
 2. the first Android device generates one or more movement sensor log files;
-3. the first Android device transmits the log files to Serval HQ;
-4. a second Android device fetches the log files from Serval HQ;
+3. the first Android device transmits the log files to the SATNET collection node;
+4. a second Android device fetches the log files from the SATNET collection node;
 5. a workstation downloads the log files from the second Android device;
 6. the workstation is used to inspect the log file contents.
 
@@ -70,29 +70,27 @@ inspect the contents of ZIP files using a conventional operating system than
 an Android device.  If ZIP files can be inspected directly using the second
 Android device, then the workstation is unnecessary for the demonstration.
 
-Install Serval Mesh app
+Install SATNET
 -----------------------
 
-The [Serval Mesh][] Android app must be installed on all the Android devices
+The [SATNET][] Android app must be installed on all the Android devices
 (phones) used in the demo.
 
-Download the [Serval Mesh][] app onto each Android device from
-<http://developer.servalproject.org/files/sensor-log/Serval_Mesh.apk>
-and install it.  The following QR code is a convenient way to do this:
+Download the current SATNET APK onto each Android device using the repository's
+current release and installation documentation, then install it on the test
+devices.
 
-![Serval Mesh QR code](https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=http://developer.servalproject.org/files/sensor-log/Serval_Mesh.apk)
-
-The [Serval Mesh][] app states that it requires root permission to operate,
+The [SATNET][] app states that it requires root permission to operate,
 but root is not necessary for this demo, only conventional Internet access.
 
-Once the [Serval Mesh][] app is installed, complete the installation by
+Once the [SATNET][] app is installed, complete the installation by
 starting it.  This will have the side effect of turning OFF the device's WiFi
 networking and putting the WiFi into AdHoc mode, which will cut off normal
 Internet access (unless access is via a 3G mobile data plan).  To restore
 normal WiFi networking, if it is needed to continue the demonstration, first
-go to the *Serval Mesh* main screen and press the *Switch OFF* button at centre
+go to the *SATNET* main screen and press the *Switch OFF* button at centre
 bottom.  Then go to Android's main Settings *Wireless & networks* menu and
-switch WiFi back on.  All subsequent times that the Serval Mesh app is started,
+switch WiFi back on.  All subsequent times that the SATNET app is started,
 it will be in the OFF state, which is how it should remain for the demo.
 
 Install Movement Sensor app
@@ -102,21 +100,18 @@ The [Movement Sensor][] app must be installed on all the Android devices (phones
 that will be used to generate the logs.  In a real-world deployment, these would
 be the phones carried by the subjects.
 
-**IMPORTANT**: the [Movement Sensor][] app must be installed *after* the [Serval
-Mesh][] app, or it will not have permission to inject its log files into
+**IMPORTANT**: the [Movement Sensor][] app must be installed *after* the [SATNET]
+app, or it will not have permission to inject its log files into
 [Rhizome][].
 
-Download the Movement Sensor app onto each Android device from
-<http://developer.servalproject.org/files/sensor-log/sensor-logger.apk>
-and install it.  The following QR code is a convenient way to do this:
-
-![Sensor Logger QR code](https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=http://developer.servalproject.org/files/sensor-log/sensor-logger.apk)
+Download the Movement Sensor app onto each Android device from the separate
+Movement Sensor project repository and install it on the test devices.
 
 Start recording movement of an Android device
 ---------------------------------------------
 
-Choose an Android device (phone) to be carried by a subject, with the [Serval
-Mesh][] and [Movement Sensor][] apps installed, as per the instructions above.
+Choose an Android device (phone) to be carried by a subject, with the [SATNET]
+and [Movement Sensor][] apps installed, as per the instructions above.
 
 On the device, start the *Movement Sensor* app.  The app's screen shows a
 *Device ID* which is a sequence of six letters and numbers.  This ID does not
@@ -141,20 +136,20 @@ log file into Rhizome.  This provides a convenient way to run quick tests.
 If the app is forcibly stopped or the phone is shut down, the current log file
 will be lost.
 
-Upload movement logs to Serval HQ
+Upload movement logs to the SATNET collection node
 ---------------------------------
 
 This step would occur automatically in a production deployment, but must be
 performed manually for the demonstration.
 
-On the subject's device, start the [Serval Mesh][] app and check that it is
+On the subject's device, start the [SATNET][] app and check that it is
 switched OFF: the lower centre button on the main screen should have a dark
 background and the caption *Switch ON*.
 
 Ensure that the device has Internet access, either through a mobile 3G data
 plan (an installed SIM) or WiFi network access.
 
-In the *Serval Mesh* app main screen, press the centre *Share Files* button
+In the *SATNET* app main screen, press the centre *Share Files* button
 to go to the Share Files screen.
 
 On the Share Files screen, press the MENU button and a menu should pop up with
@@ -164,19 +159,19 @@ minute or two, depending on the speed of the phone's Internet access and the
 volume of logging since the last upload.  There is nothing to indicate that the
 upload is in progress or when it finishes, nor whether it succeeded or failed.
 
-Retrieve log files from Serval HQ
+Retrieve log files from the SATNET collection node
 ---------------------------------
 
 Choose a second Android device to retrieve the movement log files.  In a
-production deployment, this would be done using Serval software installed
+production deployment, this would be done using SATNET-compatible software installed
 directly on a Linux or Apple Mac workstation, but in this demo it is done
 using an Android device as intermediary.
 
 On the retrieval device, follow the same procedure as for sending logs to
-Serval HQ (above) but press the *Sync* button instead of *Push*.
+the SATNET collection node (above) but press the *Sync* button instead of *Push*.
 
 The device will download all the log files that it does not already have from
-Serval HQ.  This could take several seconds or up to a minute or two, depending
+the SATNET collection node.  This could take several seconds or up to a minute or two, depending
 on the speed of the device's Internet access and the volume of log files uploaded
 since the last retrieval.  There is nothing to indicate that the download is
 in progress or when it finishes, nor whether it succeeded or failed.  If it
@@ -227,39 +222,38 @@ Troubleshooting
 If no log files arrive at the second Android device, then check the following:
 
 1. Log files are being injected into Rhizome on the first Android device.  Go to
-   the Serval Mesh app main screen on the first device, select *Share Files* then
+   the SATNET app main screen on the first device, select *Share Files* then
    on the next screen press the *Find* button.  A list of files should appear,
    with names of the form `XXXXXX_Accelerometer_Gsensor_YYYYMMDD_HHMMSS.zip`.  Every
    time logging is started and stopped again, a new file should appear, with the
    current date and time in its name.  If no files appear, perhaps the
-   [Movement Sensor][] app was not installed *after* the [Serval Mesh][] app.
+   [Movement Sensor][] app was not installed *after* the [SATNET][] app.
    Un-install the [Movement Sensor][] app then install again.  Simply re-
    installing it without un-installing first may not resolve the problem.
 
-2. Log files are being uploaded from the first Android device to Serval HQ
+2. Log files are being uploaded from the first Android device to the SATNET collection node
    successfully.  If the device does not have an active mobile 3G data plan, then
-   this depends on WiFi access.  Check that the [Serval Mesh][] app is in OFF
-   state (the button at lower centre of the *Serval Mesh* main screen should
+   this depends on WiFi access.  Check that the [SATNET][] app is in OFF
+   state (the button at lower centre of the *SATNET* main screen should
    have a dark background and the caption *Switch ON*).  Check that the device's
    WiFi networking is on and associated to an access point.  Check that the device
    has a working internet connection.
 
-3. Log files are being downloaded from Serval HQ to the second Android device
+3. Log files are being downloaded from the SATNET collection node to the second Android device
    successfully.  Ensure that the device has a working internet connection by
    following the same steps described for the first device in the previous point.
 
 4. Once all the above checks pass, if log files still do not arrive at the second
-   Android device, seek the assistance of a senior developer from the [Serval
-   Project][].
+   Android device, seek the assistance of a senior developer from the SATNET
+   project.
 
 -----
-**Copyright 2013 Serval Project Inc.**  
+**Copyright 2013 original upstream authors; SATNET documentation refresh 2026.**  
 ![CC-BY-4.0](./cc-by-4.0.png)
 This document is available under the [Creative Commons Attribution 4.0 International licence][CC BY 4.0].
 
 
-[Serval Project]: http://www.servalproject.org/
-[Serval Mesh]: ../README.md
+[SATNET]: ../README.md
 [INSTALL.md]: ../INSTALL.md
 [batphone]: http://github.com/servalproject/batphone/
 [Movement Sensor]: https://github.com/servalproject/sensor-logger/

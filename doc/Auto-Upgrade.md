@@ -1,14 +1,14 @@
-Serval Mesh Auto Upgrade
-========================
-[Serval Project][], April 2017
+SATNET Auto Upgrade
+===================
+[SATNET][], refreshed April 2026
 
-This is description of the *Auto Upgrade* functionality of the [Serval Mesh][]
+This is description of the *Auto Upgrade* functionality of [SATNET][]
 app for Android.
 
-What is Serval Auto Upgrade?
+What is SATNET Auto Upgrade?
 ----------------------------
 
-Auto Upgrade is a feature of the [Serval Mesh][] app for Android which allows
+Auto Upgrade is a feature of the [SATNET][] app for Android which allows
 it to be upgraded to newer versions automatically, by distributing [APK][]
 files via [Rhizome][].  Rhizome is a store-and-forward file distribution
 service that uses strong cryptography for content protection and authentication
@@ -17,7 +17,7 @@ and does not depend on Internet connections or servers.
 Concept of operation
 --------------------
 
-The [APK][] file of every stable [release][] of [Serval Mesh][] is injected
+The [APK][] file of every stable [release][] of [SATNET][] is injected
 into [Rhizome][] as an update of a single, well-known Rhizome bundle.  This
 bundle's ID is built into the Batphone source code in the
 [gradle.properties](../gradle.properties) file as the property
@@ -26,15 +26,15 @@ bundle's ID is built into the Batphone source code in the
 [Rhizome][] disseminates the [APK][] files as widely as possible using Wi-Fi
 connections between nearby phones and [Mesh Extender][] devices where present.
 Every device receiving a newer [APK][] file prompts the user to upgrade the
-[Serval Mesh][] app to the new version.
+[SATNET][] app to the new version.
 
-Each installation of [Serval Mesh][] seeds its own Rhizome store with its own
+Each installation of [SATNET][] seeds its own Rhizome store with its own
 [APK][] file so that every new release has the best possible chance of reaching
 as many devices as possible via Rhizome.
 
 Rhizome's built-in cryptographic protection and authentication ensures that
-[Serval Mesh][] will only upgrade itself from an authentic, unmodified [APK][]
-that was created by the [Serval Project][].
+[SATNET][] will only upgrade itself from an authentic, unmodified [APK][]
+that was created by the project maintainers.
 
 Detailed description of operation
 ---------------------------------
@@ -59,11 +59,11 @@ Then the comment length is modified, and the manifest contents appended to the f
 
 Auto Upgrade works as follows:
 
- 1. A Serval Project senior developer performs a release build:
-     * The build script signs the release [APK][] file with the Serval
-       Project's Android release secret key.  This produces
+ 1. A project maintainer performs a release build:
+     * The build script signs the release [APK][] file with the project's
+       Android release secret key.  This produces
        `app-release.apk`.
-     * The build script invokes a native [Serval DNA][] executable, supplying
+     * The build script invokes a native [serval-dna][] executable, supplying
        the secret release key, to update the Rhizome release bundle to contain
        the newly built APK.  The update increases the [Rhizome bundle's version
        number](#rhizome-bundle-version-number), so that wherever the updated
@@ -97,19 +97,19 @@ Protection from attack
 ----------------------
 
 Were Auto Upgrade compromised, it would afford an attacker a powerful tool for
-installing and running trojan code on all devices that have [Serval Mesh][]
+installing and running trojan code on all devices that have [SATNET][]
 installed.
 
 To compromise Auto Upgrade, an attacker would either have to exploit a
 vulnerability (defect) in the Auto Upgrade or Rhizome code, steal all secret keys
-from the Serval Project, or circumvent the cryptosystem that Rhizome uses to
+from the project maintainers, or circumvent the cryptosystem that Rhizome uses to
 prevent modification of bundles as they are disseminated.
 
 The Auto Upgrade code in [Batphone][] is small and simple, and has been
 reviewed by senior developers, making it unlikely to contain any exploitable
 vulnerability or logic error.
 
-The Serval Project employ several layers of security to guard against
+The project maintainers employ several layers of security to guard against
 disclosure or theft of secret keys, involving physical security measures and
 encryption with passwords.
 
@@ -132,7 +132,7 @@ cryptosign algorithm (which is reasonably believed to be beyond the ability of
 most, possibly all agencies), or (b) to change the bundle ID, in which case the
 automatic upgrade would not be triggered.
 
-When building a release, if the secret Serval release key is not known, then a
+When building a release, if the secret project release key is not known, then a
 signed Rhizome manifest cannot be produced.  If a bundle is produced without a
 valid signature, then all Rhizome nodes will reject the bundle.
 
@@ -173,9 +173,9 @@ that the debug build APK did not find its way into wider distribution.  In
 practice, however, [Rhizome][] has been found to disseminate bundles with such
 obstinate tenacity that simply neglecting to wipe an SD Card, or turning on a
 phone at the wrong moment, or even a developer walking through the testing area
-with [Serval Mesh][] installed and running, could leak the unwanted [APK][]
+with [SATNET][] installed and running, could leak the unwanted [APK][]
 file to the world, which would wreak havoc with the user community and the
-[Serval Project][]'s reputation.
+project's reputation.
 
 To solve this problem, different Auto Upgrade bundles have been created to
 carry different grades of [APK][] files: *debug*, *development*, *alpha*, *beta* and
@@ -185,15 +185,15 @@ four should suffice for quite some time.
 The bundle IDs for *alpha*, *beta* and *release* are fixed and built into the
 the [release build][] system.  Changing any of them would break its respective
 chain of automatic upgrades, and all devices would have to be manually upgraded
-to the new version of [Serval Mesh][] in order to join the new chain of
+to the new version of [SATNET][] in order to join the new chain of
 upgrades with the new bundle ID.
 
 However, each individual developer can create a new bundle at any time to
 produce his or her own *debug* builds.  The Auto Upgrade chain for that bundle
 will be restricted to only debug [APK][] files built by that same developer, so
 it can safely be used to test the Auto Upgrade functions without any impact on
-other developers or the community of alpha and beta testers or stable [Serval
-Mesh][] users.
+other developers or the community of alpha and beta testers or stable [SATNET]
+users.
 
 Assumed knowledge
 -----------------
@@ -217,7 +217,7 @@ supplying this:
 
  1. configuring the Bundle Secret in the clear, or
 
- 2. using a private Serval keyring protected by a PIN (the same mechanism used
+ 2. using a private project keyring protected by a PIN (the same mechanism used
     by [release build][]).
 
 Normally, disclosure of the Bundle Secret is of no concern, since the only
@@ -265,7 +265,7 @@ If you configure an Auto Upgrade debug build using a Keyring and secret PIN,
 then only the BK need be configured in the clear (just like a [release
 build][]).  First, make a successful [debug build][].  Then:
 
- 1. Create a Serval keyring file at a known, private location (eg, on a USB
+ 1. Create a project keyring file at a known, private location (eg, on a USB
     flash drive or on an encrypted partition of your workstation), containing a
     single identity, optionally protected by a secret PIN, given as
     “lumberjack” in the following example (if you do not want a PIN, simply
@@ -298,7 +298,7 @@ build][]).  First, make a successful [debug build][].  Then:
         $
 
  3. Configure the new Bundle's author ([SID][]), ID and BK, along with the
-    location of the Serval keyring file, in your personal *gradle.properties* file:
+    location of the project keyring file, in your personal *gradle.properties* file:
 
         serval.keyring=/path/to/safe/directory/serval-debug.keyring
         debug.manifest.author=CA4B0F5D2AB0EB25B3D157FB2F6B69FC7D43AE885409E2A10A9A2E61AED30007
@@ -306,16 +306,15 @@ build][]).  First, make a successful [debug build][].  Then:
         debug.manifest.bk=A9679004CB839012A10ACABE639C03C6A7F34077D2A12D0B5554DA235BF1523E
 
 -----
-**Copyright 2013 Serval Project Inc.**  
+**Copyright 2013 original upstream authors; SATNET documentation refresh 2026.**  
 ![CC-BY-4.0](./cc-by-4.0.png)
 This document is available under the [Creative Commons Attribution 4.0 International licence][CC BY 4.0].
 
 
-[Serval Project]: http://www.servalproject.org/
-[Serval Mesh]: ../README.md
+[SATNET]: ../README.md
 [APK]: http://en.wikipedia.org/wiki/APK_(file_format)
 [Batphone]: ../README.md
-[Serval DNA]: https://github.com/servalproject/serval-dna
+[serval-dna]: https://github.com/servalproject/serval-dna
 [Rhizome]: http://developer.servalproject.org/dokuwiki/doku.php?id=content:tech:rhizome
 [Mesh Extender]: http://developer.servalproject.org/dokuwiki/doku.php?id=content:meshextender:
 [release]: http://developer.servalproject.org/dokuwiki/doku.php?id=content:servalmesh:release:

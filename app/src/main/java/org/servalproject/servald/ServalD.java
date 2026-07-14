@@ -1,27 +1,15 @@
-/**
- * Copyright (C) 2011 The Serval Project
- *
- * This file is part of Serval Software (http://www.servalproject.org)
- *
- * Serval Software is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/*
+ * SATNET maintenance note:
+ * This file is maintained as part of SATNET and builds on historical upstream work.
+ * Copyright (C) 2011 The Serval Project.
+ * Licensed under GPL-3.0-or-later; see LICENSE-SOFTWARE.md.
  */
 
 package org.servalproject.servald;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +19,8 @@ import android.os.PowerManager;
 import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
+
+import androidx.core.content.ContextCompat;
 
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
@@ -85,7 +75,7 @@ public class ServalD extends ServerControl implements IJniServer
 	}
 	public void updateStatus(String newStatus) {
 		status = newStatus;
-		Intent intent = new Intent(ACTION_STATUS);
+		Intent intent = new Intent(ACTION_STATUS).setPackage(context.getPackageName());
 		intent.putExtra(EXTRA_STATUS, newStatus);
 		context.sendBroadcast(intent);
 	}
@@ -276,7 +266,7 @@ public class ServalD extends ServerControl implements IJniServer
 		synchronized (receiver) {
 			wakeAt = 0;
 			if (!cpuLock.isHeld()) {
-				cpuLock.acquire();
+				acquireCpuWakeLock();
 			}
 			if(alarmIntent !=null) {
 				am.cancel(alarmIntent);
@@ -297,17 +287,28 @@ public class ServalD extends ServerControl implements IJniServer
 	}
 
 	private static final String WAKE_INTENT = "org.servalproject.WAKE";
+	private static final String WAKE_LOCK_TAG = "org.servalproject:servald";
 	private static final int SIGIO=29;
+
+	@SuppressLint("InvalidWakeLockTag")
+	private PowerManager.WakeLock createCpuWakeLock(PowerManager pm) {
+		return pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
+	}
+
+	@SuppressLint("WakelockTimeout")
+	private void acquireCpuWakeLock() {
+		cpuLock.acquire();
+	}
 
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// This should only occur if the CPU has suspended and we need to interrupt poll.
-			if (intent.getAction().equals(WAKE_INTENT)) {
+			if (WAKE_INTENT.equals(intent.getAction())) {
 				alarmIntent = null;
 				synchronized (receiver) {
 					if (cpuLock!= null && !cpuLock.isHeld()) {
-						cpuLock.acquire();
+						acquireCpuWakeLock();
 					}
 					if (wakeAt!=0) {
 						android.os.Process.sendSignal(serverTid, SIGIO);
@@ -323,8 +324,9 @@ public class ServalD extends ServerControl implements IJniServer
 		@Override
 		public void run() {
 			PowerManager.WakeLock lock = cpuLock;
-			Intent intent = new Intent(WAKE_INTENT);
-			PendingIntent pe = PendingIntent.getBroadcast(app, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			Intent intent = new Intent(WAKE_INTENT).setPackage(app.getPackageName());
+			PendingIntent pe = PendingIntent.getBroadcast(app, 0, intent,
+					PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
 			synchronized (receiver){
 				// last moment check that it is safe to release the lock
@@ -351,16 +353,15 @@ public class ServalD extends ServerControl implements IJniServer
 			serverTid = Process.myTid();
 			IntentFilter filter = new IntentFilter();
 			filter.addAction(WAKE_INTENT);
-			app.registerReceiver(receiver, filter);
+			ContextCompat.registerReceiver(app, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
 			PowerManager pm = (PowerManager) app
 					.getSystemService(Context.POWER_SERVICE);
 			if (am==null)
 				am = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
 
-			cpuLock = pm
-					.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Services");
+			cpuLock = createCpuWakeLock(pm);
 
-			cpuLock.acquire();
+			acquireCpuWakeLock();
 			Log.v(TAG, "Calling native method server()");
 			ServalDCommand.server(ServalD.this, "", null);
 

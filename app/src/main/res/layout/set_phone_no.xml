@@ -24,19 +24,38 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" 
-	android:layout_height="fill_parent">
+  android:layout_height="fill_parent"
+  android:background="@color/satnet_background">
 
 	<!-- Header -->
 
-	<include android:id="@+id/headerLayout" 
-	    layout="@layout/header_layout" />
+	<RelativeLayout
+	    android:id="@+id/headerLayout"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:background="@drawable/satnet_card_surface"
+	    android:padding="16dp">
+
+	    <include layout="@layout/header_layout" />
+
+	</RelativeLayout>
+
+	<!-- Divider -->
+
+	<View
+	    android:id="@+id/headerDivider"
+	    android:layout_width="match_parent"
+	    android:layout_height="1dp"
+	    android:layout_below="@id/headerLayout"
+	    android:background="@color/satnet_divider" />
 
 	<!-- Body -->
 
-	<RelativeLayout android:layout_width="fill_parent"
-                    android:layout_below="@+id/logot_image"
-		android:layout_height="fill_parent">
-		
+  <RelativeLayout android:layout_width="match_parent"
+                    android:layout_below="@id/headerDivider"
+		android:layout_marginTop="8dp"
+		android:layout_height="match_parent">
+
 	    <TextView android:id="@+id/setdetails_header"
             android:layout_alignParentTop="true"
 			style="@style/share_header"
@@ -45,7 +64,7 @@
 		<!-- Serval ID-->
           <TextView
               android:id="@+id/sidLabel"
-              style="@style/stext" 
+              style="@style/sttext"
               android:layout_below="@+id/setdetails_header"/>
           
           <TextView

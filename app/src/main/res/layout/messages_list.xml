@@ -20,7 +20,8 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:background="@color/black" >
 
     <!-- Header -->
 
@@ -34,18 +35,67 @@
             android:id="@+id/new_message_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/headerLayout"
             android:layout_centerHorizontal="true"
             android:text="@string/messages_list_header"
+            android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="5dp"/>
 
-    <ListView
-        android:id="@android:id/android:list"
-        style="@style/smessagelist"
+    <TextView
+        android:id="@+id/messages_list_intro_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/new_message_header"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="center"
+        android:text="@string/messages_list_intro"
+        android:textColor="#FFD6D6D6"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/messages_list_status"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/messages_list_intro_text"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:gravity="center"
+        android:text="@string/messages_list_status_default"
+        android:textColor="@color/grey"
+        android:textSize="13sp" />
+
+    <ListView
+        android:id="@android:id/list"
+        style="@style/smessagelist"
+        android:layout_below="@id/messages_list_status"
         android:divider="@color/green"
-        android:dividerHeight="2dp" />
+        android:dividerHeight="1dp"
+        android:listSelector="@android:color/transparent"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:scrollbarStyle="outsideInset" />
+
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/messages_list_status"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="center"
+        android:text="@string/messages_list_empty"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:lineSpacingExtra="4dp"
+        android:visibility="gone" />
 
 </RelativeLayout>

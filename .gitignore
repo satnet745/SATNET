@@ -1,6 +1,8 @@
-.gradle
+﻿.gradle
 /local.properties
+/release-signing.local.properties
 /.idea/workspace.xml
+/.idea/copilot*.xml
 .DS_Store
 /build
 /captures

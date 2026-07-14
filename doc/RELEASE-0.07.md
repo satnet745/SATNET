@@ -1,11 +1,11 @@
-Release Notes for Serval Mesh 0.07
+Release Notes for SATNET 0.07
 ----------------------------------
-[Serval Project][], 11 December 2011
+[SATNET][], historical release notes refreshed April 2026
 
-These notes accompany the release of version 0.07 of the [Serval Mesh][] app
+These notes accompany the release of version 0.07 of the [SATNET][] app
 for [Android 2.1 “Eclair”][] and above.  This release succeeds version 0.06.
 
-The following features and bug fixes have been added:
+The following historical upstream features and bug fixes were recorded for this release:
 
  * Allow for no routing engine (requires change to strings before appearing in
    UI)
@@ -68,9 +68,9 @@ The following features and bug fixes have been added:
    interlocks to prevent double running.
  * Fixed remaining missing checks on exiting from background activities in
    preparation wizard.
- * Added first step of NaCl native library access functions. Requires latest
-   serval-dna and building of libdnalib to work.
- * Modified makefile to handle NaCl-containing Serval DNA
+ * Added first step of NaCl native library access functions. Requires the latest
+   historical upstream `serval-dna` build and `libdnalib` to work.
+ * Modified makefile to handle NaCl-containing historical upstream `serval-dna`
  * NaCl native wrapping now reasonably sane, with a single class containing the
    native functions, and separate classes within that to wrap the calls.
  * Added experimental support for GT540 handset running CyanogenMod.
@@ -96,8 +96,8 @@ The following features and bug fixes have been added:
  * attempt at fixing the obsolete build.xml file issue.
  * added git sub-module initialisation to make first-time builds even easier.
  * Fixed ordering or NaCl preparation and ndk-build.
- * Incoropated latest serval-dna commit to fix build problem with some shells.
- * Totally disabled uploading of detection logs to serval server until we build
+ * Incoropated the latest upstream `serval-dna` commit to fix a build problem with some shells.
+ * Totally disabled uploading of detection logs to the historical upstream mesh server until we build
    out the very explicit means of asking the user for permission.
  * Added layout and activity for trying experimental chipsets.
  * Fixed display of chipset in auto-detect if there are multiple matches. Now
@@ -106,11 +106,11 @@ The following features and bug fixes have been added:
    so that in this case we always try the safe options before possibly jamming
    the kernel with a wrong module load, for example. This also deals with the
    problem of having stale invented support files laying around on reinstall.
- * wifi autodetect now informs user if wifi chipset is in a strange state, and
-   asks them to reboot, and then quits batphone completely.
+ * wifi autodetect now informs the user if the wifi chipset is in a strange state,
+   asks them to reboot, and then quits SATNET completely.
  * Removed some dead code. Fixed nasty quit-on-start bug in wifijammedactivity
    control.
- * Relaunching batphone after it realises the wifi is in a funny state now
+ * Relaunching SATNET after it realises the wifi is in a funny state now
    reminds the user to reboot their phone. This probably comes up sometimes
    when it doesn’t need to, because it doesn’t recheck that the wifi is in a
    funk. But it will do for now.
@@ -124,7 +124,7 @@ The following features and bug fixes have been added:
  * Issue 141 resolved.
  * fixed potential null pointer problem.
  * Rebuild DNA and Asterisk DNA plugin, hopefully incorporating the source
-   address bug fix committed to serval-dna.
+   address bug fix committed to upstream `serval-dna`.
  * Really fixed null-termination bug in asterisk module. Fixes issues 145, and
    probably 131 (to be confirmed).
  * Bug fix to broadcast address calculation.
@@ -133,7 +133,7 @@ The following features and bug fixes have been added:
  * Made BUILD.txt tolerant of trailing slash at end of path used to find adb.
  * Fixed a null pointer exception source.
  * More fixing of null pointer catching.
- * Added ARP table reading for Serval DNA and asterisk module (but not peer
+ * Added ARP table reading for upstream `serval-dna` and the asterisk module (but not peer
    list in java). Phones with screens off in client mode can now be called
    (although what happens when the arp table entries expire?)
  * added screen-off detection code to reset wifi , but stimied by bug 146,
@@ -146,7 +146,7 @@ The following features and bug fixes have been added:
  * Made experimental for now, since we need to update edify to work with it.
  * Added fancy dlsym() code to access `libhardware_legacy` if it is available.
  * updated to also rebuild adhoc/edify interpretor binary.
- * Changed default SSID from ServalProject.org to Mesh in line with
+ * Changed default SSID from the legacy `servalproject.org` value to Mesh in line with
    interoperability accord wth VillageTelco.org.
  * Generic chipset control script now works with updated adhoc/edify binary.
    But detection on installation is wonky for it.. Timing issue?
@@ -164,12 +164,12 @@ The following features and bug fixes have been added:
    iwconfig/iwstatus code might need root access to work reliabily/properly.
  * AP->Client and Client->AP calling now works. Generic chipset handler now
    works.
- * Pulled in latest serval-dna code for ARP table scraping debug improvements.
+ * Pulled in the latest upstream `serval-dna` code for ARP table scraping debug improvements.
  * Incorporated bug fixes to DNA reading of ARP table.
  * Incorporated ARP table parsing bug fixes in DNA and DNA Asterisk app.
- * Updated serval-dna with -m option for helping with diagnostics on root-less
+ * Updated upstream `serval-dna` with the `-m` option to help with diagnostics on root-less
    networks.
- * Force SSID from ServalProject.org -> Mesh on 0.06 -> 0.07 upgrade.
+ * Force SSID from the legacy `servalproject.org` value to Mesh on the 0.06 -> 0.07 upgrade.
  * Added new nowirelessextensions option to chipset detect script language. (It
    is needed for G1/HTC Dream compatibility, which is still being fixed).
  * Added checks into preparation wizard to ignore lack of wifi mode reading on
@@ -183,21 +183,20 @@ The following features and bug fixes have been added:
  * Made motorola droid/defy problems somewhat less bad. Install still hangs,
    but generic doesn’t get phone into infinite loop.
  * Disabled stop wifi on screen off in client mode.
- * Fixed null pointer in getting detected chipsets after force
-   close/restart/reboot of BatPhone.
+ * Fixed a null pointer in getting detected chipsets after force
+   close/restart/reboot of SATNET.
  * Add the translation for the first screen
  * Add SipDroid translations
  * Add the license translation — original license text stays in english
  * Add the stub for the somalian translation
 
 -----
-**Copyright 2011 Serval Project Inc.**  
+**Copyright 2011 original upstream authors; SATNET documentation refresh 2026.**  
 ![CC-BY-4.0](./cc-by-4.0.png)
 This document is available under the [Creative Commons Attribution 4.0 International licence][CC BY 4.0].
 
 
-[Serval Project]: http://www.servalproject.org/
-[Serval Mesh]: https://play.google.com/store/apps/details?id=org.servalproject
+[SATNET]: ../README.md
 [batphone]: https://github.com/servalproject/batphone
 [Android 2.1 “Eclair”]: http://developer.android.com/about/versions/android-2.1.html
 [CC BY 4.0]: ../LICENSE-DOCUMENTATION.md
